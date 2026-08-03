@@ -1,17 +1,17 @@
 # 进度追踪
 
 > 本文件由 Claude 在每次工作会话结束时更新；samuel 只读即可。状态：⬜ 未开始 / 🔵 进行中 / ✅ 完成 / ⏸ 等外部输入。
-> 最后更新：2026-08-03（方案阶段收尾，代码未开工）
+> 最后更新：2026-08-03（M0 本地部分完成）
 
 ## 当前状态一句话
 
-方案全部定稿（docs/00–08），等待开工 M0；无进行中任务。
+M0 本地部分完成（git main 分支、Astro 骨架构建通过）；下一步 M1 原型移植；M0 剩余的 GitHub/Workers Builds 接入等账号到位。
 
 ## 里程碑
 
 | # | 任务 | 状态 | 备注 |
 |---|---|---|---|
-| M0 | 仓库初始化（git init + GitHub 私有仓库 + Workers Builds 接入 + Astro 骨架 + 设计 token，push 即部署、workers.dev 可访问） | ⬜ | git-first（2026-08-03 定）；需 GitHub 账号可用 |
+| M0 | 仓库初始化（git init + GitHub 私有仓库 + Workers Builds 接入 + Astro 骨架 + 设计 token，push 即部署、workers.dev 可访问） | 🔵 | **本地部分已完成**（2026-08-03：git main + Astro 7 骨架 + tokens + 构建通过，commit c32f399）；剩 GitHub 仓库 + Workers Builds，等账号 |
 | M1 | 底座搭建：原型作底稿落进组件结构 + 按 docs/01 参照标准做视觉升级（token 化、Linear 式卡片、Anduril 式排版）——非照搬原型 | ⬜ | 原型在 ~/Downloads/arclink-interactive-prototype，仅作底稿 |
 | M2 | 双首屏变体（cobe globe + A+B 混合版 / 纯 B 版）→ 投票定稿 | ⬜ | timebox 3 天；需覆盖城市清单；执行防锚定机制（docs/01：B 独立起稿、先 B 后 A、外置评审标准） |
 | M3 | 表单链路端到端（Turnstile → 验证 → 存储 adapter → DirectMail + IM 告警） | ⬜ | 可与 M2 并行；存储用 adapter，工具未定不阻塞 |
@@ -38,6 +38,8 @@
 （当前为空——下一个决策点出现在 M2 末尾：双首屏变体投票）
 
 ## 会话日志（倒序，只记里程碑级变化）
+
+- **2026-08-03（M0 本地）**：git 仓库就位（main，两个 commit：docs / 骨架）；Astro 7.1.6 + React 19 + GSAP 3.15 + cobe 2.0.1 安装并构建通过；tokens.css 设计变量体系、Base 布局（防白闪 + reduced-motion）、占位首页、robots.txt（策略 A）、wrangler.jsonc 就绪。
 
 - **2026-08-03（补充）**：问答收口——存储定为**飞书多维表格**、告警定为**飞书群机器人**；域名购买中；Cloudflare/阿里云账号待注册。工程约定（token 化/组件分层/adapter/TS）写入 docs/02；M2 防锚定机制写入 docs/01。
 - **2026-08-03**：方案阶段完成。两轮+两次专项调研（设计参照/免后端/技术栈/部署/globe 参照/geo 同行/SEO-AEO），docs/00–08 全部定稿；存储定为多维表格直存（无数据库）、robots 定为全开放、发信定为 DirectMail。代码未开工。
