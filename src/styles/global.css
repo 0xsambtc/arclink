@@ -1,0 +1,42 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-text-on-light);
+  background: var(--color-surface);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+.shell {
+  width: min(var(--shell-max), calc(100% - var(--shell-gutter) * 2));
+  margin-inline: auto;
+}
+
+.eyebrow {
+  color: var(--color-accent-bright);
+  font-size: 13px;
+  letter-spacing: var(--tracking-eyebrow);
+  font-weight: 800;
+  text-transform: uppercase;
+  margin: 0 0 var(--space-5);
+}
+
+/* 无障碍：系统减弱动效时全局关闭（docs/02 约定；GSAP 侧另有 matchMedia 条件） */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

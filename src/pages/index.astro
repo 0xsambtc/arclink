@@ -1,0 +1,101 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site';
+---
+
+<Base>
+  <section class="hero">
+    <div class="shell">
+      <p class="eyebrow">{site.eyebrow}</p>
+      <h1>{site.headline}</h1>
+      <p class="description">{site.description}</p>
+      <div class="actions">
+        <a class="button button-primary" href="#contact">{site.ctaPrimary}</a>
+        <a class="button button-outline" href="#join">{site.ctaSecondary}</a>
+      </div>
+      <p class="note">M0 scaffold — sections land in M1</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    align-items: center;
+    color: var(--color-text-on-dark);
+    background: radial-gradient(
+      circle at 75% 40%,
+      var(--color-glow) 0,
+      var(--color-bg) 45%,
+      var(--color-bg-deep) 100%
+    );
+  }
+
+  h1 {
+    font-size: clamp(52px, 5.1vw, 78px);
+    line-height: 1.06;
+    letter-spacing: var(--tracking-tight);
+    margin: 0 0 var(--space-5);
+    max-width: 16ch;
+  }
+
+  .description {
+    font-size: 18px;
+    line-height: 1.85;
+    color: var(--color-text-muted-on-dark);
+    max-width: 610px;
+    margin: 0 0 var(--space-6);
+  }
+
+  .actions {
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 21px;
+    border-radius: var(--radius-sm);
+    font-weight: 650;
+    text-decoration: none;
+    transition:
+      transform var(--duration-fast) var(--ease-out),
+      box-shadow var(--duration-fast) var(--ease-out);
+  }
+
+  .button:hover {
+    transform: translateY(-2px);
+  }
+
+  .button-primary {
+    color: var(--color-text-on-dark);
+    background: linear-gradient(135deg, var(--color-accent-deep), var(--color-accent));
+    box-shadow: var(--glow-accent);
+  }
+
+  .button-primary:hover {
+    box-shadow: var(--glow-accent-strong);
+  }
+
+  .button-outline {
+    color: var(--color-text-on-dark);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .button-outline:hover {
+    border-color: var(--color-accent-bright);
+    background: rgba(37, 99, 235, 0.1);
+  }
+
+  .note {
+    margin-top: var(--space-8);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-text-muted-on-dark);
+    opacity: 0.6;
+  }
+</style>

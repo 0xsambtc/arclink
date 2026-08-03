@@ -1,0 +1,64 @@
+/* Arclink design tokens — 唯一的样式变量来源；组件只引用变量、禁止硬编码值（docs/02 工程约定） */
+:root {
+  /* 品牌三色体系（深海军蓝 + 电光蓝 + 白；获奖站配色纪律：不加第四色） */
+  --color-bg-deep: #01050d;
+  --color-bg: #030b1d;
+  --color-bg-navy: #06152e;
+  --color-bg-navy-alt: #081e43;
+  --color-glow: #082454;
+
+  --color-accent: #2563eb;
+  --color-accent-bright: #3478ff;
+  --color-accent-deep: #1767ff;
+
+  --color-surface: #ffffff;
+  --color-surface-alt: #f3f7ff;
+  --color-surface-tint: #eef5ff;
+
+  /* 文本 */
+  --color-text-on-light: #07152f;
+  --color-text-on-dark: #ffffff;
+  --color-text-muted-on-light: #61708b;
+  --color-text-muted-on-dark: #b9c3d5;
+  --color-text-soft-on-dark: #aab8cf;
+
+  /* 边线（深色下描边+内发光代替阴影 — Linear 模式） */
+  --color-border-on-light: #d8e2f2;
+  --color-border-on-dark: rgba(255, 255, 255, 0.08);
+
+  /* 字体 */
+  --font-sans: 'Inter Variable', Inter, ui-sans-serif, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --tracking-eyebrow: 0.17em;
+  --tracking-tight: -0.045em;
+
+  /* 布局 */
+  --shell-max: 1380px;
+  --shell-gutter: 36px;
+
+  /* 间距（4px 基） */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  /* 圆角 */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+
+  /* 动效 */
+  --duration-fast: 0.22s;
+  --duration-base: 0.3s;
+  --duration-reveal: 0.7s;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* 发光 */
+  --glow-accent: 0 10px 25px rgba(37, 99, 235, 0.25);
+  --glow-accent-strong: 0 15px 34px rgba(37, 99, 235, 0.4);
+}

@@ -1,0 +1,10 @@
+// Cloudflare Workers static assets 配置
+// 账号到位后由 Workers Builds（git 集成）或 `npx wrangler deploy`（逃生通道）使用，见 docs/06
+{
+  "name": "arclink-website",
+  "compatibility_date": "2026-08-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  }
+}

@@ -1,0 +1,7 @@
+# Arclink robots policy — 策略 A：全开放（含训练爬虫），见 docs/08
+# TODO: 域名到位后替换 Sitemap 行并取消注释
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# Sitemap: https://REPLACE-WITH-DOMAIN/sitemap-index.xml
