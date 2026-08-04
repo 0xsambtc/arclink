@@ -409,7 +409,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
 
       <figure class="fig fig-method" data-reveal>
         <div class="fig-body-method">
-          <svg viewBox="0 0 900 250" role="img" aria-label={t.aria.methodFig}>
+          <svg viewBox="0 78 900 156" role="img" aria-label={t.aria.methodFig}>
             <line class="method-base" x1="120" y1={methodY} x2="780" y2={methodY} aria-hidden="true" />
             {methodArcs.map((a) => (
               <g aria-hidden="true">
@@ -2162,21 +2162,13 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     max-width: none;
   }
 
-  /* 图版左出血：订进书脊轨，右缘收在 col 9 */
+  /* 图版留在版心内：左缘与正文同轴，不越过书脊轨 */
   .fig-method {
-    margin: var(--space-8) 25% 0 var(--bleed);
-    border-left: 0;
-  }
-
-  .fig-body-method,
-  .fig-method .fig-cap {
-    padding-left: max(var(--shell-gutter), calc((100vw - var(--shell-max)) / 2));
+    margin: var(--space-8) 0 0;
   }
 
   .fig-body-method {
-    padding-top: var(--space-6);
-    padding-right: var(--space-6);
-    padding-bottom: var(--space-4);
+    padding: var(--space-5) var(--space-6);
   }
 
   .fig-body-method svg {
