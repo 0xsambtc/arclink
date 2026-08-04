@@ -179,19 +179,42 @@ const industryRows = t.industries.items.map((it, i) => ({
 const buildDate = new Date().toISOString().slice(0, 10);
 // docs/11 定案2：打样台迁独立彩蛋页 —— colophon 行内 mono 链接进入（en→/proof，zh→/zh/proof）
 const proofHref = locale === 'zh' ? '/zh/proof' : '/proof';
-const globePayload = { cities: cities.map((c) => ({ lat: c.lat, lng: c.lng })) };
+// hero v3：payload 增补 code —— 拾取覆盖层按 DOM 顺序与 markers 一一对应（同源 cities 数组）
+const globePayload = { cities: cities.map((c) => ({ lat: c.lat, lng: c.lng, code: c.code })) };
 const heroStatus = `ARCLINK ANNUAL — SEC.00 / FRONTISPIECE · INIT ${fmtLat(cityByCode.SIN.lat)} ${fmtLng(cityByCode.SIN.lng)} · LINK UP · ${metrics.citiesCovered} NODES`;
-const defaultRecord = eventArcs.find((e) => e.utc === lastUtc)?.caption ?? eventArcs[0].caption;
 const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
+
+// —— hero v3 FIG.02 活体外业图版（评审修正 #2/#5/#6）——
+// 节点关联记录数（marker 读出条内容用：名称/CODE/坐标/记录数）
+const recordCount: Record<string, number> = {};
+events.forEach((e) => {
+  recordCount[e.from] = (recordCount[e.from] ?? 0) + 1;
+  recordCount[e.to] = (recordCount[e.to] ?? 0) + 1;
+});
+const nodeMarks = cityPts.map((p) => ({
+  ...p,
+  readout: `${p.name.toUpperCase()} — ${p.code} · ${fmtLat(p.lat)} ${fmtLng(p.lng)} · ${fmt(t.hero.nodeRecords, { m: recordCount[p.code] ?? 0 })}`,
+}));
+// 仪器格四角 mono 坐标 = 数据集的 lat/lng 极值（评审修正 #2：格是仪器，坐标是格的视野标定）
+const lats = cities.map((c) => c.lat);
+const lngs = cities.map((c) => c.lng);
+const plateCorners = {
+  tl: `${fmtLat(Math.max(...lats))} ${fmtLng(Math.min(...lngs))}`,
+  tr: `${fmtLat(Math.max(...lats))} ${fmtLng(Math.max(...lngs))}`,
+  bl: `${fmtLat(Math.min(...lats))} ${fmtLng(Math.min(...lngs))}`,
+  br: `${fmtLat(Math.min(...lats))} ${fmtLng(Math.max(...lngs))}`,
+};
+// 读出条无 JS 默认帧 = 最新记录（有 JS + 动效时被 4s is-live 轮转接管，评审修正 #6）
+const defaultEvent = eventArcs.find((e) => e.utc === lastUtc) ?? eventArcs[0];
+const defaultIdx = `R.${String(defaultEvent.i + 1).padStart(2, '0')}`;
+const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的默认帧沿用同一条最新记录
 ---
 
 <main id="main" class:list={['atlas', theme === 'paper' && 'theme-paper']}>
-  <!-- ============ SEC.00 / FRONTISPIECE — 整版字标图版（S2）+ 右上档案地球（S3 归档素材） ============ -->
+  <!-- ============ SEC.00 / FRONTISPIECE — 整版字标图版（S2）+ standfirst + FIG.02 活体外业图版（hero v3） ============ -->
   <section class="sec sec-hero" data-folio="00" data-secname="FRONTISPIECE">
     <div class="shell hero-shell">
       <p class="hero-status mono-caption"><span class="js-status">{heroStatus}</span></p>
-
-      <!-- 地球图版已移入 hero-bottom 右列（samuel 第一性 review：品牌刊名优先，图版归入下方数据轴） -->
 
       <!-- S2 整版字标图版：ARCLINK 巨字即 FIG.01，12 条真实交付弧线在字腔内部描画（clipPath 内 <text> 用页面 Inter，无需转曲） -->
       <figure class="hero-plate">
@@ -221,66 +244,103 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
         </figcaption>
       </figure>
 
-      <div class="hero-bottom grid-12">
-        <div class="hero-intro">
-          <p class="hero-deck">{t.hero.deck}</p>
-          <div class="hero-links">
-            <a class="hero-jump mono-caption" href="#coverage">{t.hero.jump}</a>
+      <!-- standfirst：deck 升字号 col 1-8 + SEC.03 跳转同基线行 col 10-12 右对齐（评审修正 #8） -->
+      <div class="hero-standfirst grid-12">
+        <p class="hero-deck">{t.hero.deck}</p>
+        <a class="hero-jump mono-caption" href="#coverage">{t.hero.jump}</a>
+      </div>
+
+      <!-- FIG.02 活体外业图版（hero v3）：图注头 + 左仪器格（cobe 球 + 投影 DOM 覆盖拾取）+
+           右日志 12 行等分 + 底缘读出条（跟随 4s 轮转 / 交互换帧）+ 骑 SEC.00/01 页界 48px。
+           无 JS：静态 SVG 平面图 + 完整日志可读；移动端：纵向堆叠，点日志行 → 读出条更新 -->
+      <figure class="live-plate">
+        <figcaption class="lp-head mono-caption">
+          <span>{fmt(t.press.liveplate, { n: metrics.citiesCovered })}</span>
+          <span>{fmt(t.press.markerNote, { n: metrics.citiesCovered })}</span>
+          <span>AS OF {metrics.asOf}</span>
+        </figcaption>
+        <div class="lp-body">
+          <!-- 左：仪器格 —— graticule chrome 铺满整格 + 四角坐标极值（评审修正 #2：矩形是对齐单位，球是格内读数） -->
+          <div class="lp-globe">
+            <span class="lp-corner lp-corner--tl mono-caption" aria-hidden="true">{plateCorners.tl}</span>
+            <span class="lp-corner lp-corner--tr mono-caption" aria-hidden="true">{plateCorners.tr}</span>
+            <span class="lp-corner lp-corner--bl mono-caption" aria-hidden="true">{plateCorners.bl}</span>
+            <span class="lp-corner lp-corner--br mono-caption" aria-hidden="true">{plateCorners.br}</span>
+            <div class="globe-box">
+              <div class="globe-wrap">
+                <canvas id="hero-globe" role="img" aria-label={fmt(t.aria.globe, { n: metrics.citiesCovered })}></canvas>
+              </div>
+              <svg class="hero-map-fallback" viewBox={viewBox} role="img" aria-label={fmt(t.aria.mapFallback, { n: metrics.citiesCovered })}>
+                <g aria-hidden="true">
+                  {gratLng.map((g) => (
+                    <line class="grat-line-dark" x1={g.x} y1={vb.y} x2={g.x} y2={vb.y + vb.h} />
+                  ))}
+                  {gratLat.map((g) => (
+                    <line class="grat-line-dark" x1={vb.x} y1={g.y} x2={vb.x + vb.w} y2={g.y} />
+                  ))}
+                </g>
+                {cityPts.map((p) => (
+                  <g transform={`translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`}>
+                    <circle class="fb-dot" r="3" />
+                    <text
+                      class="fb-label"
+                      x={labelPos[p.code].dx}
+                      y={labelPos[p.code].dy}
+                      text-anchor={labelPos[p.code].anchor}
+                    >
+                      {p.code}
+                    </text>
+                  </g>
+                ))}
+              </svg>
+              <!-- 拾取层（评审修正 #3）：12 个真实 <button> 覆盖点（22px 命中区 + 8px 视觉环），
+                   位置由投影函数逐帧写入；背面（z ≤ 0.12）隐藏；hover/focus 同一事件路径 -->
+              <div
+                class="globe-overlay"
+                role="group"
+                aria-label={fmt(t.aria.nodeGroup, { n: metrics.citiesCovered })}
+                data-cluster={t.hero.cluster}
+              >
+                {nodeMarks.map((p) => (
+                  <button type="button" class="node-btn" data-code={p.code} data-readout={p.readout} aria-label={`${t.aria.node}${p.record}`}>
+                    <span class="node-dot" aria-hidden="true"></span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <!-- 右：交付日志 —— 标题行 auto + 12 行 1fr 强制等高填满共享高 H（评审修正 #1：不齐在数学上不可能发生） -->
+          <div class="lp-log">
+            <p class="lp-log-title mono-caption">{t.hero.logTitle} ({events.length})</p>
+            <ol class="log-lines" aria-label={t.aria.log} style={`--lp-rows: ${events.length}`}>
+              {eventArcs.map((e) => (
+                <li class="log-line mono-caption">
+                  <button
+                    type="button"
+                    class="log-btn"
+                    data-idx={`R.${String(e.i + 1).padStart(2, '0')}`}
+                    data-readout={e.caption}
+                    data-from={e.from}
+                    data-to={e.to}
+                    aria-label={`${t.aria.record}${e.caption}`}
+                  >
+                    <span class="log-idx">R.{String(e.i + 1).padStart(2, '0')}</span>
+                    <span class="log-text">{e.short}</span>
+                  </button>
+                </li>
+              ))}
+            </ol>
           </div>
         </div>
-        <!-- FIG.02 地球档案图版：右列数据轴上件（懒加载/降级/原位归档+图章逻辑不变） -->
-        <figure class="hero-figure">
-          <div class="fig-frame-border" aria-hidden="true"></div>
-          <div class="fig-body-hero">
-            <div class="globe-wrap">
-              <canvas id="hero-globe" role="img" aria-label={fmt(t.aria.globe, { n: metrics.citiesCovered })}></canvas>
-            </div>
-            <svg class="hero-map-fallback" viewBox={viewBox} role="img" aria-label={fmt(t.aria.mapFallback, { n: metrics.citiesCovered })}>
-              <g aria-hidden="true">
-                {gratLng.map((g) => (
-                  <line class="grat-line-dark" x1={g.x} y1={vb.y} x2={g.x} y2={vb.y + vb.h} />
-                ))}
-                {gratLat.map((g) => (
-                  <line class="grat-line-dark" x1={vb.x} y1={g.y} x2={vb.x + vb.w} y2={g.y} />
-                ))}
-              </g>
-              {cityPts.map((p) => (
-                <g transform={`translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`}>
-                  <circle class="fb-dot" r="3" />
-                  <text
-                    class="fb-label"
-                    x={labelPos[p.code].dx}
-                    y={labelPos[p.code].dy}
-                    text-anchor={labelPos[p.code].anchor}
-                  >
-                    {p.code}
-                  </text>
-                </g>
-              ))}
-            </svg>
-          </div>
-          <figcaption class="hero-figcaption mono-caption">
-            <span>{fmt(t.press.globePlate, { n: metrics.citiesCovered })}</span>
-            <!-- QA修复 第2条：蓝点含义标注（mono 编号语言，双语共用） -->
-            <span>{fmt(t.press.markerNote, { n: metrics.citiesCovered })}</span>
-            <span>AS OF {metrics.asOf}</span>
-          </figcaption>
-          <!-- QA修复 第3条：归档图章原地盖在图框角；无 JS / 减动效 = 直接呈现终态（CSS rotate -4°） -->
-          <p class="archive-stamp mono-caption" aria-hidden="true">{fmt(t.press.stamp, { d: metrics.asOf })}</p>
-        </figure>
-        <!-- 插页构件：log 卡骑 SEC.00/01 页界（comp-print 胆量时刻②） -->
-        <aside class="hero-log tipped" aria-label={t.aria.log}>
-          <p class="hero-log-title mono-caption">{t.hero.logTitle} ({events.length})</p>
-          <ol class="log-lines">
-            {eventArcs.map((e) => (
-              <li class="log-line mono-caption" title={e.caption}>
-                <span class="log-idx">R.{String(e.i + 1).padStart(2, '0')}</span>
-                <span>{e.short}</span>
-              </li>
-            ))}
-          </ol>
-        </aside>
-      </div>
+        <!-- 底缘读出条：默认跟随 is-live 4s 轮转（评审修正 #6）；交互 120ms 淡入换帧；
+             右端归档图章位（v2 归档语法收进图版，滚动离开时 GSAP 盖下；无 JS / 减动效呈现终态） -->
+        <div class="lp-readout mono-caption">
+          <span class="lp-readout-label">{t.hero.readoutLabel}</span>
+          <span class="lp-readout-idx">{defaultIdx}</span>
+          <span class="lp-readout-main" aria-live="polite">{defaultEvent.caption}</span>
+          <p class="archive-stamp" aria-hidden="true">{fmt(t.press.stamp, { d: metrics.asOf })}</p>
+        </div>
+      </figure>
     </div>
   </section>
 
@@ -700,73 +760,385 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
 </script>
 
 <script>
-  // cobe globe：IntersectionObserver 懒初始化；移动端不初始化（CSS 显示静态 SVG 点阵）；
-  // reduced-motion：不旋转、markers 全量直接呈现。
+  // ============ FIG.02 LIVE FIELD PLATE 控制器（hero v3） ============
+  // cobe 球（视觉底）+ 投影 DOM 覆盖 <button> 拾取（评审修正 #3）+ 日志↔球双向联动 + 底缘读出条。
+  // 状态机（评审修正 #5）：IDLE(自转) / MARKER_LOCK(拾取冻结) / LOG_TWEEN(甩动) / RESUME_DELAY(800ms)。
+  // 移动端（≤760）不初始化球：静态 SVG + 点日志行 → 读出条；reduced-motion：静态帧，交互仅高亮 + 读出。
   import createGlobe from 'cobe';
+  import { gsap } from 'gsap';
 
-  const figure = document.querySelector('.hero-figure');
+  const plate = document.querySelector<HTMLElement>('.live-plate');
   const canvas = document.getElementById('hero-globe') as HTMLCanvasElement | null;
   const dataEl = document.getElementById('atlas-data');
+  const overlay = plate?.querySelector<HTMLElement>('.globe-overlay') ?? null;
+  const nodeBtns = Array.from(plate?.querySelectorAll<HTMLButtonElement>('.node-btn') ?? []);
+  const logBtns = Array.from(plate?.querySelectorAll<HTMLButtonElement>('.log-btn') ?? []);
+  const roIdx = plate?.querySelector<HTMLElement>('.lp-readout-idx') ?? null;
+  const roMain = plate?.querySelector<HTMLElement>('.lp-readout-main') ?? null;
+  // 无 JS 默认帧内容存底：reduced-motion（无轮转）下交互结束的回落帧
+  const roDefault = { idx: roIdx?.textContent ?? '', text: roMain?.textContent ?? '' };
 
-  if (figure && canvas && dataEl && !window.matchMedia('(max-width: 760px)').matches) {
-    const payload = JSON.parse(dataEl.textContent || '{"cities":[]}');
-    const markers = (payload.cities || []).map((c: { lat: number; lng: number }) => ({
-      location: [c.lat, c.lng] as [number, number],
-      size: 0.06,
-    }));
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // 读出条换帧：120ms 淡入 + 序号格 accent 闪一帧（评审修正 #9：hover 高频触发，禁打字机）
+  const writeReadout = (idx: string, text: string) => {
+    if (!roIdx || !roMain || (roMain.textContent === text && roIdx.textContent === idx)) return;
+    roIdx.textContent = idx;
+    roMain.textContent = text;
+    for (const el of [roIdx, roMain]) {
+      el.classList.remove('is-swap');
+      void el.offsetWidth; // 重启 CSS 换帧动画
+      el.classList.add('is-swap');
+    }
+  };
+  // GSAP 编排脚本的 4s is-live 轮转经此事件喂读出条默认帧（评审修正 #6）
+  document.addEventListener('lp:readout', (e) => {
+    const d = (e as CustomEvent<{ idx: string; text: string }>).detail;
+    if (!plate?.classList.contains('is-engaged')) writeReadout(d.idx, d.text);
+  });
+
+  const mobile = window.matchMedia('(max-width: 760px)').matches;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // 移动端降级（规格 D）：marker 拾取禁用，点日志行 → 读出条更新（读出条 sticky 于图版底缘）
+  if (mobile) {
+    logBtns.forEach((b) => {
+      b.addEventListener('click', () => writeReadout(b.dataset.idx ?? '', b.dataset.readout ?? ''));
+    });
+  }
+
+  if (plate && canvas && overlay && dataEl && nodeBtns.length && !mobile) {
+    const payload = JSON.parse(dataEl.textContent || '{"cities":[]}') as {
+      cities: { lat: number; lng: number; code: string }[];
+    };
+    const cities = payload.cities;
+    const byCode = new Map(cities.map((c, i) => [c.code, i]));
+
+    /* ============ 球面 → 屏幕投影（与 cobe 2.0.1 dist 内部严格同构） ============
+       cobe 内部管线（node_modules/cobe/dist/index.esm.js 的 U()/O()/W()，逐式抄录）：
+         单位球向量  U(lat,lng) = [cos(lat)·cos(lng), sin(lat), −cos(lat)·sin(lng)]
+         marker 实际半径 r = 0.8（球面 clip 半径）+ 0.05（markerElevation 默认）= 0.85
+         旋转（phi = 经向自转，theta = 纬向倾角）后的相机系坐标：
+           cx = cosφ·x + sinφ·z                        —— 屏幕横轴（clip，右为正）
+           cy = sinφ·sinθ·x + cosθ·y − cosφ·sinθ·z     —— 屏幕纵轴（clip，上为正）
+           cz = −sinφ·cosθ·x + sinθ·y + cosφ·cosθ·z    —— 视向深度（> 0 朝向观察者）
+         方形画布、offset=0 时归一化屏幕坐标：sx = (1 + cx·r·S)/2，sy = (1 − cy·r·S)/2（S = scale）
+       校准注记（评审修正 #4，实施前以 node 对 dist 源逐城实算复核）：
+         ① 官方 rotate-to 公式 φ_target = π − (lng·π/180 − π/2) = 3π/2 − lng 代入上式：
+            12 城 sx 全部 = 0.500000 且 cz > 0 —— 公式与着色器解析一致，直接采用；
+         ② 球体轮廓 clip 半径 0.8 → 轮廓像素直径 = 0.8·S·画布宽；S = 1.08 时轮廓约占画布 86%，
+            辉光（延伸至 clip ~0.92）恰好不裁边；
+         ③ SIN 居中时 SIN–KUL 屏距 10.7px @ 480px 画布 —— 簇规则（< 18px）覆盖 SIN/KUL，JKT(30px) 独立。 */
+    const TAU = Math.PI * 2;
+    const SPEED = 0.003; // IDLE 角速度 rad/frame（沿旧版）
+    const SCALE = 1.08; // cobe scale：格内读数感更足且辉光不裁边（校准注记②）
+    const R_MARK = 0.85; // marker 抬升半径（cobe 内部常数）
+    const Z_HIDE = 0.12; // 背面阈值：z ≤ 0.12 覆盖点隐藏（评审修正 #3）
+    const HIT = 22; // 命中半径 px
+    const HYST = 4; // 切换迟滞 px（评审修正 #5）
+    const CLUSTER = 18; // 簇判定屏距 px（评审修正 #5）
+    const norm = (a: number) => ((a % TAU) + TAU) % TAU;
+    const unit = cities.map((c) => {
+      const la = (c.lat * Math.PI) / 180;
+      const lo = (c.lng * Math.PI) / 180;
+      return [Math.cos(la) * Math.cos(lo), Math.sin(la), -Math.cos(la) * Math.sin(lo)];
+    });
+    const theta = 0.2;
+    const rot = { phi: 4.4 }; // gsap tween 载体；常态 mod 2π（评审修正 #4）
+    const spin = { v: 0 }; // 当前角速度（恢复自转时 400ms 缓入至 SPEED）
+    // 投影缓存：归一化屏幕坐标 + 视向深度
+    const sx = new Float64Array(cities.length);
+    const sy = new Float64Array(cities.length);
+    const zz = new Float64Array(cities.length);
+    const projectAll = () => {
+      const cp = Math.cos(rot.phi);
+      const sp = Math.sin(rot.phi);
+      const ct = Math.cos(theta);
+      const st = Math.sin(theta);
+      for (let i = 0; i < unit.length; i++) {
+        const [x, y, z] = unit[i];
+        zz[i] = -sp * ct * x + st * y + cp * ct * z;
+        sx[i] = (1 + (cp * x + sp * z) * R_MARK * SCALE) / 2;
+        sy[i] = (1 - (sp * st * x + ct * y - cp * st * z) * R_MARK * SCALE) / 2;
+      }
+    };
 
     const io = new IntersectionObserver(
       (entries) => {
-        if (!entries.some((e) => e.isIntersecting)) return;
+        if (!entries.some((en) => en.isIntersecting)) return;
         io.disconnect();
-        figure.classList.add('globe-on');
+        plate.classList.add('globe-on');
         const size = canvas.offsetWidth || 520;
-        let phi = 4.4;
+        let boxW = overlay.clientWidth || size;
+        let boxH = overlay.clientHeight || size;
+        window.addEventListener('resize', () => {
+          boxW = overlay.clientWidth || boxW;
+          boxH = overlay.clientHeight || boxH;
+        });
         const t0 = performance.now();
-        // 纸面主题：冷纸浅色地球（配色方案 A「NORTH PAPER」：暖米调 → 冷灰蓝调）；深色主题不变
+        // 纸面主题：冷纸浅色地球（配色方案 A「NORTH PAPER」）；深色主题不变（QA修复 第4条配色沿用）
         const paper = !!canvas.closest('.theme-paper');
+        const scales = cities.map(() => ({ v: 1 })); // 每城 marker 交互缩放（gsap tween 载体）
+        // 开机逐城生长沿旧版（age 起点 t0+900+i*260，600ms ease-out），到位后乘交互缩放，不消失
+        const buildMarkers = (now: number) =>
+          cities
+            .map((c, i) => {
+              const age = now - (t0 + 900 + i * 260);
+              const p = reduced ? 1 : age <= 0 ? 0 : Math.min(1, age / 600);
+              return { location: [c.lat, c.lng] as [number, number], size: 0.06 * (1 - Math.pow(1 - p, 3)) * scales[i].v };
+            })
+            .filter((m) => m.size > 0);
         const globe = createGlobe(canvas, {
           devicePixelRatio: 2,
           width: size * 2,
           height: size * 2,
-          phi,
-          theta: 0.2,
+          phi: rot.phi,
+          theta,
+          scale: SCALE,
           dark: paper ? 0 : 1,
           diffuse: 1.2,
           mapSamples: 16000,
-          // QA修复 第4条：暗色主题 mapBrightness 4→6、baseColor 提亮，球体轮廓在 #030b1d 上可辨（纸面不变）
           mapBrightness: paper ? 1.6 : 6,
           baseColor: paper ? [0.85, 0.87, 0.91] : [0.12, 0.18, 0.3],
           markerColor: paper ? [0.08, 0.49, 0.99] : [0.2, 0.47, 1],
           glowColor: paper ? [0.91, 0.93, 0.96] : [0.08, 0.16, 0.33],
-          markers: reduced ? markers : [],
+          markers: reduced ? buildMarkers(t0) : [],
         });
-        // cobe v2 无 onRender：自建 rAF 循环驱动旋转 + 开机序列逐城点亮（地面站 signature 1）
-        // QA修复 第2条：marker 不再按切片突现 —— 每颗点按自身 age 从 0 缓动生长到 0.06
-        // （约 600ms ease-out；age = now - (t0 + 900 + i*260)），到位后常驻、不消失
-        if (!reduced) {
-          const tick = () => {
-            phi += 0.003;
-            const now = performance.now();
-            globe.update({
-              phi,
-              markers: markers
-                .map((m: { location: [number, number]; size: number }, i: number) => {
-                  const age = now - (t0 + 900 + i * 260);
-                  const p = age <= 0 ? 0 : Math.min(1, age / 600);
-                  return { location: m.location, size: 0.06 * (1 - Math.pow(1 - p, 3)) };
-                })
-                .filter((m: { size: number }) => m.size > 0),
-            });
-            requestAnimationFrame(tick);
+
+        // 覆盖点逐帧落位：transform 平移（合成层，无 layout）；背面隐藏并退出 tab 序
+        let overlayReady = false;
+        const placeBtns = () => {
+          for (let i = 0; i < nodeBtns.length; i++) {
+            const b = nodeBtns[i];
+            b.style.transform = `translate(${(sx[i] * boxW - 11).toFixed(1)}px, ${(sy[i] * boxH - 11).toFixed(1)}px)`;
+            b.classList.toggle('is-back', zz[i] <= Z_HIDE);
+          }
+          if (!overlayReady) {
+            overlayReady = true;
+            overlay.classList.add('is-ready');
+          }
+        };
+
+        // —— 状态机（评审修正 #5）：任何新交互 kill 上一支 tween，抢占关系单点裁决 ——
+        type LpState = 'IDLE' | 'MARKER_LOCK' | 'LOG_TWEEN' | 'RESUME_DELAY';
+        let state: LpState = 'IDLE';
+        let activeMarker = -1; // 拾取锁定的城市 index
+        let activeLog: HTMLButtonElement | null = null;
+        let focusHeld = false; // 键盘 focus 持有期间指针判定不得抢占释放
+        let resumeTimer = 0;
+        let dwellTimer = 0;
+
+        const litLines = () => {
+          const code = activeMarker >= 0 ? cities[activeMarker].code : '';
+          logBtns.forEach((b) => {
+            const on = (code !== '' && (b.dataset.from === code || b.dataset.to === code)) || b === activeLog;
+            b.closest('.log-line')?.classList.toggle('is-lit', on);
+          });
+        };
+        const killMotion = () => {
+          gsap.killTweensOf(rot);
+          gsap.killTweensOf(spin);
+          spin.v = 0;
+          window.clearTimeout(dwellTimer);
+          window.clearTimeout(resumeTimer);
+        };
+        const setScale = (i: number, v: number) => {
+          if (reduced) scales[i].v = v;
+          else gsap.to(scales[i], { v, duration: 0.28, ease: 'power2.out', overwrite: true });
+        };
+        // 日志联动的两端 marker 放大脉冲（back.out 过冲即脉冲感），锁定期常驻 1.6×
+        const setScalePulse = (i: number) => {
+          if (reduced) scales[i].v = 1.6;
+          else gsap.to(scales[i], { v: 1.6, duration: 0.4, ease: 'back.out(2.2)', overwrite: true });
+        };
+        const clearLogScales = () => {
+          if (!activeLog) return;
+          const iF = byCode.get(activeLog.dataset.from ?? '') ?? -1;
+          const iT = byCode.get(activeLog.dataset.to ?? '') ?? -1;
+          if (iF >= 0) setScale(iF, 1);
+          if (iT >= 0) setScale(iT, 1);
+          activeLog = null;
+        };
+        // 密集群（SIN/KUL/JKT，校准注记③）：正面近邻 < 18px 计数 → 读出条簇显示（评审修正 #5）
+        const clusterText = (i: number) => {
+          let k = 0;
+          for (let j = 0; j < cities.length; j++) {
+            if (j === i || zz[j] <= Z_HIDE) continue;
+            if (Math.hypot((sx[j] - sx[i]) * boxW, (sy[j] - sy[i]) * boxH) < CLUSTER) k++;
+          }
+          if (!k) return null;
+          return (overlay.dataset.cluster ?? '{code} +{k}').replace('{code}', cities[i].code).replace('{k}', String(k));
+        };
+
+        const engageMarker = (i: number) => {
+          if (activeMarker === i && state === 'MARKER_LOCK') return;
+          killMotion();
+          clearLogScales();
+          if (activeMarker >= 0 && activeMarker !== i) setScale(activeMarker, 1);
+          activeMarker = i;
+          state = 'MARKER_LOCK'; // 拾取 → rotation 暂停（phi 冻结）
+          plate.classList.add('is-engaged');
+          setScale(i, 1.6); // 命中 marker 放大 1.6×（规格 A）
+          nodeBtns.forEach((b, j) => b.classList.toggle('is-active', j === i));
+          litLines(); // 含该城市的日志行 .is-lit
+          writeReadout(cities[i].code, clusterText(i) ?? nodeBtns[i].dataset.readout ?? '');
+          if (reduced) render();
+        };
+
+        const engageLog = (btn: HTMLButtonElement) => {
+          if (activeLog === btn) return;
+          killMotion();
+          clearLogScales();
+          if (activeMarker >= 0) {
+            setScale(activeMarker, 1);
+            nodeBtns[activeMarker].classList.remove('is-active');
+            activeMarker = -1;
+          }
+          activeLog = btn;
+          state = 'LOG_TWEEN';
+          plate.classList.add('is-engaged');
+          litLines();
+          writeReadout(btn.dataset.idx ?? '', btn.dataset.readout ?? '');
+          const iF = byCode.get(btn.dataset.from ?? '') ?? -1;
+          const iT = byCode.get(btn.dataset.to ?? '') ?? -1;
+          if (iF >= 0) setScalePulse(iF);
+          if (iT >= 0) setScalePulse(iT);
+          if (reduced) {
+            render(); // reduced-motion：仅高亮 + 读出，不 tween 旋转（规格 C）
+            return;
+          }
+          // 120ms dwell 后才发甩动 —— 快速扫过 12 行不触发 12 支 tween（评审修正 #5）
+          dwellTimer = window.setTimeout(() => {
+            if (activeLog !== btn || iF < 0) return;
+            // 目标角 = cobe 官方 rotate-to（校准注记①）；phi 常态 mod 2π + 最短弧（评审修正 #4）
+            const target = norm(1.5 * Math.PI - (cities[iF].lng * Math.PI) / 180);
+            rot.phi = norm(rot.phi);
+            const delta = ((((target - rot.phi + Math.PI) % TAU) + TAU) % TAU) - Math.PI;
+            gsap.to(rot, { phi: rot.phi + delta, duration: 0.9, ease: 'power2.out', overwrite: true });
+          }, 120);
+        };
+
+        // 交互移出 → RESUME_DELAY 800ms 后恢复自转（0 → SPEED 400ms 速度缓入，评审修正 #4）
+        const release = () => {
+          window.clearTimeout(dwellTimer);
+          if (activeMarker >= 0) {
+            setScale(activeMarker, 1);
+            nodeBtns[activeMarker].classList.remove('is-active');
+            activeMarker = -1;
+          }
+          clearLogScales();
+          litLines();
+          if (reduced) {
+            state = 'IDLE';
+            plate.classList.remove('is-engaged');
+            restoreLive();
+            render();
+            return;
+          }
+          state = 'RESUME_DELAY';
+          window.clearTimeout(resumeTimer);
+          resumeTimer = window.setTimeout(() => {
+            state = 'IDLE';
+            plate.classList.remove('is-engaged');
+            restoreLive();
+            gsap.to(spin, { v: SPEED, duration: 0.4, ease: 'power1.in', overwrite: true });
+          }, 800);
+        };
+        // 恢复后读出条立即回到当前 is-live 轮转行（reduced-motion 无轮转时回落最新记录帧）
+        const restoreLive = () => {
+          const liveBtn = plate.querySelector<HTMLElement>('.log-line.is-live .log-btn');
+          if (liveBtn) writeReadout(liveBtn.dataset.idx ?? '', liveBtn.dataset.readout ?? '');
+          else writeReadout(roDefault.idx, roDefault.text);
+        };
+
+        // —— 指针拾取：最近者胜 + 4px 迟滞；命中判定在 rAF 内逐帧执行 ——
+        // （评审 A 缺陷①的修复：球转到静止指针下同样命中 / 转离同样脱离）
+        let px = -1;
+        let py = -1;
+        let pointerIn = false;
+        overlay.addEventListener('pointermove', (e) => {
+          const r = overlay.getBoundingClientRect(); // 实时框：归档收缩 scale 后比例自动正确（评审 C）
+          px = (e.clientX - r.left) / r.width;
+          py = (e.clientY - r.top) / r.height;
+          pointerIn = true;
+          if (reduced) resolvePointer(); // 静态帧下无 rAF，命中判定跟随 pointermove
+        });
+        overlay.addEventListener('pointerleave', () => {
+          pointerIn = false;
+          if (!focusHeld && state === 'MARKER_LOCK') release();
+        });
+        const resolvePointer = () => {
+          if (!pointerIn || focusHeld || state === 'LOG_TWEEN') return;
+          let best = -1;
+          let bestD = Infinity;
+          for (let i = 0; i < cities.length; i++) {
+            if (zz[i] <= Z_HIDE) continue;
+            const d = Math.hypot((sx[i] - px) * boxW, (sy[i] - py) * boxH);
+            if (d < bestD) {
+              best = i;
+              bestD = d;
+            }
+          }
+          // 迟滞：已锁定目标仍在命中区附近且新目标未近出 4px → 保持，防 SIN/KUL 抖动（评审修正 #5）
+          if (activeMarker >= 0 && best !== activeMarker && zz[activeMarker] > Z_HIDE) {
+            const dCur = Math.hypot((sx[activeMarker] - px) * boxW, (sy[activeMarker] - py) * boxH);
+            if (dCur <= HIT + HYST && bestD >= dCur - HYST) return;
+          }
+          if (bestD <= HIT) {
+            if (best !== activeMarker) engageMarker(best);
+          } else if (activeMarker >= 0 && state === 'MARKER_LOCK') {
+            release();
+          }
+        };
+
+        // 键盘可达：覆盖点 focus = 拾取，日志行 focus = 联动 —— 与 hover 同一事件路径（评审修正 #3）
+        nodeBtns.forEach((b, i) => {
+          b.addEventListener('focus', () => {
+            focusHeld = true;
+            engageMarker(i);
+          });
+          b.addEventListener('blur', () => {
+            focusHeld = false;
+            if (state === 'MARKER_LOCK') release();
+          });
+        });
+        logBtns.forEach((b) => {
+          const off = () => {
+            if (activeLog === b) release();
           };
-          requestAnimationFrame(tick);
+          b.addEventListener('mouseenter', () => engageLog(b));
+          b.addEventListener('mouseleave', off);
+          b.addEventListener('focus', () => {
+            focusHeld = true;
+            engageLog(b);
+          });
+          b.addEventListener('blur', () => {
+            focusHeld = false;
+            off();
+          });
+        });
+
+        const render = () => {
+          projectAll();
+          globe.update({ phi: rot.phi, markers: buildMarkers(performance.now()) });
+          placeBtns();
+        };
+
+        if (reduced) {
+          // 静态帧：一次投影落位；后续交互仅触发单次 render（高亮 + 读出，无旋转）
+          render();
+          return;
         }
+        const tick = () => {
+          if (state === 'IDLE') rot.phi = norm(rot.phi + spin.v);
+          render();
+          resolvePointer();
+          requestAnimationFrame(tick);
+        };
+        spin.v = SPEED;
+        requestAnimationFrame(tick);
       },
       { rootMargin: '160px' }
     );
-    io.observe(figure);
+    io.observe(plate);
   }
 </script>
 
@@ -811,28 +1183,42 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
       }
     }
 
-    // globe 图版浮现（QA修复 第3条：入场改作用于整只 figure —— 原位归档的收缩单独作用 .fig-body-hero，两支 tween 不抢同一元素）
-    gsap.set('.hero-figure', { opacity: 0, scale: 0.96 });
-    gsap.to('.hero-figure', { opacity: 1, scale: 1, duration: 1.1, ease: 'power2.out', delay: 0.8 });
+    // FIG.02 活体图版浮现（入场作用于整只 figure；原位归档的收缩单独作用 .lp-body，两支 tween 不抢同一元素）
+    gsap.set('.live-plate', { opacity: 0, scale: 0.98 });
+    gsap.to('.live-plate', { opacity: 1, scale: 1, duration: 1.1, ease: 'power2.out', delay: 0.8 });
 
-    // 标语与跳转
-    gsap.set(['.hero-deck', '.hero-links'], { opacity: 0, y: 18 });
-    gsap.to(['.hero-deck', '.hero-links'], { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', stagger: 0.12, delay: 1.5 });
+    // standfirst：deck 与同基线行的 SEC.03 跳转
+    gsap.set(['.hero-deck', '.hero-jump'], { opacity: 0, y: 18 });
+    gsap.to(['.hero-deck', '.hero-jump'], { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', stagger: 0.12, delay: 1.5 });
 
-    // 右侧 log 逐行追加 + 每 4s 轮转高亮（唯一不停的元素：ticker 本体是数据）
-    const logTitle = document.querySelector('.hero-log-title');
+    // 日志逐行追加 + 每 4s 轮转高亮（唯一不停的元素：ticker 本体是数据）；
+    // hero v3（评审修正 #6）：读出条默认跟随轮转行（经 lp:readout 事件喂给图版控制器），
+    // 交互期间（.live-plate.is-engaged）轮转暂停，RESUME_DELAY 结束后恢复
+    const logTitle = document.querySelector('.lp-log-title');
     const lines = gsap.utils.toArray<HTMLElement>('.log-line');
+    const plateEl = document.querySelector<HTMLElement>('.live-plate');
     if (logTitle && lines.length) {
       gsap.set(logTitle, { opacity: 0 });
       gsap.to(logTitle, { opacity: 1, duration: 0.4, delay: 1.3 });
       gsap.set(lines, { opacity: 0, x: 14 });
       gsap.to(lines, { opacity: 1, x: 0, duration: 0.45, ease: 'power2.out', stagger: 0.28, delay: 1.4 });
       let live = 0;
+      const feedReadout = () => {
+        const btn = lines[live].querySelector<HTMLElement>('.log-btn');
+        if (btn) {
+          document.dispatchEvent(
+            new CustomEvent('lp:readout', { detail: { idx: btn.dataset.idx ?? '', text: btn.dataset.readout ?? '' } })
+          );
+        }
+      };
       lines[0].classList.add('is-live');
+      feedReadout();
       const cycle = window.setInterval(() => {
+        if (plateEl?.classList.contains('is-engaged')) return; // 交互期间暂停轮转（评审修正 #6）
         lines[live].classList.remove('is-live');
         live = (live + 1) % lines.length;
         lines[live].classList.add('is-live');
+        feedReadout();
       }, 4000);
       cleanups.push(() => window.clearInterval(cycle));
     }
@@ -932,12 +1318,12 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     return () => cleanups.forEach((fn) => fn());
   });
 
-  // S3「原位归档」v3（QA修复 第3条）：跨节 FLIP 与 SEC.01 槽位删除 ——
-  // 滚动离开 hero 时地球图版在原图框内收缩至 0.92 + ARCHIVED 图章原地盖下（保留原 1.3→1 / -6°→-4° 图章动效）；
-  // hero 其余元素（LOG 面板 / hero 描述）不再淡至 0.16，全程全透明度可读；
+  // S3「原位归档」hero v3：滚动离开 hero 时图版主体两栏（.lp-body）收缩至 0.92 +
+  // ARCHIVED 图章在读出条右端盖下（保留原 1.3→1 / -6°→-4° 图章动效）。
+  // 评审修正 #7：收缩仅作用 .lp-body —— 图注头 / 读出条 / 外框不缩，骑线对齐在滚动中不破裂；
   // 全程 transform/opacity；无 JS / 减动效时图章直接呈现 CSS 终态、图版不缩
   mm.add('(prefers-reduced-motion: no-preference) and (min-width: 761px)', () => {
-    const bodyEl = document.querySelector<HTMLElement>('.fig-body-hero');
+    const bodyEl = document.querySelector<HTMLElement>('.lp-body');
     const stampEl = document.querySelector<HTMLElement>('.archive-stamp');
     if (!bodyEl || !stampEl) return;
 
@@ -1025,7 +1411,7 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     background-repeat: no-repeat;
   }
 
-  /* 「插页」构件（tipped-in plate）：第二纸种 + 微倾 —— 全站 3 处（hero log / 覆盖台 / CTA 回函卡） */
+  /* 「插页」构件（tipped-in plate）：第二纸种 + 微倾 —— 全站 2 处（覆盖台 / CTA 回函卡；hero log 已并入 FIG.02 活体图版） */
   .tipped {
     position: relative;
     background: var(--color-bg-deep);
@@ -1142,16 +1528,15 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     color: var(--color-text-muted-on-dark);
   }
 
-  /* ============ SEC.00 HERO — 整版字标图版（S2）+ 档案地球（缺陷3：字标压图，不再避让） ============ */
+  /* ============ SEC.00 HERO v3 — 整版字标图版（S2）+ standfirst + FIG.02 活体外业图版 ============
+     评审修正 #10 落地注记：本 hero 定位 = 止损 + 录屏帧；SOTD 主攻在 S1/S4/S5，后续不再往球上加注 */
   .sec-hero {
     padding: 0;
   }
 
   .hero-shell {
     position: relative;
-    display: flex;
-    flex-direction: column;
-    min-height: 100svh;
+    /* 评审裁决（D 节）：min-height 100svh 删除 —— 内容自身高度即版面高度，不留空腔 */
     padding: var(--space-5) 0 0;
   }
 
@@ -1161,110 +1546,7 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     color: var(--color-text-muted-on-dark);
   }
 
-  /* cobe 降级为右上小型档案图版；QA修复 第3条：归档飞行删除，z 回落 1 —— 字标（z2）按缺陷3意图压回球体 */
-  .hero-figure {
-    /* samuel 第一性 review：刊名优先、无强制接触 —— 图版落 hero-bottom 右列，与 log 构成右侧数据轴 */
-    position: relative;
-    z-index: 1;
-    grid-column: 8 / 13;
-    justify-self: end;
-    width: min(100%, 340px);
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    will-change: transform;
-  }
-
-  .fig-frame-border {
-    position: absolute;
-    inset: 0;
-    border: 1px solid var(--hairline);
-    pointer-events: none;
-  }
-
-  .fig-body-hero {
-    aspect-ratio: 1 / 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    /* QA修复 第4条：暗色主题给球体一块 navy 面板底 + hairline 图框（.fig-frame-border），
-       轮廓不再溶进 #030b1d（纸面主题在主题区归零） */
-    background: var(--color-bg-navy);
-    will-change: transform; /* QA3 原位归档收缩载体 */
-  }
-
-  .globe-wrap {
-    display: none;
-    width: 100%;
-    height: 100%;
-  }
-
-  .globe-wrap canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-
-  .hero-figure.globe-on .globe-wrap {
-    display: block;
-  }
-
-  .hero-map-fallback {
-    display: block;
-    width: 92%;
-    height: auto;
-  }
-
-  .hero-figure.globe-on .hero-map-fallback {
-    display: none;
-  }
-
-  .hero-figcaption {
-    display: flex;
-    justify-content: space-between;
-    gap: var(--space-2) var(--space-4);
-    flex-wrap: wrap; /* QA2：caption 增至三条 mono 标注，小图框内允许折行 */
-    order: -1; /* 图注移至图版上缘（印刷图头），让出下缘的咬合区 */
-    border-bottom: 1px solid var(--hairline);
-    padding: var(--space-3) var(--space-4);
-    color: var(--color-text-muted-on-dark);
-  }
-
-  /* QA修复 第3条：归档图章 —— 原 slot-stamp 移到 hero 图框角；无 JS / 减动效直接呈现终态（rotate -4°），
-     动效路径由 GSAP 以 opacity 0 / 1.3 / -6° 起始、随滚动盖下 */
-  .archive-stamp {
-    position: absolute;
-    top: -14px;
-    right: -12px;
-    z-index: 5;
-    margin: 0;
-    padding: 5px 10px;
-    border: 1.5px solid var(--color-accent-bright);
-    background: var(--color-bg);
-    color: var(--color-accent-bright);
-    letter-spacing: 0.08em;
-    white-space: nowrap;
-    transform: rotate(-4deg);
-  }
-
-  .grat-line-dark {
-    stroke: var(--hairline);
-    stroke-width: 0.75;
-  }
-
-  .fb-dot {
-    fill: var(--color-accent-bright);
-  }
-
-  .fb-label {
-    fill: var(--color-text-muted-on-dark);
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.04em;
-  }
-
-  /* S2 字标图版：ARCLINK 巨字 = FIG.01（缺陷3修复：K/N 末字压进球体左下 1/3，z2 压 z1） */
+  /* S2 字标图版：ARCLINK 巨字 = FIG.01 */
   .hero-plate {
     position: relative;
     z-index: 2;
@@ -1335,28 +1617,25 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     color: var(--color-text-muted-on-dark);
   }
 
-  .hero-bottom {
-    position: relative;
-    z-index: 2;
-    align-items: end;
-    margin-top: auto;
-    padding-top: var(--space-8);
-    row-gap: var(--space-6);
-  }
-
-  .hero-intro {
-    grid-column: 1 / 6;
+  /* —— standfirst：两块 monumental 图版之间的引言行（评审修正 #8：升字号、上疏下密耦合 FIG.02） —— */
+  .hero-standfirst {
+    align-items: baseline;
+    margin: var(--space-7) 0 var(--space-5);
   }
 
   .hero-deck {
-    margin: 0 0 var(--space-5);
-    max-width: 46ch;
-    font-size: var(--lede-size);
-    line-height: 1.6;
+    grid-column: 1 / 9;
+    margin: 0;
+    max-width: 52ch;
+    font-size: clamp(1.375rem, 1.9vw, 1.625rem);
+    line-height: 1.5;
     color: var(--color-text-muted-on-dark);
   }
 
+  /* SEC.03 跳转与 deck 同基线行 col 10-12 右对齐（评审：行尾追加 = 半空行，否决） */
   .hero-jump {
+    grid-column: 10 / 13;
+    justify-self: end;
     color: var(--color-accent-bright);
     text-decoration: none;
     border-bottom: 1px solid rgba(52, 120, 255, 0.45);
@@ -1368,16 +1647,198 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     border-color: var(--color-accent-bright);
   }
 
-  /* log 插页骑 SEC.00/01 页界（comp-print 胆量时刻②）：负 margin 压过节界，SEC.01 --sec-pt 留身位 */
-  .hero-log {
-    grid-column: 8 / 13;
+  /* ============ FIG.02 活体外业图版：全宽图版框，骑 SEC.00/01 页界 48px（插页咬合语义） ============ */
+  .live-plate {
+    /* 主体共享高 H（评审修正 #1 放行条件）：两格同高，底缘由数学锁死 */
+    --lp-h: clamp(440px, 56vh, 560px);
+    position: relative;
     z-index: 3;
-    margin-bottom: calc(-1 * var(--space-8));
-    padding: var(--space-4) var(--space-5);
+    margin: 0 0 -48px;
+    border: 1px solid var(--hairline);
+    background: var(--color-bg);
   }
 
-  .hero-log-title {
-    margin: 0 0 var(--space-2);
+  /* 图注头（caption row）：FIG.02 标题 · marker 口径 · AS OF —— hairline 下缘 */
+  .lp-head {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--hairline);
+    padding: var(--space-3) var(--space-4);
+    color: var(--color-text-muted-on-dark);
+  }
+
+  /* 主体两栏 57/43，中缝 hairline；归档收缩仅作用此载体（评审修正 #7） */
+  .lp-body {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 3fr);
+    height: var(--lp-h);
+    will-change: transform;
+  }
+
+  /* —— 左：仪器格（评审修正 #2）—— graticule chrome 铺满整格（零 JS），
+     矩形是对齐单位，球是格内的仪表读数；QA4 的 navy 面板底沿用（纸面主题在主题区归零） */
+  .lp-globe {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-color: var(--color-bg-navy);
+    background-image:
+      repeating-linear-gradient(
+        to right,
+        color-mix(in srgb, var(--hairline) 70%, transparent) 0 1px,
+        transparent 1px 64px
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--hairline) 70%, transparent) 0 1px,
+        transparent 1px 64px
+      );
+  }
+
+  /* 四角 mono 坐标标注：数据集 lat/lng 极值（同 .fb-label 的 9px mono 规格） */
+  .lp-corner {
+    position: absolute;
+    z-index: 2;
+    color: var(--color-text-muted-on-dark);
+    font-size: 0.5625rem;
+    letter-spacing: 0.04em;
+    pointer-events: none;
+  }
+
+  .lp-corner--tl { top: var(--space-3); left: var(--space-4); }
+  .lp-corner--tr { top: var(--space-3); right: var(--space-4); }
+  .lp-corner--bl { bottom: var(--space-3); left: var(--space-4); }
+  .lp-corner--br { bottom: var(--space-3); right: var(--space-4); }
+
+  /* 球径公式（评审修正 #2）：min(92% 格宽, H − 24px)；900px 视口 ≈ 480px（≥440 红线） */
+  .globe-box {
+    position: relative;
+    width: min(92%, calc(var(--lp-h) - 24px));
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .globe-wrap {
+    position: absolute;
+    inset: 0;
+    display: none;
+  }
+
+  .globe-wrap canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .live-plate.globe-on .globe-wrap {
+    display: block;
+  }
+
+  /* 无 JS / 懒加载前：静态 SVG 平面图占据球位（降级机制迁入，规格 C） */
+  .hero-map-fallback {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .live-plate.globe-on .hero-map-fallback {
+    display: none;
+  }
+
+  .grat-line-dark {
+    stroke: var(--hairline);
+    stroke-width: 0.75;
+  }
+
+  .fb-dot {
+    fill: var(--color-accent-bright);
+  }
+
+  .fb-label {
+    fill: var(--color-text-muted-on-dark);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.04em;
+  }
+
+  /* —— 拾取层（评审修正 #3）：投影 DOM 覆盖 button，22px 命中区 + 8px 视觉环 —— */
+  .globe-overlay {
+    position: absolute;
+    inset: 0;
+    display: none;
+  }
+
+  .live-plate.globe-on .globe-overlay {
+    display: block;
+  }
+
+  /* 首帧投影落位前不可见，防 (0,0) 闪现 */
+  .globe-overlay:not(.is-ready) .node-btn {
+    visibility: hidden;
+  }
+
+  .node-btn {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    will-change: transform;
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+
+  .node-btn .node-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid var(--color-accent-bright);
+    transition:
+      background-color var(--duration-fast) var(--ease-out),
+      transform var(--duration-fast) var(--ease-out);
+  }
+
+  .node-btn.is-active .node-dot {
+    background: var(--color-accent-bright);
+    transform: scale(1.3);
+  }
+
+  .node-btn:focus-visible {
+    outline: 1px solid var(--color-accent-bright);
+    outline-offset: 2px;
+  }
+
+  /* 背面（z ≤ 0.12）：隐藏 + 退出 tab 序 + 不可命中 */
+  .node-btn.is-back {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  /* —— 右：日志格（评审修正 #1）—— 标题行 auto + 12 行 1fr 强制等高填满 —— */
+  .lp-log {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    border-left: 1px solid var(--hairline);
+  }
+
+  .lp-log-title {
+    margin: 0;
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--hairline);
     color: var(--color-text-muted-on-dark);
   }
 
@@ -1385,32 +1846,147 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     list-style: none;
     margin: 0;
     padding: 0;
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: repeat(var(--lp-rows, 12), minmax(0, 1fr));
   }
 
   .log-line {
     display: flex;
-    gap: var(--space-3);
-    padding: 5px 0;
+    min-height: 0;
     border-top: 1px solid var(--hairline);
     color: var(--color-text-soft-on-dark);
-    white-space: nowrap;
-    transition: color var(--duration-base) var(--ease-out);
+    transition:
+      color var(--duration-base) var(--ease-out),
+      background-color var(--duration-base) var(--ease-out);
   }
 
   .log-line:first-child {
     border-top: 0;
   }
 
-  .log-line.is-live {
-    color: var(--color-accent-bright);
+  /* 行本体是真实 <button>：hover/focus/触屏同一事件路径（marker↔log 联动载体） */
+  .log-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
+    margin: 0;
+    border: 0;
+    padding: 0 var(--space-4);
+    background: none;
+    font: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .log-btn:focus-visible {
+    outline: 1px solid var(--color-accent-bright);
+    outline-offset: -1px;
+  }
+
+  .log-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .log-idx {
     color: var(--color-text-muted-on-dark);
   }
 
-  .log-line.is-live .log-idx {
+  /* is-live = 4s 轮转帧；is-lit = 交互联动帧（marker 拾取点亮关联行 / 日志行自身） */
+  .log-line.is-live,
+  .log-line.is-lit {
     color: var(--color-accent-bright);
+  }
+
+  .log-line.is-live .log-idx,
+  .log-line.is-lit .log-idx {
+    color: var(--color-accent-bright);
+  }
+
+  .log-line.is-lit {
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  }
+
+  /* —— 底缘读出条：hairline 上缘；默认跟随轮转，交互 120ms 淡入换帧（评审修正 #6/#9） —— */
+  .lp-readout {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    border-top: 1px solid var(--hairline);
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-bg);
+  }
+
+  .lp-readout-label {
+    color: var(--color-text-muted-on-dark);
+  }
+
+  .lp-readout-idx {
+    min-width: 4ch;
+    color: var(--color-accent-bright);
+  }
+
+  .lp-readout-main {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-text-soft-on-dark);
+  }
+
+  .lp-readout-main.is-swap {
+    animation: lp-swap 120ms var(--ease-out);
+  }
+
+  /* 序号格 accent 闪一帧（评审修正 #9 的配套：换帧的机械咔嗒感） */
+  .lp-readout-idx.is-swap {
+    animation: lp-flash 240ms var(--ease-out);
+  }
+
+  @keyframes lp-swap {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes lp-flash {
+    0% {
+      background: var(--color-accent);
+      color: var(--color-text-on-accent);
+    }
+
+    100% {
+      background: transparent;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lp-readout-main.is-swap,
+    .lp-readout-idx.is-swap {
+      animation: none;
+    }
+  }
+
+  /* 归档图章迁读出条右端（v2 归档语法收进图版）；无 JS / 减动效直接呈现终态（rotate -4°），
+     动效路径由 GSAP 以 opacity 0 / 1.3 / -6° 起始、随滚动盖下 */
+  .archive-stamp {
+    margin: 0 0 0 auto;
+    padding: 4px 10px;
+    border: 1.5px solid var(--color-accent-bright);
+    background: var(--color-bg);
+    color: var(--color-accent-bright);
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    transform: rotate(-4deg);
   }
 
   /* ============ SEC.01 INDEX — specimen 页（缺陷1/6；QA修复 第3条：归档槽 CSS 随槽位一并删除） ============ */
@@ -1603,9 +2179,9 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     background: #fafbfd;
   }
 
-  /* QA修复 第4条：纸面地球本就浅色，不上暗面板 */
-  .theme-paper .fig-body-hero {
-    background: none;
+  /* QA修复 第4条：纸面地球本就浅色，不上暗面板（graticule chrome 的 background-image 保留，hairline 自随主题换墨） */
+  .theme-paper .lp-globe {
+    background-color: transparent;
   }
 
   /* 纸面主题装订沟阴影（深色主题没有"沟"） */
@@ -2339,7 +2915,6 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     }
 
     .hero-shell {
-      min-height: 0;
       padding-bottom: var(--space-7);
     }
 
@@ -2356,48 +2931,75 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
       margin-top: var(--space-8);
     }
 
-    .hero-figure {
-      position: static;
-      width: 100%;
-      margin: var(--space-6) 0 0;
-      order: 3;
+    /* standfirst 栈式回落（grid-12 已一刀切回块级） */
+    .hero-standfirst {
+      margin-top: var(--space-6);
     }
 
-    .fig-body-hero {
+    .hero-deck {
+      max-width: none;
+      margin-bottom: var(--space-4);
+    }
+
+    /* FIG.02 移动端降级（规格 D）：纵向堆叠（地球位上 / 日志下），骑线解除，
+       marker 拾取禁用 —— canvas 不初始化，静态 SVG 平面图沿用；点日志行 → 读出条更新 */
+    .live-plate {
+      margin-bottom: 0;
+    }
+
+    .lp-body {
+      display: block;
+      height: auto;
+    }
+
+    .lp-globe {
+      padding: var(--space-6) var(--space-3);
+    }
+
+    .globe-box {
+      width: 100%;
       aspect-ratio: auto;
-      padding: var(--space-5) var(--space-3);
     }
 
     .globe-wrap,
-    .hero-figure.globe-on .globe-wrap {
+    .live-plate.globe-on .globe-wrap,
+    .globe-overlay,
+    .live-plate.globe-on .globe-overlay {
       display: none;
     }
 
-    .hero-figure.globe-on .hero-map-fallback {
+    .live-plate.globe-on .hero-map-fallback {
       display: block;
     }
 
-    .hero-map-fallback {
-      width: 100%;
+    .lp-log {
+      border-left: 0;
+      border-top: 1px solid var(--hairline);
     }
 
-    .hero-bottom {
-      gap: var(--space-6);
-      padding-top: var(--space-7);
+    .log-lines {
+      display: block;
+      overflow-x: auto;
     }
 
-    /* 插页骑页界解除；微倾归零 */
-    .hero-log {
-      margin-bottom: 0;
-      margin-top: var(--space-6);
+    .log-btn {
+      padding: 6px var(--space-4);
+    }
+
+    /* 评审修正 #9：读出条 sticky 于图版底缘 —— 点上部日志行时读数不落屏外 */
+    .lp-readout {
+      position: sticky;
+      bottom: 0;
+      z-index: 2;
+    }
+
+    /* 图章随桌面归档动线走；窄幅读出条让位记录本体 */
+    .archive-stamp {
+      display: none;
     }
 
     .tipped {
       transform: none;
-    }
-
-    .log-lines {
-      overflow-x: auto;
     }
 
     .cap-grid {

@@ -7,7 +7,9 @@ import { hero as heroZh, belief as beliefZh, platform as platformZh, industries 
 
 export interface AtlasCopy {
   meta: { title: string; description: string };
-  hero: { deck: string; jump: string; logTitle: string };
+  /** hero v3 活体图版：readoutLabel=读出条左端标签；nodeRecords=marker 读出的记录数后缀（{m} 注入）；
+      cluster=密集群簇显示模板（{code} 为城市代码 mono 不译，{k} 为近邻数） */
+  hero: { deck: string; jump: string; logTitle: string; readoutLabel: string; nodeRecords: string; cluster: string };
   index: { title: string; lede: string; rows: { label: string; note: string }[]; footnote: string };
   /** next：SEC.02 末尾右下 mono 预告行（QA修复 第5条；编号语言不译，叙事词双语） */
   method: { title: string; lede: string; phases: string[]; next: string };
@@ -27,7 +29,8 @@ export interface AtlasCopy {
   /** S1/S2/S3/S4 印张 chrome 的 mono 标注（编号语言不译：en/zh 引用同一常量） */
   press: {
     wordmark: string;
-    globePlate: string;
+    /** hero v3：FIG.02 活体外业图版图注头标题（{n} = 节点数） */
+    liveplate: string;
     /** QA修复 第2条：FIG.02 caption 的 marker 含义标注 */
     markerNote: string;
     stamp: string;
@@ -54,6 +57,8 @@ export interface AtlasCopy {
   aria: {
     globe: string;
     mapFallback: string;
+    /** hero v3：投影 DOM 覆盖拾取层（12 个可聚焦城市按钮）的 group 标签，{n} 注入 */
+    nodeGroup: string;
     log: string;
     ticks: string;
     methodFig: string;
@@ -72,7 +77,8 @@ export interface AtlasCopy {
 // FIG.03 每记录公里（SEC.01 行内）/ FIG.04 方法管线 / FIG.05 覆盖跨页
 const pressMono = {
   wordmark: 'FIG.01 — WORDMARK PLATE · 12 DELIVERY ARCS SET IN THE NAME',
-  globePlate: 'FIG.02 — FIELD GLOBE · {n} NODES',
+  // hero v3：FIG.02 由「档案地球」升格为全宽活体外业图版（球格 + 日志 + 读出条同框）
+  liveplate: 'FIG.02 — LIVE FIELD PLATE · {n} NODES',
   markerNote: 'MARKERS = NODE CITIES ({n})',
   // QA修复 第3条：归档改原位收缩，PLATE SLOT（RECEIVING）键随跨节 FLIP 一并删除；stamp 保留、改盖在 hero 图框角
   stamp: 'ARCHIVED — FIG.02 · AS OF {d}',
@@ -98,6 +104,9 @@ const en: AtlasCopy = {
     deck: heroEn.description,
     jump: 'SEC.03 — Open the coverage plate ↓',
     logTitle: 'LOG — Delivery records',
+    readoutLabel: 'READOUT',
+    nodeRecords: '{m} RECORDS',
+    cluster: '{code} +{k} NEARBY',
   },
   index: {
     title: 'The network, counted.',
@@ -169,6 +178,7 @@ const en: AtlasCopy = {
   aria: {
     globe: 'Rotating globe plotting {n} Arclink node cities',
     mapFallback: 'Map of {n} Arclink node cities',
+    nodeGroup: 'Globe node markers — {n} focusable city points',
     log: 'Published delivery records',
     ticks: 'Kilometres per delivery record, {r} records, maximum {m} kilometres',
     methodFig: 'Method diagram: collect, verify, deliver — connected by two arcs labelled raw trace and verified packet',
@@ -188,6 +198,10 @@ const zh: AtlasCopy = {
     deck: heroZh.description,
     jump: 'SEC.03 — 打开覆盖图版 ↓',
     logTitle: 'LOG — 交付记录',
+    readoutLabel: '读数',
+    nodeRecords: '{m} 条记录',
+    // 城市代码 {code} 为 mono 编号语言不译；叙事词「邻近」翻译
+    cluster: '{code} +{k} 邻近',
   },
   index: {
     title: '这张网络，逐项清点。',
@@ -259,6 +273,7 @@ const zh: AtlasCopy = {
   aria: {
     globe: '旋转地球，标绘 {n} 座 Arclink 节点城市',
     mapFallback: '{n} 座 Arclink 节点城市地图',
+    nodeGroup: '地球节点标记——{n} 个可聚焦城市点',
     log: '已发表交付记录',
     ticks: '每条交付记录的公里数，共 {r} 条，最大 {m} 公里',
     methodFig: '方法图：采集、核验、交付——由标注 RAW TRACE 与 VERIFIED PACKET 的两条弧线相连',
