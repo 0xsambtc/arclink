@@ -155,14 +155,15 @@ const specimenRows = t.index.rows.map((row, i) => ({
 
 // —— SEC.02 工程图版（采集 → 验证 → 交付；图内 mono 标签不翻译，正文来自字典）——
 const methodY = 150;
+// 节点内移到 170/450/730：三阶段说明（最长约 260 单位）以节点居中时仍完整落在 viewBox 0..900 内
 const phases = [
-  { n: 'PH.01', name: 'COLLECT', x: 110, note: 'FIELD CAPTURE · GNSS + UTC TIMESTAMP', body: t.method.phases[0] },
+  { n: 'PH.01', name: 'COLLECT', x: 170, note: 'FIELD CAPTURE · GNSS + UTC TIMESTAMP', body: t.method.phases[0] },
   { n: 'PH.02', name: 'VERIFY', x: 450, note: 'DUAL-SOURCE MATCH · CHECKSUM', body: t.method.phases[1] },
-  { n: 'PH.03', name: 'DELIVER', x: 790, note: 'SIGNED MANIFEST · SLA HANDOFF', body: t.method.phases[2] },
+  { n: 'PH.03', name: 'DELIVER', x: 730, note: 'SIGNED MANIFEST · SLA HANDOFF', body: t.method.phases[2] },
 ];
 const methodArcs = [
-  { d: arcBetween(110, methodY, 450, methodY, -0.26), label: 'RAW TRACE', lx: 280, ly: 96 },
-  { d: arcBetween(450, methodY, 790, methodY, -0.26), label: 'VERIFIED PACKET', lx: 620, ly: 96 },
+  { d: arcBetween(170, methodY, 450, methodY, -0.26), label: 'RAW TRACE', lx: 310, ly: 104 },
+  { d: arcBetween(450, methodY, 730, methodY, -0.26), label: 'VERIFIED PACKET', lx: 590, ly: 104 },
 ];
 const exemplar = eventArcs[0];
 
@@ -409,7 +410,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
       <figure class="fig fig-method" data-reveal>
         <div class="fig-body-method">
           <svg viewBox="0 0 900 250" role="img" aria-label={t.aria.methodFig}>
-            <line class="method-base" x1="60" y1={methodY} x2="840" y2={methodY} aria-hidden="true" />
+            <line class="method-base" x1="120" y1={methodY} x2="780" y2={methodY} aria-hidden="true" />
             {methodArcs.map((a) => (
               <g aria-hidden="true">
                 <path class="method-arc" d={a.d} />
@@ -2167,8 +2168,15 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     border-left: 0;
   }
 
+  .fig-body-method,
+  .fig-method .fig-cap {
+    padding-left: max(var(--shell-gutter), calc((100vw - var(--shell-max)) / 2));
+  }
+
   .fig-body-method {
-    padding: var(--space-6) var(--space-6) var(--space-4) max(var(--shell-gutter), calc((100vw - var(--shell-max)) / 2));
+    padding-top: var(--space-6);
+    padding-right: var(--space-6);
+    padding-bottom: var(--space-4);
   }
 
   .fig-body-method svg {
