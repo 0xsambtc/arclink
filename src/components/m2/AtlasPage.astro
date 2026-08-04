@@ -11,11 +11,9 @@ import { atlasCopy } from '../../data/m2-atlas.copy';
 
 interface Props {
   locale: 'en' | 'zh';
-  /** 色调主题：dark=深色年鉴（默认）；paper=纸面年鉴（同一页面另一套 token，docs/10 色调探索） */
-  theme?: 'dark' | 'paper';
 }
 
-const { locale, theme = 'dark' } = Astro.props;
+const { locale } = Astro.props;
 
 // 语言版本互指：中文路由 = 英文路由加 /zh 前缀（Astro i18n 路由约定）
 const path = Astro.url.pathname;
@@ -213,20 +211,7 @@ const defaultIdx = `R.${String(defaultEvent.i + 1).padStart(2, '0')}`;
 const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的默认帧沿用同一条最新记录
 ---
 
-<main id="main" class:list={['atlas', theme === 'paper' && 'theme-paper']}>
-  <script is:inline>
-    // 纸样偏好在首帧生效（元素已存在、页面未绘制），避免加载后换纸闪色
-    (() => {
-      const el = document.currentScript.parentElement;
-      const saved = localStorage.getItem('arclink-stock');
-      if (!saved) return;
-      const paper = saved === 'paper';
-      el.classList.toggle('theme-paper', paper);
-      const bg = paper ? '#f3f5f9' : '#030b1d';
-      document.documentElement.style.background = bg;
-      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
-    })();
-  </script>
+<main id="main" class="atlas">
   <!-- ============ SEC.00 / FRONTISPIECE — 整版字标图版 + standfirst + FIG.02 活体外业图版（hero v3） ============ -->
   <section class="sec sec-hero" data-folio="00" data-secname="FRONTISPIECE">
     <div class="shell hero-shell">
@@ -661,9 +646,9 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
       <!-- 版本与纸样：同一行印刷规格（语言版本 + 纸样），非 UI 部件 -->
       <div class="edition-switch" role="group" aria-label={t.aria.edition}>
         <span class="mono-caption stock-label">EDITION</span>
-        <a class="stock-chip mono-caption" href={enHref} hreflang="en" aria-current={locale === 'en' ? 'true' : undefined}>EN</a>
+        <a class="stock-chip" href={enHref} hreflang="en" aria-current={locale === 'en' ? 'true' : undefined}><span class="mono-caption">EN</span></a>
         <span class="mono-caption stock-sep" aria-hidden="true">/</span>
-        <a class="stock-chip mono-caption" href={zhHref} hreflang="zh" aria-current={locale === 'zh' ? 'true' : undefined}>中文</a>
+        <a class="stock-chip" href={zhHref} hreflang="zh" aria-current={locale === 'zh' ? 'true' : undefined}><span class="mono-caption">中文</span></a>
       </div>
       <div class="stock-switch" role="group" aria-label={t.aria.stock}>
         <span class="mono-caption stock-label">STOCK</span>
@@ -778,18 +763,17 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
   const folioNum = document.getElementById('folio-num');
   // 纸样切换：同一套印版换纸印刷 —— 切 .atlas 主题类 + 存偏好 + 广播给球体重着色
   {
-    const atlas = document.querySelector('.atlas') as HTMLElement | null;
-    const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('.stock-chip'));
+    const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('.stock-chip[data-stock]'));
     const sync = (stock: string) => {
       const paper = stock === 'paper';
-      atlas?.classList.toggle('theme-paper', paper);
+      document.documentElement.dataset.stock = stock;
       const bg = paper ? '#f3f5f9' : '#030b1d';
       document.documentElement.style.background = bg;
       document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
       chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.stock === stock)));
       document.dispatchEvent(new CustomEvent('stock:change', { detail: { stock } }));
     };
-    sync(atlas?.classList.contains('theme-paper') ? 'paper' : 'night');
+    sync(document.documentElement.dataset.stock === 'paper' ? 'paper' : 'night');
     chips.forEach((chip) =>
       chip.addEventListener('click', () => {
         const stock = chip.dataset.stock ?? 'paper';
@@ -935,7 +919,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
         });
         const t0 = performance.now();
         // 纸样决定球体配色：PAPER=NORTH PAPER 冷纸浅球，NIGHT=深藏青球（换纸时同帧 update 重着色）
-        const atlasEl = canvas.closest('.atlas') as HTMLElement;
+
         const stockPalette = (paper: boolean) => ({
           dark: paper ? 0 : 1,
           mapBrightness: paper ? 1.6 : 6,
@@ -943,7 +927,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
           markerColor: (paper ? [0.08, 0.49, 0.99] : [0.2, 0.47, 1]) as [number, number, number],
           glowColor: (paper ? [0.91, 0.93, 0.96] : [0.08, 0.16, 0.33]) as [number, number, number],
         });
-        const paper = atlasEl.classList.contains('theme-paper');
+        const paper = document.documentElement.dataset.stock === 'paper';
         const scales = cities.map(() => ({ v: 1 })); // 每城 marker 交互缩放（gsap tween 载体）
         // 开机逐城生长沿旧版（age 起点 t0+900+i*260，600ms ease-out），到位后乘交互缩放，不消失
         const buildMarkers = (now: number) =>
@@ -1663,7 +1647,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
   }
 
   /* 冷纸纪律：#147dfd 冷纸上 3.58:1 —— 仅限大字与图形描边（此处为字腔内描边，合规） */
-  .theme-paper .wm-arc {
+  :root[data-stock='paper'] .wm-arc {
     stroke: var(--color-brand-blue);
   }
 
@@ -2214,7 +2198,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
      概念：把纸的色温调到与品牌墨水同一侧 —— #f3f5f9 是带 2–3% 藏青倾向的冷白（北窗光下的白纸）。
      纪律：#147dfd（--color-brand-blue）冷纸上 3.58:1，仅限大字（≥24px bold）与图形描边（≥3:1），禁止小字。
      muted α=.78（正文过 7:1）、soft α=.66（小字过 4.5:1）。 */
-  .atlas.theme-paper {
+  :root[data-stock='paper'] .atlas {
     --color-bg: #f3f5f9;
     --color-bg-deep: #eaeef5;
     --color-glow: #e3e9f2;
@@ -2239,23 +2223,23 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
   }
 
   /* 图版页专用亮蓝：藏青底上小字 #6b93f0 = 5.71:1；hover 再提一档 */
-  .theme-paper .sec-coverage {
+  :root[data-stock='paper'] .sec-coverage {
     --color-accent: #6b93f0;
     --color-accent-bright: #9dbcff;
   }
 
   /* 第二纸种（冷白）= 纸张层次，比阴影诚实 */
-  .theme-paper .tipped {
+  :root[data-stock='paper'] .tipped {
     background: #fafbfd;
   }
 
   /* 纸面地球本就浅色，不上暗面板（graticule chrome 的 background-image 保留，hairline 自随主题换墨） */
-  .theme-paper .lp-globe {
+  :root[data-stock='paper'] .lp-globe {
     background-color: transparent;
   }
 
   /* 纸面主题装订沟阴影（深色主题没有"沟"） */
-  .theme-paper .spine::after {
+  :root[data-stock='paper'] .spine::after {
     content: '';
     position: absolute;
     right: -24px;
@@ -2267,13 +2251,13 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
   }
 
   /* 纸面主题反色跨页四边出血色边（整版实地印刷）；压页内阴影仅深色主题需要，此处归零 */
-  .theme-paper .sec-coverage {
+  :root[data-stock='paper'] .sec-coverage {
     border-top: 3px solid var(--color-accent-deep);
     border-bottom: 3px solid var(--color-accent-deep);
     box-shadow: none;
   }
 
-  .theme-paper .method-ring {
+  :root[data-stock='paper'] .method-ring {
     stroke: rgba(10, 29, 51, 0.24);
   }
 
@@ -2370,7 +2354,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     box-shadow: inset 0 10px 12px -4px rgba(2, 8, 20, 0.3);
   }
 
-  .theme-paper .sec-coverage {
+  :root[data-stock='paper'] .sec-coverage {
     --crop-ink: rgba(243, 245, 249, 0.45);
   }
 
@@ -2621,7 +2605,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
   }
 
   /* 纸面反色跨页内 accent 已提亮为 #6b93f0（白字不足 4.5:1）——active 钮底用 accent-deep（#123f9e，白字 9.4:1） */
-  .theme-paper .sec-coverage .region-btn[aria-pressed='true'] {
+  :root[data-stock='paper'] .sec-coverage .region-btn[aria-pressed='true'] {
     background: var(--color-accent-deep);
   }
 
@@ -2900,11 +2884,11 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
   }
 
   /* 纸面 primary 钮平涂 accent（#1a55d0，白字 6.4:1），hover 走 accent-deep（#123f9e，9.4:1） */
-  .theme-paper .cta-btn {
+  :root[data-stock='paper'] .cta-btn {
     background: var(--color-accent);
   }
 
-  .theme-paper .cta-btn:hover {
+  :root[data-stock='paper'] .cta-btn:hover {
     background: var(--color-accent-deep);
   }
 
@@ -2972,9 +2956,9 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     color: inherit;
   }
 
-  a.stock-chip[aria-current='true'] {
+  a.stock-chip[aria-current='true'] span {
     border-bottom: 1px solid currentColor;
-    padding-bottom: 1px;
+    padding-bottom: 2px;
   }
 
   .stock-swatch {

@@ -10,6 +10,8 @@ interface Props {
   noindex?: boolean;
   /** 防白闪底色（首帧即着色）；纸面主题页传浅色 */
   bg?: string;
+  /** 纸样：页面默认版式（paper=冷纸 / night=夜航）；用户偏好在 head 中即时覆盖，避免首帧闪色 */
+  stock?: 'paper' | 'night';
 }
 
 const {
@@ -18,11 +20,15 @@ const {
   lang = 'en',
   noindex = false,
   bg = '#030b1d',
+  stock,
 } = Astro.props;
+
+// 纸样是根级状态：CSS 以 :root[data-stock] 选择，切换与防闪都在 <html> 上完成
+const STOCK_BG = { paper: '#f3f5f9', night: '#030b1d' } as const;
 ---
 
 <!doctype html>
-<html lang={lang}>
+<html lang={lang} data-stock={stock}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -33,6 +39,20 @@ const {
     <title>{title}</title>
     {/* 防白/防黑闪：CSS 加载前首帧即着页面底色（docs/02 性能要点） */}
     <style is:inline set:html={`html{background:${bg}}`}></style>
+    {
+      stock && (
+        <script is:inline define:vars={{ stock, STOCK_BG }}>
+          {/* 纸样偏好在首帧生效：读 localStorage 覆写 data-stock，页面绘制前完成，无闪色 */}
+          (() => {
+            const saved = localStorage.getItem('arclink-stock');
+            const use = saved === 'paper' || saved === 'night' ? saved : stock;
+            document.documentElement.dataset.stock = use;
+            document.documentElement.style.background = STOCK_BG[use];
+            document.querySelector('meta[name="theme-color"]')?.setAttribute('content', STOCK_BG[use]);
+          })();
+        </script>
+      )
+    }
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
