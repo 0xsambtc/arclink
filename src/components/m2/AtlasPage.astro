@@ -1163,12 +1163,14 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
 
   /* cobe 降级为右上小型档案图版；QA修复 第3条：归档飞行删除，z 回落 1 —— 字标（z2）按缺陷3意图压回球体 */
   .hero-figure {
-    position: absolute;
-    top: 4svh;
-    right: 0;
+    /* samuel 评审：字标覆盖数据图版不合理 —— 改入流右对齐 + 固定 40px 轻咬合（见 .hero-plate 负 margin），
+       12 个城市 marker 全程可见，仅字标 cap 与球体下缘相切 */
+    position: relative;
     z-index: 1;
-    width: min(30vw, 380px);
-    margin: 0;
+    width: min(24vw, 300px);
+    margin: var(--space-4) 0 0 auto;
+    display: flex;
+    flex-direction: column;
     will-change: transform;
   }
 
@@ -1222,7 +1224,8 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     justify-content: space-between;
     gap: var(--space-2) var(--space-4);
     flex-wrap: wrap; /* QA2：caption 增至三条 mono 标注，小图框内允许折行 */
-    border-top: 1px solid var(--hairline);
+    order: -1; /* 图注移至图版上缘（印刷图头），让出下缘的咬合区 */
+    border-bottom: 1px solid var(--hairline);
     padding: var(--space-3) var(--space-4);
     color: var(--color-text-muted-on-dark);
   }
@@ -1264,7 +1267,8 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
   .hero-plate {
     position: relative;
     z-index: 2;
-    margin: 16svh 0 0;
+    /* 轻咬合：固定 40px 相切（≈字高 15%），仅字标末字 cap 与球体下缘交叠 */
+    margin: -2.5rem 0 0;
   }
 
   .hero-title {
