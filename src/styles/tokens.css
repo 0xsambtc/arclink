@@ -11,6 +11,10 @@
   --color-accent-bright: #3478ff;
   --color-accent-deep: #1767ff;
 
+  /* 品牌 logo 原色（2026-08-04 自 logo 源文件采样；与 UI accent 同族，logo/favicon 专用） */
+  --color-brand-ink: #0a1d33;
+  --color-brand-blue: #147dfd;
+
   --color-surface: #ffffff;
   --color-surface-alt: #f3f7ff;
   --color-surface-tint: #eef5ff;

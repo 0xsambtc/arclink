@@ -47,6 +47,29 @@ body {
   transition-delay: 0.15s;
 }
 
+/* 键盘可达性：跳转正文 + 全局可见焦点环（docs/07 无障碍基线） */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: var(--space-3);
+  z-index: 2000;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent);
+  color: var(--color-text-on-dark);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  left: var(--space-3);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent-bright);
+  outline-offset: 2px;
+}
+
 .text-link {
   border: 0;
   background: none;

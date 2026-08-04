@@ -6,20 +6,24 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
+  lang?: string;
 }
 
 const {
   title = 'ARCLINK — Execution Infrastructure for the Physical World',
   description = 'Arclink enables enterprises to plan, deploy and verify real-world operations through technology, standardized workflows and trusted local execution.',
+  lang = 'en',
 } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
+    <meta name="theme-color" content="#030b1d" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
     <style is:inline>
       /* 深色站防白闪：CSS 加载前首帧即着色（docs/02 性能要点） */
@@ -29,6 +33,7 @@ const {
     </style>
   </head>
   <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <slot />
     <script>
       // Scroll reveal 观察器（配合 global.css 的 .reveal）

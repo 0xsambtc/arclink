@@ -32,12 +32,15 @@ M1 完成（首页 9 个 section 组件化 + 三弹窗表单，双端验证通�
 | 真实覆盖城市清单（先给 10 个也行） | M2 hero 数据 | ⏸ 方便时粘贴 |
 | 公司注册信息（法定名称/新加坡地址） | JSON-LD / footer | ⏸ 方便时粘贴 |
 | 域名（购买中）+ 是否与阿里邮箱同域 | M5 | ⏸ 购买中，到手后告知；DNS 建议托管 Cloudflare |
+| Logo 矢量源文件（AI/SVG）+ 深色底反白版 | header 真 logo / 精确 favicon | ⏸ 已有浅底 PNG（public/brand/），矢量版待提供 |
 
 ## 待 samuel 决策的队列
 
 （当前为空——下一个决策点出现在 M2 末尾：双首屏变体投票）
 
 ## 会话日志（倒序，只记里程碑级变化）
+
+- **2026-08-04（基建补齐）**：404 页（补上 wrangler 已引用的缺口）、favicon（logo 元素派生 SVG）、skip-link + :focus-visible、`astro check` 进构建；**i18n 配置层就位**（en 默认 + zh fallback 重定向 + sitemap hreflang，中文内容到位即覆盖）；logo PNG 入库并采样品牌原色（#0a1d33 / #147dfd → brand tokens）；新增 docs/09 设计系统文档。
 
 - **2026-08-04（M1）**：原型移植完成——SiteHeader/Hero/Belief/Process/Platform/Industries/NetworkCta/Footer/ContactModals 九个组件，全部数据驱动（home.ts）；视觉升级落地（Linear 卡片、mono 序号替代 glyph、Mapping 居首）；三弹窗升级为完整表单（honeypot + Turnstile 挂载点，M3 接真实提交）；桌面 1440/移动 390 截图验证；6 个 section 由并行 workflow 构建（Platform agent 被误拦后由主循环补齐）。
 

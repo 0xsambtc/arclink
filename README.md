@@ -24,6 +24,7 @@ Arclink Solutions Pte. Ltd. 的公司官网 —— "Execution Infrastructure for
 | [06 部署](docs/06-deployment.md) | 平台对比、CI/CD、网站分析 | 已定（Cloudflare） |
 | [07 其他决策](docs/07-other-decisions.md) | 域名、反垃圾、CMS、合规、监控 | 各项见文内 |
 | [08 SEO 与 AI 搜索](docs/08-seo-ai-search.md) | Google SEO 清单、Cloudflare AI 爬虫排雷、GEO 内容规范 | 已定（robots 全开放） |
+| [09 设计系统](docs/09-design-system.md) | 品牌色（含 logo 采样）、排版、组件库现状、风格规则、i18n 结构 | 随代码演进 |
 
 ## 推荐组合速览
 
