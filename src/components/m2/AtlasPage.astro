@@ -16,6 +16,11 @@ interface Props {
 }
 
 const { locale, theme = 'dark' } = Astro.props;
+
+// 语言版本互指：中文路由 = 英文路由加 /zh 前缀（Astro i18n 路由约定）
+const path = Astro.url.pathname;
+const enHref = path.startsWith('/zh/') ? path.slice(3) : path;
+const zhHref = path.startsWith('/zh/') ? path : `/zh${path}`;
 const t = atlasCopy[locale];
 
 const MAP_W = 1000;
@@ -653,6 +658,13 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
         {cities.length} NODES / {events.length} RECORDS / {fmtNum(totalKm)} KM · SET IN INTER + MONO · BUILT {buildDate}
       </p>
       <!-- 纸样切换：同一套印版换纸印刷（版权页规格行的一部分，非 UI 部件） -->
+      <!-- 版本与纸样：同一行印刷规格（语言版本 + 纸样），非 UI 部件 -->
+      <div class="edition-switch" role="group" aria-label={t.aria.edition}>
+        <span class="mono-caption stock-label">EDITION</span>
+        <a class="stock-chip mono-caption" href={enHref} hreflang="en" aria-current={locale === 'en' ? 'true' : undefined}>EN</a>
+        <span class="mono-caption stock-sep" aria-hidden="true">/</span>
+        <a class="stock-chip mono-caption" href={zhHref} hreflang="zh" aria-current={locale === 'zh' ? 'true' : undefined}>中文</a>
+      </div>
       <div class="stock-switch" role="group" aria-label={t.aria.stock}>
         <span class="mono-caption stock-label">STOCK</span>
         <button type="button" class="stock-chip" data-stock="paper" aria-pressed="false">
@@ -2917,12 +2929,17 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
   }
 
   /* ============ STOCK 纸样切换：两枚纸样色票 + mono 规格标签（印刷规格说明的形态，非 UI 开关） ============ */
-  .stock-switch {
+  .stock-switch,
+  .edition-switch {
     display: flex;
     align-items: center;
     gap: var(--space-3);
     margin-top: var(--space-4);
     color: var(--color-text-soft-on-dark);
+  }
+
+  .edition-switch {
+    margin-bottom: calc(-1 * var(--space-3));
   }
 
   .stock-label {
@@ -2944,8 +2961,20 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
   }
 
   .stock-chip:hover,
-  .stock-chip[aria-pressed='true'] {
+  .stock-chip[aria-pressed='true'],
+  .stock-chip[aria-current='true'] {
     opacity: 1;
+  }
+
+  /* 语言版本为链接：当前版本加下划线标记，非当前版本可点跳转 */
+  a.stock-chip {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  a.stock-chip[aria-current='true'] {
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 1px;
   }
 
   .stock-swatch {

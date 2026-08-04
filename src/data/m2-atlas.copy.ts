@@ -55,6 +55,7 @@ export interface AtlasCopy {
     node: string;
     industriesList: string;
     stock: string;
+    edition: string;
   };
 }
 
@@ -154,6 +155,7 @@ const en: AtlasCopy = {
     node: 'Node city: ',
     industriesList: 'Industry index',
     stock: 'Paper stock — switch between paper and night editions',
+    edition: 'Language edition',
   },
 };
 
@@ -237,6 +239,7 @@ const zh: AtlasCopy = {
     node: '节点城市：',
     industriesList: '行业索引',
     stock: '纸样切换——在纸面版与夜航版之间切换',
+    edition: '语言版本', 
   },
 };
 
