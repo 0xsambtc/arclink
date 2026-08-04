@@ -1,0 +1,267 @@
+---
+// PROOF ROOM — 弧场打样台独立彩蛋页主体（docs/11 定案2：打样台迁出主线，stripe.dev /art 模式）
+// Props = { locale }；叙事文案来自 src/data/m2-atlas.copy.ts 的 proof 键（en/zh 同构），
+// mono 编号语言（PROOF ROOM / SEED / DOWNLOAD .SVG）不翻译，双语共用；图形唯一来源 = src/lib/arcfield.ts
+import { generateArcfield } from '../../lib/arcfield';
+import { atlasCopy } from '../../data/m2-atlas.copy';
+
+interface Props {
+  locale: 'en' | 'zh';
+}
+
+const { locale } = Astro.props;
+const t = atlasCopy[locale];
+const backHref = locale === 'zh' ? '/zh/m2/atlas-paper' : '/m2/atlas-paper';
+
+// 无 JS 降级态：服务端预生成默认图版（客户端脚本以同一 generateArcfield 重算，同种子同输出）
+const proofPaths = generateArcfield({ width: 260, height: 150, count: 9, amplitude: 0.3, seed: 'ARCLINK' });
+const defaultCaption = t.proof.caption.replace('{s}', 'ARCLINK');
+---
+
+<main id="main" class="proof-room">
+  <header class="proof-head mono-caption">
+    <span>{t.proof.runningHead}</span>
+    <a class="proof-back" href={backHref}>{t.proof.back}</a>
+  </header>
+
+  <section class="proof-stage" aria-label={t.aria.proofPanel}>
+    <h1 class="proof-title">{t.proof.title}</h1>
+    <p class="proof-hook">{t.proof.hook}</p>
+
+    <div class="proof-press">
+      <div class="proof-input-row">
+        <label class="proof-label mono-caption" for="proof-seed">{t.proof.inputLabel}</label>
+        <input
+          class="proof-input"
+          id="proof-seed"
+          type="text"
+          maxlength="48"
+          value="ARCLINK"
+          placeholder={t.proof.placeholder}
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </div>
+      <svg id="proof-field" class="proof-field" viewBox="0 0 260 150" aria-hidden="true">
+        {proofPaths.map((d) => (
+          <path d={d} pathLength="1" />
+        ))}
+      </svg>
+      <p id="proof-caption" class="proof-caption mono-caption">{defaultCaption}</p>
+      <p class="proof-foot">
+        <a id="proof-download" class="proof-download mono-caption" href="#" download="arclink-proof-arclink.svg">{t.proof.download}</a>
+      </p>
+    </div>
+  </section>
+</main>
+
+<script>
+  // 打样台：seed → 9 条确定性弧线（自 AtlasPage SEC.04 原样迁入，docs/11 定案2）。
+  // arcfield 是纯 TS，客户端直接打包 import（零新依赖）。
+  // 无 JS：面板显示服务端预生成的默认图版；减动效：新图形直接呈现不描画。
+  import { generateArcfield } from '../../lib/arcfield';
+
+  const proofInput = document.getElementById('proof-seed') as HTMLInputElement | null;
+  const proofField = document.getElementById('proof-field');
+  const proofCap = document.getElementById('proof-caption');
+  const proofDl = document.getElementById('proof-download') as HTMLAnchorElement | null;
+
+  if (proofInput && proofField && proofCap && proofDl) {
+    const capTpl = proofCap.textContent ?? '';
+    const proofReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let objUrl = '';
+    let firstRender = true;
+
+    const escapeXml = (s: string) =>
+      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    // 下载文件：把图框 + 裁切角线 + caption 一并烘进 SVG（用户拿走带 ARCLINK 印刷 chrome 的个人图版）
+    const buildSvg = (paths: string[], capText: string) => {
+      const arcs = paths
+        .map((p) => `<path d="${p}" fill="none" stroke="#2563eb" stroke-width="1.2"/>`)
+        .join('');
+      const crop = (x: number, y: number, sx: number, sy: number) =>
+        `<path d="M ${x} ${y + 8 * sy} L ${x} ${y} L ${x + 8 * sx} ${y}" fill="none" stroke="#8b99b0" stroke-width="1"/>`;
+      return (
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 214" width="600" height="428">` +
+        `<rect width="300" height="214" fill="#030b1d"/>` +
+        `<rect x="19.5" y="19.5" width="261" height="151" fill="none" stroke="rgba(255,255,255,0.28)"/>` +
+        crop(12, 12, 1, 1) +
+        crop(288, 12, -1, 1) +
+        crop(12, 178, 1, -1) +
+        crop(288, 178, -1, -1) +
+        `<g transform="translate(20 20)">${arcs}</g>` +
+        `<text x="20" y="196" font-family="ui-monospace, Menlo, monospace" font-size="8.5" letter-spacing="0.5" fill="#b9c3d5">${escapeXml(capText)}</text>` +
+        `<text x="280" y="196" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="8.5" letter-spacing="0.5" fill="#b9c3d5">ARCLINK ANNUAL — EDITION 2026</text>` +
+        `</svg>`
+      );
+    };
+
+    const render = (seedRaw: string) => {
+      const seed = (seedRaw.trim() || 'ARCLINK').slice(0, 48);
+      const paths = generateArcfield({ width: 260, height: 150, count: 9, amplitude: 0.3, seed });
+      const els = Array.from(proofField.querySelectorAll('path'));
+      els.forEach((p, i) => {
+        p.setAttribute('d', paths[i]);
+        if (!proofReduced && !firstRender) {
+          // 重描（pathLength=1 + dashoffset，transform/dashoffset 纪律内）
+          p.style.transition = 'none';
+          p.style.strokeDasharray = '1';
+          p.style.strokeDashoffset = '1';
+          void p.getBoundingClientRect();
+          p.style.transition = `stroke-dashoffset 0.8s ${(0.05 * i).toFixed(2)}s cubic-bezier(0.22, 0.61, 0.36, 1)`;
+          p.style.strokeDashoffset = '0';
+        }
+      });
+      const capText = capTpl.replace(/«[^»]*»/, `«${seed.toUpperCase()}»`);
+      proofCap.textContent = capText;
+      if (objUrl) URL.revokeObjectURL(objUrl);
+      objUrl = URL.createObjectURL(new Blob([buildSvg(paths, capText)], { type: 'image/svg+xml' }));
+      proofDl.href = objUrl;
+      const safe = seed.replace(/[^a-z0-9-_]+/gi, '-').toLowerCase().replace(/^-+|-+$/g, '') || 'arclink';
+      proofDl.download = `arclink-proof-${safe}.svg`;
+      firstRender = false;
+    };
+
+    let debounce = 0;
+    proofInput.addEventListener('input', () => {
+      window.clearTimeout(debounce);
+      debounce = window.setTimeout(() => render(proofInput.value), 220);
+    });
+    render(proofInput.value); // 初始化下载链接（不重描）
+  }
+</script>
+
+<style>
+  /* NORTH PAPER 冷纸 palette（docs/11 定案1；取值与 AtlasPage .theme-paper 同源 —— 独立页无主题 prop，定死纸面） */
+  .proof-room {
+    --paper: #f3f5f9;
+    --paper-2: #fafbfd;
+    --ink: #0a1d33;
+    --ink-muted: rgba(10, 29, 51, 0.78);
+    --ink-soft: rgba(10, 29, 51, 0.66);
+    --hairline-ink: rgba(10, 29, 51, 0.15);
+    --accent: #1a55d0;
+    --accent-bright: #2160e8;
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  /* Running header：一行 mono 刊头 + 返回链接（极简页唯一 chrome） */
+  .proof-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-4);
+    flex-wrap: wrap;
+    padding: var(--space-4) var(--shell-gutter);
+    border-bottom: 1px solid var(--hairline-ink);
+    color: var(--ink-soft);
+  }
+
+  .proof-back,
+  .proof-download {
+    color: var(--accent-bright);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(33, 96, 232, 0.45);
+    padding-bottom: 2px;
+    transition: border-color var(--duration-fast) var(--ease-out);
+  }
+
+  .proof-back:hover,
+  .proof-download:hover {
+    border-color: var(--accent-bright);
+  }
+
+  .proof-stage {
+    width: min(560px, calc(100% - var(--shell-gutter) * 2));
+    margin: auto;
+    padding: var(--space-8) 0;
+  }
+
+  .proof-title {
+    margin: 0 0 var(--space-4);
+    font-size: var(--text-display-m);
+    font-weight: 680;
+    letter-spacing: var(--tracking-tight);
+    line-height: 1.02;
+  }
+
+  /* 中文排版微调（与 AtlasPage 同纪律）：中文大字不用紧字距 */
+  :global(html[lang='zh']) .proof-title {
+    letter-spacing: 0;
+    line-height: 1.15;
+  }
+
+  .proof-hook {
+    margin: 0 0 var(--space-6);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    color: var(--ink-muted);
+  }
+
+  /* 第二纸种插页（年鉴 tipped 构件同语言；极简页不倾斜，只留纸种层次） */
+  .proof-press {
+    background: var(--paper-2);
+    border: 1px solid var(--hairline-ink);
+    padding: var(--space-5) var(--space-6) var(--space-6);
+  }
+
+  .proof-input-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    border-bottom: 1px solid var(--ink-muted);
+    padding-bottom: 4px;
+  }
+
+  .proof-label {
+    color: var(--ink-muted);
+  }
+
+  .proof-input {
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: 0;
+    padding: 6px 0;
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-caption);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .proof-input::placeholder {
+    color: var(--ink-soft);
+    text-transform: none;
+  }
+
+  .proof-field {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-top: var(--space-4);
+  }
+
+  /* 动效纪律不变：dashoffset 动词（重描由脚本内联过渡驱动）；无 JS 预生成默认图版直接可见 */
+  .proof-field path {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.2;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+
+  .proof-caption {
+    margin: var(--space-3) 0 0;
+    color: var(--ink-muted);
+  }
+
+  .proof-foot {
+    margin: var(--space-3) 0 0;
+  }
+</style>

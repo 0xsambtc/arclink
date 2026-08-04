@@ -5,9 +5,6 @@
 import { hero as heroEn, belief as beliefEn, platform as platformEn, industries as industriesEn } from './home';
 import { hero as heroZh, belief as beliefZh, platform as platformZh, industries as industriesZh } from './home.zh';
 
-// 弧场生成器种子必须双语一致（同种子同输出）：能力用英文 title、行业用英文 key 做种子
-const featureSeeds = platformEn.features.map((f) => f.title);
-
 export interface AtlasCopy {
   meta: { title: string; description: string };
   hero: { deck: string; jump: string; logTitle: string };
@@ -22,8 +19,9 @@ export interface AtlasCopy {
     readouts: { region: string; nodes: string; records: string; km: string; last: string };
     pointer: string;
   };
-  capabilities: { title: string; lede: string; note: string; features: { title: string; description: string; seed: string }[] };
-  industries: { title: string; lede: string; items: { key: string; label: string; description: string }[] };
+  /** 定案2：能力区无图形 —— 纯排版卡（note 出处语与 seed 随 FIG.06–11 图版一并删除） */
+  capabilities: { title: string; lede: string; features: { title: string; description: string }[] };
+  industries: { title: string; lede: string; items: { label: string; description: string }[] };
   manifesto: { lines: string[] };
   cta: { title: string; sub: string; button: string };
   /** S1/S2/S3/S4 印张 chrome 的 mono 标注（编号语言不译：en/zh 引用同一常量） */
@@ -39,8 +37,13 @@ export interface AtlasCopy {
     detach: string;
     railHead: string;
   };
-  /** S5 打样台（叙事字段翻译；caption/download 为 mono 编号语言，双语同值） */
+  /** 打样台（docs/11 定案2：迁独立彩蛋页 /proof 与 /zh/proof，由 ProofRoom 引用）——
+      叙事字段翻译；caption/download/metaTitle/runningHead/back/colophonLink 为 mono 编号语言，双语同值 */
   proof: {
+    metaTitle: string;
+    runningHead: string;
+    back: string;
+    colophonLink: string;
     title: string;
     hook: string;
     inputLabel: string;
@@ -65,8 +68,8 @@ export interface AtlasCopy {
 }
 
 // 印张 chrome mono 标注（docs/10 字体宪法：编号语言不翻译 — en/zh 共用同一常量，防止双语漂移）
-// FIG 重编号：FIG.01 字标图版（S2）/ FIG.02 档案地球 / FIG.03 每记录公里 / FIG.04 方法图 /
-// FIG.05 覆盖跨页（S4）/ FIG.06–11 能力图版 / FIG.12 打样台（S5）
+// FIG 重编号（docs/11 定案2：只剩 5 个真图形）：FIG.01 字标图版 / FIG.02 档案地球 /
+// FIG.03 每记录公里（SEC.01 行内）/ FIG.04 方法管线 / FIG.05 覆盖跨页
 const pressMono = {
   wordmark: 'FIG.01 — WORDMARK PLATE · 12 DELIVERY ARCS SET IN THE NAME',
   globePlate: 'FIG.02 — FIELD GLOBE · {n} NODES',
@@ -81,6 +84,10 @@ const pressMono = {
 } as const;
 
 const proofMono = {
+  metaTitle: 'PROOF ROOM — ARCFIELD PRESS · ARCLINK',
+  runningHead: 'PROOF ROOM — ARCFIELD PRESS',
+  back: '← BACK TO ATLAS',
+  colophonLink: 'PROOF ROOM ↗',
   caption: 'PROOF — SEED «{s}» · 9 ARCS · DETERMINISTIC',
   download: 'DOWNLOAD .SVG',
 } as const;
@@ -131,15 +138,14 @@ const en: AtlasCopy = {
   capabilities: {
     title: 'Six instruments, one platform.',
     lede: platformEn.description,
-    // QA修复 第6条：删除机制教程语（露墨比例/悬停描画/种子出处），改纯出处语
-    note: 'Plates FIG.06–11 — one rule, six data seeds.',
-    features: platformEn.features.map((f, i) => ({ title: f.title, description: f.description, seed: featureSeeds[i] })),
+    // 定案2：能力区无图形 —— 纯排版卡，note 出处语随图版删除
+    features: platformEn.features.map((f) => ({ title: f.title, description: f.description })),
   },
   industries: {
     title: 'Indexed by industry.',
     // QA修复 第7条：描述常显后删除"悬停调档案"操作说明
     lede: industriesEn.heading,
-    items: industriesEn.items.map((it) => ({ key: it.key, label: it.label, description: it.description })),
+    items: industriesEn.items.map((it) => ({ label: it.label, description: it.description })),
   },
   manifesto: { lines: [...beliefEn.manifesto] },
   cta: {
@@ -149,6 +155,10 @@ const en: AtlasCopy = {
   },
   press: pressMono,
   proof: {
+    metaTitle: proofMono.metaTitle,
+    runningHead: proofMono.runningHead,
+    back: proofMono.back,
+    colophonLink: proofMono.colophonLink,
     title: 'Proof your own plate.',
     hook: 'Same rule, same seed, same output. Our figures are not drawn — they are generated. Yours too.',
     inputLabel: 'Seed',
@@ -218,15 +228,14 @@ const zh: AtlasCopy = {
   capabilities: {
     title: '六件仪器，一个平台。',
     lede: platformZh.description,
-    // QA修复 第6条：删除机制教程语，改纯出处语
-    note: '图版 FIG.06–11——同一条生成规则，六个数据种子。',
-    features: platformZh.features.map((f, i) => ({ title: f.title, description: f.description, seed: featureSeeds[i] })),
+    // 定案2：能力区无图形 —— 纯排版卡，note 出处语随图版删除
+    features: platformZh.features.map((f) => ({ title: f.title, description: f.description })),
   },
   industries: {
     title: '按行业归档。',
     // QA修复 第7条：描述常显后删除"悬停调档案"操作说明
     lede: industriesZh.heading,
-    items: industriesZh.items.map((it) => ({ key: it.key, label: it.label, description: it.description })),
+    items: industriesZh.items.map((it) => ({ label: it.label, description: it.description })),
   },
   manifesto: { lines: [...beliefZh.manifesto] },
   cta: {
@@ -236,6 +245,10 @@ const zh: AtlasCopy = {
   },
   press: pressMono,
   proof: {
+    metaTitle: proofMono.metaTitle,
+    runningHead: proofMono.runningHead,
+    back: proofMono.back,
+    colophonLink: proofMono.colophonLink,
     title: '打一张你自己的图版。',
     hook: '同一规则，同一种子，同一输出。我们的图形不画，只生成——你的也是。',
     inputLabel: '种子',

@@ -6,7 +6,7 @@
 // 宣言（提案首行）：页面上的任何元素，要么是排版系统本身（字、网格、编号、细线），
 // 要么是带真实出处（城市·坐标·时间戳·口径）的编号图版（FIG.）；两者都不是——删。
 import { cities, events, metrics, cityByCode } from '../../data/coverage';
-import { arcBetween, generateArcfield, hashString, mulberry32, project } from '../../lib/arcfield';
+import { arcBetween, hashString, mulberry32, project } from '../../lib/arcfield';
 import { atlasCopy } from '../../data/m2-atlas.copy';
 
 interface Props {
@@ -163,26 +163,22 @@ const methodArcs = [
 ];
 const exemplar = eventArcs[0];
 
-// —— SEC.04 平台能力（六图版卡片：FIG 重编号 06–11，字标图版占用 FIG.01；缺陷7：viewBox 高 130→170）——
-const capPlates = t.capabilities.features.map((f, i) => ({
+// —— SEC.04 平台能力（docs/11 定案2：假图形处决 —— 无弧场图版，纯排版卡；CAP 编号为 mono 编号语言）——
+const capItems = t.capabilities.features.map((f, i) => ({
   ...f,
   cap: `CAP.${String(i + 1).padStart(2, '0')}`,
-  fig: `FIG.${String(i + 6).padStart(2, '0')}`,
-  paths: generateArcfield({ width: 260, height: 170, count: 7, amplitude: 0.3, seed: f.seed }),
 }));
 
-// —— S5 打样台默认图版（无 JS 降级态；客户端脚本以同一 generateArcfield 重算）——
-const proofPaths = generateArcfield({ width: 260, height: 150, count: 9, amplitude: 0.3, seed: 'ARCLINK' });
-
-// —— SEC.05 行业索引（Obys 式行式档案；Mapping 首位；QA修复 第7条：description 常显不再 hover 门控；
-// 每行弧场肉眼可辨差异 —— count=3+index、amplitude=0.15+index*0.06，种子仍为行业 key）——
+// —— SEC.05 行业索引（Obys 式行式档案；Mapping 首位；QA修复 第7条：description 常显；
+// docs/11 定案2：行内弧场缩略删除，列位归还描述）——
 const industryRows = t.industries.items.map((it, i) => ({
   ...it,
   ind: `IND.${String(i + 1).padStart(2, '0')}`,
-  paths: generateArcfield({ width: 240, height: 130, count: 3 + i, amplitude: 0.15 + i * 0.06, seed: it.key }),
 }));
 
 const buildDate = new Date().toISOString().slice(0, 10);
+// docs/11 定案2：打样台迁独立彩蛋页 —— colophon 行内 mono 链接进入（en→/proof，zh→/zh/proof）
+const proofHref = locale === 'zh' ? '/zh/proof' : '/proof';
 const globePayload = { cities: cities.map((c) => ({ lat: c.lat, lng: c.lng })) };
 const heroStatus = `ARCLINK ANNUAL — SEC.00 / FRONTISPIECE · INIT ${fmtLat(cityByCode.SIN.lat)} ${fmtLng(cityByCode.SIN.lng)} · LINK UP · ${metrics.citiesCovered} NODES`;
 const defaultRecord = eventArcs.find((e) => e.utc === lastUtc)?.caption ?? eventArcs[0].caption;
@@ -198,7 +194,7 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
       <!-- cobe 地球降级为右上小型档案图版（懒加载/移动端降级逻辑保留）；
            QA修复 第3条：跨节 FLIP/槽位删除 —— 滚动离开 hero 时在原图框内收缩归档 + ARCHIVED 图章原地盖下 -->
       <figure class="hero-figure">
-        <div class="fig-frame-border" aria-hidden="true"><span class="crops" aria-hidden="true"></span></div>
+        <div class="fig-frame-border" aria-hidden="true"></div>
         <div class="fig-body-hero">
           <div class="globe-wrap">
             <canvas id="hero-globe" role="img" aria-label={fmt(t.aria.globe, { n: metrics.citiesCovered })}></canvas>
@@ -239,7 +235,6 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
 
       <!-- S2 整版字标图版：ARCLINK 巨字即 FIG.01，12 条真实交付弧线在字腔内部描画（clipPath 内 <text> 用页面 Inter，无需转曲） -->
       <figure class="hero-plate">
-        <span class="crops" aria-hidden="true"></span>
         <h1 class="hero-title" aria-label="ARCLINK">
           <span class="wm-mask">
             <svg class="wm-svg" viewBox={`0 0 ${WM_W} ${WM_H}`} preserveAspectRatio="xMidYMax meet" aria-hidden="true">
@@ -294,7 +289,6 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     <div class="shell">
       <header class="sec-head mono-caption" data-reveal>
         <span>SEC.01 / INDEX</span>
-        <svg class="reg-cross" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="3.6" /><path d="M6 0v12M0 6h12" /></svg>
       </header>
 
       <div class="index-head grid-12">
@@ -345,7 +339,6 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     <div class="shell">
       <header class="sec-head sec-head--verso mono-caption" data-reveal>
         <span>SEC.02 / METHOD</span>
-        <svg class="reg-cross" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="3.6" /><path d="M6 0v12M0 6h12" /></svg>
       </header>
       <div class="method-head grid-12">
         <h2 class="sec-title method-title" data-reveal>{t.method.title}</h2>
@@ -397,7 +390,6 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     <div class="shell">
       <header class="sec-head mono-caption" data-reveal>
         <span>SEC.03 / COVERAGE — PLATE</span>
-        <svg class="reg-cross" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="3.6" /><path d="M6 0v12M0 6h12" /></svg>
       </header>
       <!-- 缺陷4：本节标题落右轴（col 7-12），标题块叠印图版上缘 -->
       <div class="cov-intro grid-12">
@@ -468,7 +460,6 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
 
         <!-- 覆盖台 = 插页浮卡，叠在地图左下大西洋空区（移动端回落文档流） -->
         <aside class="console" data-reveal aria-label={t.aria.console}>
-          <span class="crops" aria-hidden="true"></span>
           <p class="console-title mono-caption">{t.coverage.consoleTitle}</p>
           <div class="region-btns" role="group" aria-label={t.aria.regionGroup}>
             {regionDefs.map((r) => (
@@ -499,12 +490,11 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     </div>
   </section>
 
-  <!-- ============ SEC.04 / CAPABILITIES — 平台能力（FIG.06–11）+ S5 打样台（FIG.12） ============ -->
+  <!-- ============ SEC.04 / CAPABILITIES — 平台能力（docs/11 定案2：无图形，排版立住；打样台迁 /proof） ============ -->
   <section class="sec sec-capabilities" data-folio="04" data-secname="CAPABILITIES">
     <div class="shell">
       <header class="sec-head mono-caption" data-reveal>
         <span>SEC.04 / CAPABILITIES</span>
-        <svg class="reg-cross" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="3.6" /><path d="M6 0v12M0 6h12" /></svg>
       </header>
 
       <div class="cap-head grid-12">
@@ -512,59 +502,19 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
           <h2 class="sec-title" data-reveal>{t.capabilities.title}</h2>
           <p class="sec-lede" data-reveal>{t.capabilities.lede}</p>
         </div>
-
-        <!-- S5 打样台：弧场生成器上台 — 输入任意 seed 当场打样 FIG.12，可下载带印刷 chrome 的 SVG（stripe.dev 式传播回路） -->
-        <aside class="proof-press tipped" aria-label={t.aria.proofPanel}>
-          <span class="crops" aria-hidden="true"></span>
-          <p class="proof-fig mono-caption">FIG.12 — SEED PROOFING PRESS</p>
-          <h3 class="proof-title">{t.proof.title}</h3>
-          <div class="proof-input-row">
-            <label class="proof-label mono-caption" for="proof-seed">{t.proof.inputLabel}</label>
-            <input
-              class="proof-input"
-              id="proof-seed"
-              type="text"
-              maxlength="48"
-              value="ARCLINK"
-              placeholder={t.proof.placeholder}
-              autocomplete="off"
-              spellcheck="false"
-            />
-          </div>
-          <svg id="proof-field" class="proof-field" viewBox="0 0 260 150" aria-hidden="true">
-            {proofPaths.map((d) => (
-              <path d={d} pathLength="1" />
-            ))}
-          </svg>
-          <p id="proof-caption" class="proof-caption mono-caption">{fmt(t.proof.caption, { s: 'ARCLINK' })}</p>
-          <p class="proof-foot">
-            <a id="proof-download" class="proof-download mono-caption" href="#" download="arclink-proof-arclink.svg">{t.proof.download}</a>
-          </p>
-          <p class="proof-hook">{t.proof.hook}</p>
-        </aside>
       </div>
 
-      <!-- 缺陷7：错位双列大卡；弧场默认露 40%（无 JS 同样可见），hover 描满 -->
+      <!-- 缺陷7 错位双列保留；定案2：卡改纯排版 —— accent 短横线标记 + CAP.0n mono chip + 标题 + 描述，hover 仅边框/标记提亮 -->
       <ol class="cap-grid">
-        {capPlates.map((f) => (
-          <li class="cap-card fig">
-            <div class="cap-body">
-              <p class="cap-title">{f.title}</p>
-              <p class="cap-desc">{f.description}</p>
-              <svg class="cap-field" viewBox="0 0 260 170" aria-hidden="true">
-                {f.paths.map((d) => (
-                  <path d={d} pathLength="1" />
-                ))}
-              </svg>
-            </div>
-            <p class="fig-cap mono-caption">
-              <span>{f.cap} — {f.fig}</span>
-              <span>ARCFIELD · SEED «{f.seed.toUpperCase()}»</span>
-            </p>
+        {capItems.map((f) => (
+          <li class="cap-card">
+            <span class="cap-mark" aria-hidden="true"></span>
+            <p class="cap-num mono-caption">{f.cap}</p>
+            <p class="cap-title">{f.title}</p>
+            <p class="cap-desc">{f.description}</p>
           </li>
         ))}
       </ol>
-      <p class="spec-footnote mono-caption" data-reveal>{t.capabilities.note}</p>
     </div>
   </section>
 
@@ -573,30 +523,21 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     <div class="shell">
       <header class="sec-head sec-head--verso mono-caption" data-reveal>
         <span>SEC.05 / INDUSTRIES</span>
-        <svg class="reg-cross" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="3.6" /><path d="M6 0v12M0 6h12" /></svg>
       </header>
       <div class="ind-head grid-12">
         <h2 class="sec-title ind-title" data-reveal>{t.industries.title}</h2>
         <p class="sec-lede ind-lede" data-reveal>{t.industries.lede}</p>
       </div>
 
-      <!-- QA修复 第7条：description 常显（label col1-5 / 描述 col6-10 / 弧场 col11-12 / mono 序号钉右缘）；
-           hover 仅提亮 + 重描弧场，不再门控内容，行也不再需要 tabindex -->
+      <!-- QA修复 第7条：description 常显；docs/11 定案2：行内弧场缩略删除，col11-12 列位归还描述 ——
+           行 = label（display-l，col1-5）+ 描述常显（col6-11）+ mono 序号钉右缘；hover 仅提亮 -->
       <ol class="idx-list" aria-label={t.aria.industriesList}>
         {industryRows.map((it) => (
           <li class="idx-row">
             <span class="row-rule row-rule--bleed" aria-hidden="true"></span>
             <span class="idx-num mono-caption">{it.ind}</span>
             <span class="idx-label">{it.label}</span>
-            <div class="idx-detail">
-              <p class="idx-desc">{it.description}</p>
-              <p class="idx-src mono-caption">ARCFIELD · SEED «{it.key.toUpperCase()}»</p>
-            </div>
-            <svg class="idx-field" viewBox="0 0 240 130" aria-hidden="true">
-              {it.paths.map((d) => (
-                <path d={d} pathLength="1" />
-              ))}
-            </svg>
+            <p class="idx-desc">{it.description}</p>
           </li>
         ))}
       </ol>
@@ -608,7 +549,6 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     <div class="shell">
       <header class="sec-head mono-caption" data-reveal>
         <span>MANIFESTO / END MATTER</span>
-        <svg class="reg-cross" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="3.6" /><path d="M6 0v12M0 6h12" /></svg>
       </header>
 
       <div class="manifesto-lines">
@@ -620,32 +560,25 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
       </div>
 
       <!-- CTA = 装订进年鉴的回函卡（左缘齿孔虚线 + DETACH 竖注），下缘压过 colophon 顶线
-           QA修复 第8条：此处油墨条删除（功能卡上违和），全站仅 colophon 保留一处 -->
+           docs/11 定案3：角线与 EDITION 复记删除（EDITION 2026 chrome 仅书脊轨一处） -->
       <div class="cta-band tipped" data-reveal>
-        <span class="crops" aria-hidden="true"></span>
         <span class="cta-detach mono-caption" aria-hidden="true">{t.press.detach}</span>
         <div>
           <h3 class="cta-title">{t.cta.title}</h3>
           <p class="cta-sub">{t.cta.sub}</p>
         </div>
-        <div class="cta-col">
-          <a class="cta-btn" href="/">{t.cta.button}</a>
-          <span class="cta-note mono-caption">ARCLINK ANNUAL — EDITION 2026</span>
-        </div>
+        <a class="cta-btn" href="/">{t.cta.button}</a>
       </div>
     </div>
   </section>
 
-  <!-- ============ COLOPHON — 版权页收针（套准十字 + 油墨条居中，S1 全站第二次也是最后一次出现） ============ -->
+  <!-- ============ COLOPHON — 版权页收针（docs/11 定案3：套准十字与油墨条删除，一行 mono 口径 + proof 链接） ============ -->
   <footer class="colophon" data-folio="06" data-secname="COLOPHON">
     <div class="shell colophon-stack">
-      <div class="colophon-marks" aria-hidden="true">
-        <svg class="reg-cross" viewBox="0 0 12 12"><circle cx="6" cy="6" r="3.6" /><path d="M6 0v12M0 6h12" /></svg>
-        <span class="ink-bar"><i></i><i></i><i></i></span>
-      </div>
       <p class="mono-caption colophon-line">
         ARCLINK ANNUAL · EDITION 2026 — M2 VARIANT A «FIELD ATLAS» · DATA AS OF {metrics.asOf} UTC ·
-        {cities.length} NODES / {events.length} RECORDS / {fmtNum(totalKm)} KM · SET IN INTER + MONO · BUILT {buildDate}
+        {cities.length} NODES / {events.length} RECORDS / {fmtNum(totalKm)} KM · SET IN INTER + MONO · BUILT {buildDate} ·
+        <a class="colophon-link" href={proofHref}>{t.proof.colophonLink}</a>
       </p>
       <p class="mono-caption colophon-end">END — SEC.06 / COLOPHON</p>
     </div>
@@ -932,7 +865,7 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
       });
     });
 
-    // FIG.02 刻度条
+    // FIG.03 km 刻度条
     const ticks = gsap.utils.toArray<HTMLElement>('.tick');
     if (ticks.length) {
       gsap.set(ticks, { scaleY: 0, transformOrigin: '50% 100%' });
@@ -983,21 +916,6 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
       });
     });
 
-    // 缺陷7 + QA修复 第6条：能力卡弧场进入视口先描到 70%（终态交还 CSS，hover 全描由 CSS 承接）
-    gsap.utils.toArray<HTMLElement>('.cap-card').forEach((card) => {
-      const paths = card.querySelectorAll<SVGPathElement>('.cap-field path');
-      if (!paths.length) return;
-      gsap.set(paths, { strokeDashoffset: 1 });
-      gsap.to(paths, {
-        strokeDashoffset: 0.3,
-        duration: 0.9,
-        ease: 'power2.out',
-        stagger: 0.06,
-        scrollTrigger: { trigger: card, start: 'top 85%' },
-        onComplete: () => gsap.set(paths, { clearProps: 'strokeDashoffset' }),
-      });
-    });
-
     // 刊末宣言：display-m 逐行升起（mask 结构与 hero 字标同语言；无 JS 时直接可见）
     const maniTexts = gsap.utils.toArray<HTMLElement>('.manifesto-text');
     if (maniTexts.length) {
@@ -1039,89 +957,11 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
   });
 </script>
 
-<script>
-  // S5 打样台：seed → 9 条确定性弧线。arcfield 是纯 TS，客户端直接打包 import（零新依赖）。
-  // 无 JS：面板显示服务端预生成的默认图版；减动效：新图形直接呈现不描画。
-  import { generateArcfield } from '../../lib/arcfield';
-
-  const proofInput = document.getElementById('proof-seed') as HTMLInputElement | null;
-  const proofField = document.getElementById('proof-field');
-  const proofCap = document.getElementById('proof-caption');
-  const proofDl = document.getElementById('proof-download') as HTMLAnchorElement | null;
-
-  if (proofInput && proofField && proofCap && proofDl) {
-    const capTpl = proofCap.textContent ?? '';
-    const proofReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let objUrl = '';
-    let firstRender = true;
-
-    const escapeXml = (s: string) =>
-      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-
-    // 下载文件：把图框 + 裁切角线 + caption 一并烘进 SVG（用户拿走带 ARCLINK 印刷 chrome 的个人图版）
-    const buildSvg = (paths: string[], capText: string) => {
-      const arcs = paths
-        .map((p) => `<path d="${p}" fill="none" stroke="#2563eb" stroke-width="1.2"/>`)
-        .join('');
-      const crop = (x: number, y: number, sx: number, sy: number) =>
-        `<path d="M ${x} ${y + 8 * sy} L ${x} ${y} L ${x + 8 * sx} ${y}" fill="none" stroke="#8b99b0" stroke-width="1"/>`;
-      return (
-        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 214" width="600" height="428">` +
-        `<rect width="300" height="214" fill="#030b1d"/>` +
-        `<rect x="19.5" y="19.5" width="261" height="151" fill="none" stroke="rgba(255,255,255,0.28)"/>` +
-        crop(12, 12, 1, 1) +
-        crop(288, 12, -1, 1) +
-        crop(12, 178, 1, -1) +
-        crop(288, 178, -1, -1) +
-        `<g transform="translate(20 20)">${arcs}</g>` +
-        `<text x="20" y="196" font-family="ui-monospace, Menlo, monospace" font-size="8.5" letter-spacing="0.5" fill="#b9c3d5">${escapeXml(capText)}</text>` +
-        `<text x="280" y="196" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="8.5" letter-spacing="0.5" fill="#b9c3d5">ARCLINK ANNUAL — EDITION 2026</text>` +
-        `</svg>`
-      );
-    };
-
-    const render = (seedRaw: string) => {
-      const seed = (seedRaw.trim() || 'ARCLINK').slice(0, 48);
-      const paths = generateArcfield({ width: 260, height: 150, count: 9, amplitude: 0.3, seed });
-      const els = Array.from(proofField.querySelectorAll('path'));
-      els.forEach((p, i) => {
-        p.setAttribute('d', paths[i]);
-        if (!proofReduced && !firstRender) {
-          // 重描（pathLength=1 + dashoffset，transform/dashoffset 纪律内）
-          p.style.transition = 'none';
-          p.style.strokeDasharray = '1';
-          p.style.strokeDashoffset = '1';
-          void p.getBoundingClientRect();
-          p.style.transition = `stroke-dashoffset 0.8s ${(0.05 * i).toFixed(2)}s cubic-bezier(0.22, 0.61, 0.36, 1)`;
-          p.style.strokeDashoffset = '0';
-        }
-      });
-      const capText = capTpl.replace(/«[^»]*»/, `«${seed.toUpperCase()}»`);
-      proofCap.textContent = capText;
-      if (objUrl) URL.revokeObjectURL(objUrl);
-      objUrl = URL.createObjectURL(new Blob([buildSvg(paths, capText)], { type: 'image/svg+xml' }));
-      proofDl.href = objUrl;
-      const safe = seed.replace(/[^a-z0-9-_]+/gi, '-').toLowerCase().replace(/^-+|-+$/g, '') || 'arclink';
-      proofDl.download = `arclink-proof-${safe}.svg`;
-      firstRender = false;
-    };
-
-    let debounce = 0;
-    proofInput.addEventListener('input', () => {
-      window.clearTimeout(debounce);
-      debounce = window.setTimeout(() => render(proofInput.value), 220);
-    });
-    render(proofInput.value); // 初始化下载链接（不重描）
-  }
-</script>
-
 <style>
   /* ============ 年鉴基底（深色纸面） ============ */
   .atlas {
     /* 缺陷1修复：出血基元 —— 任一 shell 子元素以 margin: var(--bleed) 触及视口物理边缘 */
     --bleed: calc(50% - 50vw);
-    /* S1 印张 chrome：裁切角线墨色（paper / 反色图版各自覆写） */
-    --crop-ink: rgba(255, 255, 255, 0.38);
     /* 缺陷2修复：正文两档 —— lede 升档、支撑文降档 */
     --lede-size: 1.25rem;
     --support-size: 0.9375rem;
@@ -1161,20 +1001,8 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     flex-direction: row-reverse;
   }
 
-  .reg-cross {
-    width: 12px;
-    height: 12px;
-    flex: none;
-  }
-
-  .reg-cross circle,
-  .reg-cross path {
-    fill: none;
-    stroke: var(--color-text-soft-on-dark);
-    stroke-width: 1;
-  }
-
-  /* S1 裁切角线：单元素 8 层 background 画四角直角短线，外扩 7px，零 JS */
+  /* S1 裁切角线：单元素 8 层 background 画四角直角短线，外扩 7px，零 JS
+     docs/11 定案3 chrome 减密：全站仅 SEC.03 反色插页四角一处（--crop-ink 在 .sec-coverage 作用域定义） */
   .crops {
     position: absolute;
     inset: -7px;
@@ -1197,32 +1025,7 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     background-repeat: no-repeat;
   }
 
-  /* S1 油墨条：墨 / 专色 / 纸色（QA修复 第8条：CTA 回函卡处删除，全站仅 colophon 一处，出现越少越像真的） */
-  .ink-bar {
-    display: inline-flex;
-    gap: 3px;
-  }
-
-  .ink-bar i {
-    width: 9px;
-    height: 14px;
-  }
-
-  /* QA修复 第8条：墨色块加 hairline 边 —— 深色主题下 navy 块不再溶进页底色 */
-  .ink-bar i:nth-child(1) {
-    background: var(--color-bg-navy);
-    border: 1px solid var(--hairline);
-  }
-
-  .ink-bar i:nth-child(2) {
-    background: var(--color-accent);
-  }
-
-  .ink-bar i:nth-child(3) {
-    border: 1px solid var(--hairline);
-  }
-
-  /* 「插页」构件（tipped-in plate）：第二纸种 + 微倾 —— 全站 4 处（hero log / 覆盖台 / 打样台 / CTA 回函卡） */
+  /* 「插页」构件（tipped-in plate）：第二纸种 + 微倾 —— 全站 3 处（hero log / 覆盖台 / CTA 回函卡） */
   .tipped {
     position: relative;
     background: var(--color-bg-deep);
@@ -1782,7 +1585,6 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     /* 纸面无辉光：降为一次极浅墨影（critique-creativity：印刷品没有辉光，物理谬误修正） */
     --glow-accent: 0 1px 2px rgba(10, 29, 51, 0.1);
     --glow-accent-strong: 0 2px 6px rgba(10, 29, 51, 0.14);
-    --crop-ink: rgba(10, 29, 51, 0.45);
   }
 
   /* 图版页专用亮蓝（prop-palette：藏青底上小字 #6b93f0 = 5.71:1；hover 再提一档） */
@@ -1924,11 +1726,6 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
   .sec-coverage .sec-head {
     border-color: var(--hairline-on-light);
     color: var(--color-text-muted-on-light);
-  }
-
-  .sec-coverage .reg-cross circle,
-  .sec-coverage .reg-cross path {
-    stroke: var(--color-text-muted-on-light);
   }
 
   .sec-coverage .sec-lede {
@@ -2200,7 +1997,7 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     min-height: 2.4em;
   }
 
-  /* ============ SEC.04 CAPABILITIES — 能力图版 + S5 打样台 ============ */
+  /* ============ SEC.04 CAPABILITIES — 纯排版卡（docs/11 定案2：无图形，排版立住） ============ */
   .sec-capabilities {
     /* S4 骑线巨数下半身落在本节顶部，--sec-pt 放大留身位 */
     --sec-pt: 200px;
@@ -2216,100 +2013,7 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     grid-column: 1 / 6;
   }
 
-  /* S5 打样台：插页构件上压节头右半空区（comp-print 胆量时刻④） */
-  .proof-press {
-    grid-column: 7 / 13;
-    z-index: 2;
-    margin-top: calc(-1 * var(--space-7));
-    padding: var(--space-5) var(--space-6);
-  }
-
-  .proof-fig {
-    margin: 0 0 var(--space-3);
-    color: var(--color-text-soft-on-dark);
-  }
-
-  .proof-title {
-    margin: 0 0 var(--space-4);
-    font-size: 1.375rem;
-    font-weight: 680;
-    letter-spacing: -0.01em;
-  }
-
-  .proof-input-row {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    border-bottom: 1px solid var(--color-text-muted-on-dark);
-    padding-bottom: 4px;
-  }
-
-  .proof-label {
-    color: var(--color-text-muted-on-dark);
-  }
-
-  .proof-input {
-    flex: 1;
-    min-width: 0;
-    background: none;
-    border: 0;
-    padding: 6px 0;
-    color: var(--color-text-on-dark);
-    font-family: var(--font-mono);
-    font-size: var(--text-mono-caption);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .proof-input::placeholder {
-    color: var(--color-text-soft-on-dark);
-    text-transform: none;
-  }
-
-  .proof-field {
-    display: block;
-    width: 100%;
-    height: auto;
-    margin-top: var(--space-4);
-  }
-
-  .proof-field path {
-    fill: none;
-    stroke: var(--color-accent);
-    stroke-width: 1.2;
-    stroke-dasharray: 1;
-    stroke-dashoffset: 0; /* 无 JS：预生成默认图版直接可见 */
-  }
-
-  .proof-caption {
-    margin: var(--space-3) 0 0;
-    color: var(--color-text-muted-on-dark);
-  }
-
-  .proof-foot {
-    margin: var(--space-3) 0 0;
-  }
-
-  .proof-download {
-    color: var(--color-accent-bright);
-    text-decoration: none;
-    border-bottom: 1px solid rgba(52, 120, 255, 0.45);
-    padding-bottom: 2px;
-    transition: border-color var(--duration-fast) var(--ease-out);
-  }
-
-  .proof-download:hover {
-    border-color: var(--color-accent-bright);
-  }
-
-  .proof-hook {
-    margin: var(--space-4) 0 0;
-    font-size: var(--support-size);
-    line-height: 1.6;
-    color: var(--color-text-muted-on-dark);
-  }
-
-  /* 缺陷7修复：错位双列大卡（偶数卡下坠半格），弧场 viewBox 高 130→170 */
+  /* 缺陷7修复：错位双列大卡（偶数卡下坠半格）保留 —— 构图不依赖图形 */
   .cap-grid {
     list-style: none;
     display: grid;
@@ -2323,17 +2027,34 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     margin-top: var(--space-7);
   }
 
+  /* 定案2：卡 = accent 短横线标记 + CAP.0n mono chip + 标题 + 描述；hover 仅边框/标记提亮 */
   .cap-card {
     display: flex;
     flex-direction: column;
+    gap: var(--space-3);
+    border: 1px solid var(--hairline);
+    padding: var(--space-5) var(--space-5) var(--space-6);
+    transition: border-color var(--duration-base) var(--ease-out);
   }
 
-  .cap-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-    padding: var(--space-5);
+  .cap-card:hover {
+    border-color: var(--color-text-soft-on-dark);
+  }
+
+  .cap-mark {
+    width: 28px;
+    height: 2px;
+    background: var(--color-accent);
+    transition: background-color var(--duration-base) var(--ease-out);
+  }
+
+  .cap-card:hover .cap-mark {
+    background: var(--color-accent-bright);
+  }
+
+  .cap-num {
+    margin: 0;
+    color: var(--color-text-muted-on-dark);
   }
 
   .cap-title {
@@ -2347,40 +2068,6 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     font-size: var(--support-size);
     line-height: 1.6;
     color: var(--color-text-muted-on-dark);
-  }
-
-  .cap-field {
-    display: block;
-    width: 100%;
-    height: auto;
-    margin-top: auto;
-  }
-
-  /* 缺陷7修复 + QA修复 第6条：默认露 70% 墨（dashoffset 0.3，无 JS 同样可见），hover 描满（pathLength=1 + CSS dash） */
-  .cap-field path {
-    fill: none;
-    stroke: var(--color-accent);
-    stroke-width: 1.2;
-    stroke-dasharray: 1;
-    stroke-dashoffset: 0.3;
-    transition: stroke-dashoffset 0.9s var(--ease-out);
-  }
-
-  .cap-field path:nth-child(2n) {
-    transition-delay: 0.08s;
-  }
-
-  .cap-field path:nth-child(3n) {
-    transition-delay: 0.16s;
-  }
-
-  .cap-card:hover .cap-field path,
-  .cap-card:focus-within .cap-field path {
-    stroke-dashoffset: 0;
-  }
-
-  .cap-card .fig-cap {
-    margin: 0;
   }
 
   /* ============ SEC.05 INDUSTRIES — 行式档案索引（缺陷1：标题 col1-4 / lede col6-10；缺陷2：大字升 display-l） ============ */
@@ -2437,56 +2124,12 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     color: var(--color-accent-bright);
   }
 
-  /* QA7：描述常显 —— 不再有 opacity/transform 门控 */
-  .idx-detail {
-    grid-column: 6 / 11;
-  }
-
-  .idx-field {
-    grid-column: 11 / 13;
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  /* QA7：弧场默认 100% 可见（0.75px 细线）；hover 仅提亮 + 重描（dashoffset 动词；减动效下仅提亮、无动画） */
-  .idx-field path {
-    fill: none;
-    stroke: var(--color-accent);
-    stroke-width: 0.75;
-    stroke-dasharray: 1;
-    stroke-dashoffset: 0;
-  }
-
-  .idx-row:hover .idx-field path {
-    stroke: var(--color-accent-bright);
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .idx-row:hover .idx-field path {
-      animation: idx-redraw 0.8s var(--ease-out) both;
-    }
-  }
-
-  @keyframes idx-redraw {
-    from {
-      stroke-dashoffset: 1;
-    }
-
-    to {
-      stroke-dashoffset: 0;
-    }
-  }
-
+  /* QA7：描述常显 —— 不再有 opacity/transform 门控；定案2：弧场缩略删除，col11-12 归还描述 */
   .idx-desc {
+    grid-column: 6 / 12;
     margin: 0;
     font-size: 1.0625rem;
     line-height: 1.65;
-    color: var(--color-text-muted-on-dark);
-  }
-
-  .idx-src {
-    margin: var(--space-2) 0 0;
     color: var(--color-text-muted-on-dark);
   }
 
@@ -2566,13 +2209,6 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     color: var(--color-text-muted-on-dark);
   }
 
-  .cta-col {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-3);
-  }
-
   /* 全站唯一蓝色实心块（提案 2.3：蓝 = 活的数据 / 唯一 CTA）；缺陷8：54px → 64px
      QA修复 第1条：前景改 on-accent 恒白（纸面下 --color-text-on-dark=墨色，曾致"蓝钮黑字"） */
   .cta-btn {
@@ -2607,10 +2243,6 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     background: var(--color-accent-deep);
   }
 
-  .cta-note {
-    color: var(--color-text-muted-on-dark);
-  }
-
   /* ============ COLOPHON — 版权页收针（回函卡压顶线，padding-top 承接） ============ */
   .colophon {
     border-top: 1px solid var(--hairline);
@@ -2625,16 +2257,26 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     text-align: center;
   }
 
-  .colophon-marks {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-  }
-
   .colophon-line,
   .colophon-end {
     margin: 0;
     color: var(--color-text-soft-on-dark);
+  }
+
+  /* docs/11 定案2：colophon 行内 mono 链接进打样间（口径行的一部分，同色系不抢注意力） */
+  .colophon-link {
+    color: var(--color-text-soft-on-dark);
+    text-decoration: none;
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 1px;
+    transition:
+      color var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out);
+  }
+
+  .colophon-link:hover {
+    color: var(--color-accent-bright);
+    border-color: var(--color-accent-bright);
   }
 
   /* ============ Folio 页码 ============ */
@@ -2667,13 +2309,8 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
   }
 
   @media (max-width: 1100px) {
-    .cap-intro,
-    .proof-press {
+    .cap-intro {
       grid-column: 1 / 13;
-    }
-
-    .proof-press {
-      margin-top: 0;
     }
 
     .console {
@@ -2860,10 +2497,6 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
 
     .idx-num {
       position: static;
-    }
-
-    .idx-field {
-      max-width: 240px;
     }
 
     .row-rule--bleed {
