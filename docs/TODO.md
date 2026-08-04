@@ -40,6 +40,8 @@ M1 完成（首页 9 个 section 组件化 + 三弹窗表单，双端验证通�
 
 ## 会话日志（倒序，只记里程碑级变化）
 
+- **2026-08-04（冲奖重构）**：samuel 评审否决初版（"拿不了奖"）→ 5-agent 评审工作流（Design/Creativity 尸检 + 配色/构图提案）→ 实施：NORTH PAPER 冷纸配色（修色温冲突 + WCAG）、十条构图缺陷全修（单轴病/字阶断层/hero 避让/图版锁笼）、五签名（印张系统/整版字标图版/归档落版/跨页图版/打样台）。评审材料存 scratchpad，commit 2d4d7a4。
+
 - **2026-08-04（基建补齐）**：404 页（补上 wrangler 已引用的缺口）、favicon（logo 元素派生 SVG）、skip-link + :focus-visible、`astro check` 进构建；**i18n 配置层就位**（en 默认 + zh fallback 重定向 + sitemap hreflang，中文内容到位即覆盖）；logo PNG 入库并采样品牌原色（#0a1d33 / #147dfd → brand tokens）；新增 docs/09 设计系统文档。
 
 - **2026-08-04（M1）**：原型移植完成——SiteHeader/Hero/Belief/Process/Platform/Industries/NetworkCta/Footer/ContactModals 九个组件，全部数据驱动（home.ts）；视觉升级落地（Linear 卡片、mono 序号替代 glyph、Mapping 居首）；三弹窗升级为完整表单（honeypot + Turnstile 挂载点，M3 接真实提交）；桌面 1440/移动 390 截图验证；6 个 section 由并行 workflow 构建（Platform agent 被误拦后由主循环补齐）。
