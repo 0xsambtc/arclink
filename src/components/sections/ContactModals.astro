@@ -1,0 +1,295 @@
+---
+// 三个联系弹窗（需求方 / 采集人员 / 合作伙伴）— M1 为完整表单 UI + 占位提交
+// M3 接真实链路：POST /api/submit（Turnstile 挂载点已预留）；honeypot 字段见 docs/07
+import { modalsData } from '../../data/home';
+
+const forms = [
+  { key: 'project', data: modalsData.project, hasChoices: false },
+  { key: 'network', data: modalsData.network, hasChoices: true },
+  { key: 'partner', data: modalsData.partner, hasChoices: false },
+] as const;
+---
+
+<div class="modal-backdrop" id="modalBackdrop"></div>
+
+{
+  forms.map(({ key, data, hasChoices }) => (
+    <section class="modal" id={`modal-${key}`} role="dialog" aria-modal="true" aria-labelledby={`modal-${key}-heading`}>
+      <button class="modal-close" data-close-modal aria-label="Close">×</button>
+      <p class="eyebrow">{data.eyebrow}</p>
+      <h2 id={`modal-${key}-heading`}>{data.heading}</h2>
+      {'copy' in data && <p class="modal-copy">{data.copy}</p>}
+      <form class="contact-form" data-form={key} novalidate>
+        {hasChoices && 'choices' in data && (
+          <>
+            <div class="choice-grid">
+              {data.choices.map((choice, index) => (
+                <button
+                  type="button"
+                  class:list={['choice-card', index === 0 && 'selected']}
+                  data-choice={choice.key}
+                >
+                  <strong>{choice.title}</strong>
+                  <span>{choice.description}</span>
+                </button>
+              ))}
+            </div>
+            <input type="hidden" name="applicantType" value={data.choices[0].key} />
+          </>
+        )}
+        <label>
+          {data.fields.name}
+          <input type="text" name="name" required autocomplete="name" />
+        </label>
+        <label>
+          {data.fields.email}
+          <input type="email" name="email" required autocomplete="email" />
+        </label>
+        {'company' in data.fields && (
+          <label>
+            {data.fields.company}
+            <input type="text" name="company" autocomplete="organization" />
+          </label>
+        )}
+        {'location' in data.fields && (
+          <label>
+            {data.fields.location}
+            <input type="text" name="location" required autocomplete="country-name" />
+          </label>
+        )}
+        <label>
+          {data.fields.message}
+          <textarea name="message" rows="4" required></textarea>
+        </label>
+        {/* honeypot：机器人会填，真人看不见（docs/07 反垃圾双保险之一） */}
+        <input type="text" name="website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        {/* TODO(M3): Turnstile widget 挂载点 */}
+        <button class="submit" type="submit">{data.submit}</button>
+        <p class="form-message" data-success={data.successMessage} aria-live="polite"></p>
+      </form>
+    </section>
+  ))
+}
+
+<style>
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 8, 20, 0.72);
+    backdrop-filter: blur(9px);
+    z-index: 1100;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--duration-base) var(--ease-out), visibility var(--duration-base);
+  }
+
+  .modal-backdrop.open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .modal {
+    position: fixed;
+    z-index: 1200;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -46%) scale(0.96);
+    width: min(600px, calc(100% - 32px));
+    max-height: 88vh;
+    overflow: auto;
+    padding: 38px;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: 0 30px 100px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--duration-base) var(--ease-out),
+      transform var(--duration-base) var(--ease-out),
+      visibility var(--duration-base);
+  }
+
+  .modal.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .modal h2 {
+    font-size: 34px;
+    line-height: 1.15;
+    margin: 0 0 var(--space-3);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-text-on-light);
+  }
+
+  .modal-copy {
+    color: var(--color-text-muted-on-light);
+    margin: 0 0 var(--space-4);
+  }
+
+  .modal-close {
+    position: absolute;
+    right: 20px;
+    top: 16px;
+    border: 0;
+    background: none;
+    font-size: 30px;
+    cursor: pointer;
+    color: var(--color-text-muted-on-light);
+  }
+
+  .contact-form label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    margin: var(--space-4) 0;
+    color: var(--color-text-on-light);
+  }
+
+  .contact-form input,
+  .contact-form textarea {
+    width: 100%;
+    display: block;
+    margin-top: var(--space-2);
+    padding: 13px;
+    border: 1px solid var(--color-border-on-light);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    transition: border-color var(--duration-fast) var(--ease-out);
+  }
+
+  .contact-form input:focus,
+  .contact-form textarea:focus {
+    outline: none;
+    border-color: var(--color-accent);
+  }
+
+  .hp-field {
+    position: absolute !important;
+    left: -9999px;
+    height: 0;
+    width: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .submit {
+    width: 100%;
+    min-height: 48px;
+    margin-top: var(--space-4);
+    border: 0;
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-weight: 650;
+    cursor: pointer;
+    color: var(--color-text-on-dark);
+    background: linear-gradient(135deg, var(--color-accent-deep), var(--color-accent));
+    box-shadow: var(--glow-accent);
+    transition: transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
+  }
+
+  .submit:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--glow-accent-strong);
+  }
+
+  .form-message {
+    color: var(--color-accent);
+    font-weight: 700;
+    min-height: 1.2em;
+    margin: var(--space-3) 0 0;
+  }
+
+  .choice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+  }
+
+  .choice-card {
+    padding: 22px;
+    text-align: left;
+    border: 1px solid var(--color-border-on-light);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-alt);
+    cursor: pointer;
+    font: inherit;
+    transition: border-color var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
+  }
+
+  .choice-card:hover {
+    transform: translateY(-3px);
+  }
+
+  .choice-card.selected {
+    border-color: var(--color-accent);
+    background: var(--color-surface-tint);
+  }
+
+  .choice-card strong,
+  .choice-card span {
+    display: block;
+  }
+
+  .choice-card span {
+    color: var(--color-text-muted-on-light);
+    margin-top: var(--space-2);
+    font-size: 14px;
+  }
+
+  @media (max-width: 760px) {
+    .choice-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  const backdrop = document.getElementById('modalBackdrop')!;
+  const modals = [...document.querySelectorAll<HTMLElement>('.modal')];
+
+  function openModal(key: string) {
+    modals.forEach((modal) => modal.classList.remove('open'));
+    document.getElementById(`modal-${key}`)?.classList.add('open');
+    backdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModals() {
+    modals.forEach((modal) => modal.classList.remove('open'));
+    backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-open-modal]').forEach((trigger) =>
+    trigger.addEventListener('click', () => openModal(trigger.dataset.openModal!))
+  );
+  document.querySelectorAll('[data-close-modal]').forEach((btn) => btn.addEventListener('click', closeModals));
+  backdrop.addEventListener('click', closeModals);
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeModals();
+  });
+
+  // 身份选择卡（采集人员弹窗）
+  document.querySelectorAll<HTMLElement>('.choice-card').forEach((card) =>
+    card.addEventListener('click', () => {
+      const form = card.closest('form')!;
+      form.querySelectorAll('.choice-card').forEach((c) => c.classList.remove('selected'));
+      card.classList.add('selected');
+      form.querySelector<HTMLInputElement>('input[name="applicantType"]')!.value = card.dataset.choice ?? '';
+    })
+  );
+
+  // M1 占位提交：本地校验 + 成功文案；M3 替换为 POST /api/submit 真实链路
+  document.querySelectorAll<HTMLFormElement>('.contact-form').forEach((form) =>
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+      const message = form.querySelector<HTMLElement>('.form-message')!;
+      message.textContent = message.dataset.success ?? 'Received.';
+      form.reset();
+    })
+  );
+</script>

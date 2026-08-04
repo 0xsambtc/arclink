@@ -1,0 +1,155 @@
+---
+// Process — 五步执行流程横排（浅色渐变底）
+// 升级点：去掉原型杂项 glyph，圆形图标内直接放 mono 步骤号（Anduril 式机构感）；颜色全部映射 tokens
+import { process } from '../../data/home';
+---
+
+<section class="process" id={process.id} data-section={process.id}>
+  <div class="shell">
+    <div class="section-heading reveal">
+      <p class="eyebrow">{process.eyebrow}</p>
+      <h2>{process.heading}</h2>
+    </div>
+    <div class="process-track reveal reveal-delay">
+      {
+        process.steps.map((step, index) => (
+          <>
+            {index > 0 && (
+              <span class="process-arrow" aria-hidden="true">
+                →
+              </span>
+            )}
+            <article class:list={['process-step', index === 0 && 'active']} data-process-step>
+              <span class="step-icon">{step.number}</span>
+              <h3>{step.title}</h3>
+              <p>{step.description}</p>
+            </article>
+          </>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .process {
+    padding: 76px 0 90px;
+    background: linear-gradient(180deg, var(--color-surface), var(--color-surface-alt));
+  }
+
+  .section-heading {
+    text-align: center;
+    margin-bottom: var(--space-7);
+  }
+
+  .section-heading h2 {
+    font-size: 38px;
+    line-height: 1.15;
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .process-track {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .process-step {
+    width: 175px;
+    flex-shrink: 0;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  /* 圆形图标：mono 步骤号（升级：替代原型 glyph，圆下不再重复数字） */
+  .step-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border-on-light);
+    background: var(--color-surface);
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 800;
+    transition:
+      background-color var(--duration-base) var(--ease-out),
+      color var(--duration-base) var(--ease-out),
+      border-color var(--duration-base) var(--ease-out),
+      box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  /* hover/active：图标反白 + 环形光晕（rgba 仅作主色透明度叠加） */
+  .process-step:hover .step-icon,
+  .process-step.active .step-icon {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-text-on-dark);
+    box-shadow:
+      0 0 0 13px rgba(37, 99, 235, 0.1),
+      0 0 28px rgba(37, 99, 235, 0.35);
+  }
+
+  .process-step h3 {
+    font-size: 17px;
+    letter-spacing: var(--tracking-tight);
+    margin: var(--space-5) 0 var(--space-2);
+  }
+
+  .process-step p {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--color-text-muted-on-light);
+    margin: 0;
+  }
+
+  .process-arrow {
+    align-self: flex-start;
+    margin-top: 26px; /* 与 74px 圆心对齐 */
+    color: var(--color-accent);
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 1120px) {
+    .process-step {
+      width: 156px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .process {
+      padding: var(--space-8) 0;
+    }
+    .section-heading h2 {
+      font-size: 30px;
+    }
+    /* 横向滚动，保持流程的线性叙事 */
+    .process-track {
+      justify-content: flex-start;
+      gap: var(--space-4);
+      overflow-x: auto;
+      padding-bottom: var(--space-4);
+      -webkit-overflow-scrolling: touch;
+    }
+    .process-step {
+      width: 168px;
+    }
+  }
+</style>
+
+<script>
+  // 点击某步 → 独占 active（首个默认 active，服务端已渲染）
+  const steps = document.querySelectorAll<HTMLElement>('[data-process-step]');
+  steps.forEach((step) => {
+    step.addEventListener('click', () => {
+      steps.forEach((other) => other.classList.remove('active'));
+      step.classList.add('active');
+    });
+  });
+</script>

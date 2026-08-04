@@ -1,0 +1,170 @@
+---
+// Industries — 行业切换器（白底）；首项 Mapping 默认激活（geo 旗舰垂类，docs/00 决策）
+// 升级点：原型 glyph 图标改为 mono 序号（01…06）；描述切换加 opacity 过渡；颜色全部映射 tokens
+import { industries } from '../../data/home';
+---
+
+<section class="industries" id="industries" data-section="industries">
+  <div class="shell industries-grid">
+    <div class="industries-intro reveal">
+      <p class="eyebrow">{industries.eyebrow}</p>
+      <h2>{industries.heading}</h2>
+    </div>
+    <div class="industry-list reveal reveal-delay">
+      {
+        industries.items.map((item, index) => (
+          <button
+            type="button"
+            class:list={['industry-item', index === 0 && 'active']}
+            data-industry={item.key}
+            data-description={item.description}
+            aria-pressed={index === 0 ? 'true' : 'false'}
+          >
+            <span class="industry-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+            <strong>{item.label}</strong>
+          </button>
+        ))
+      }
+    </div>
+  </div>
+  <div class="shell industry-description reveal" id="industryDescription" aria-live="polite">
+    {industries.items[0].description}
+  </div>
+</section>
+
+<style>
+  .industries {
+    padding: var(--space-9) 0;
+    background: var(--color-surface);
+    color: var(--color-text-on-light);
+  }
+
+  .industries-grid {
+    display: grid;
+    grid-template-columns: 0.75fr 1.25fr;
+    align-items: start;
+    gap: var(--space-8);
+  }
+
+  h2 {
+    font-size: 40px;
+    line-height: 1.15;
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .industry-list {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: var(--space-3);
+  }
+
+  .industry-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-5) var(--space-3);
+    background: none;
+    border: 0;
+    border-left: 1px solid var(--color-border-on-light);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font: inherit;
+    color: var(--color-text-on-light);
+    text-align: left;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-fast) var(--ease-out),
+      color var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out),
+      transform var(--duration-fast) var(--ease-out);
+  }
+
+  .industry-index {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-text-muted-on-light);
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  .industry-item strong {
+    font-weight: 650;
+  }
+
+  .industry-item:hover,
+  .industry-item.active {
+    background: var(--color-surface-tint);
+    color: var(--color-accent);
+    border-left-color: var(--color-accent);
+    transform: translateY(-4px);
+  }
+
+  .industry-item:hover .industry-index,
+  .industry-item.active .industry-index {
+    color: var(--color-accent);
+  }
+
+  .industry-description {
+    min-height: 65px;
+    margin-top: var(--space-6);
+    text-align: right;
+    color: var(--color-text-muted-on-light);
+    /* 切换时 JS 先加 .is-fading 淡出，替换文案后移除淡入 */
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+
+  .industry-description.is-fading {
+    opacity: 0;
+  }
+
+  @media (max-width: 1120px) {
+    .industry-list {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 760px) {
+    .industries {
+      padding: var(--space-8) 0;
+    }
+    .industries-grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-6);
+    }
+    h2 {
+      font-size: 32px;
+    }
+    .industry-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .industry-description {
+      text-align: left;
+    }
+  }
+</style>
+
+<script>
+  // 行业切换：active 状态 + 描述淡出/替换/淡入；文案来自按钮 data-description，脚本内零硬编码文案
+  const section = document.querySelector('[data-section="industries"]');
+  if (section) {
+    const buttons = Array.from(section.querySelectorAll<HTMLButtonElement>('.industry-item'));
+    const description = section.querySelector<HTMLElement>('#industryDescription');
+    const FADE_MS = 180; // 与 --duration-fast(0.22s) 量级一致，先于过渡结束替换文案
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        if (button.classList.contains('active')) return;
+        buttons.forEach((other) => {
+          other.classList.toggle('active', other === button);
+          other.setAttribute('aria-pressed', other === button ? 'true' : 'false');
+        });
+        if (!description) return;
+        description.classList.add('is-fading');
+        window.setTimeout(() => {
+          description.textContent = button.dataset.description ?? '';
+          description.classList.remove('is-fading');
+        }, FADE_MS);
+      });
+    });
+  }
+</script>

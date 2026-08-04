@@ -1,0 +1,85 @@
+---
+// 通用按钮 — variant/size 驱动；href 时渲染 <a>，否则 <button>
+// 微动效参照 Vercel Ship：hover 位移 + 发光增强（docs/01）
+interface Props {
+  variant?: 'primary' | 'outline' | 'outline-dark';
+  size?: 'base' | 'large';
+  href?: string;
+  class?: string;
+  [key: string]: unknown;
+}
+
+const { variant = 'primary', size = 'base', href, class: className, ...rest } = Astro.props;
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag
+  class:list={['button', `button-${variant}`, size === 'large' && 'button-large', className]}
+  href={href}
+  {...rest}
+>
+  <slot />
+</Tag>
+
+<style>
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    min-height: 48px;
+    padding: 0 21px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-weight: 650;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      transform var(--duration-fast) var(--ease-out),
+      box-shadow var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out),
+      background-color var(--duration-fast) var(--ease-out);
+  }
+
+  .button:hover {
+    transform: translateY(-2px);
+  }
+
+  .button-primary {
+    color: var(--color-text-on-dark);
+    background: linear-gradient(135deg, var(--color-accent-deep), var(--color-accent));
+    box-shadow: var(--glow-accent);
+  }
+
+  .button-primary:hover {
+    box-shadow: var(--glow-accent-strong);
+  }
+
+  .button-outline {
+    color: var(--color-text-on-dark);
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .button-outline:hover {
+    border-color: var(--color-accent-bright);
+    background: rgba(37, 99, 235, 0.1);
+  }
+
+  .button-outline-dark {
+    color: var(--color-text-on-light);
+    background: transparent;
+    border: 1px solid var(--color-border-on-light);
+  }
+
+  .button-outline-dark:hover {
+    border-color: var(--color-accent);
+    background: var(--color-surface-tint);
+  }
+
+  .button-large {
+    min-height: 58px;
+    padding: 0 28px;
+  }
+</style>

@@ -29,6 +29,34 @@ body {
   margin: 0 0 var(--space-5);
 }
 
+/* Scroll reveal（原型机制保留，观察器在 Base.astro；后续 GSAP 编排叠加其上） */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity var(--duration-reveal) var(--ease-out),
+    transform var(--duration-reveal) var(--ease-out);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
+.reveal-delay {
+  transition-delay: 0.15s;
+}
+
+.text-link {
+  border: 0;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  font-weight: 700;
+  padding: 0;
+  cursor: pointer;
+}
+
 /* 无障碍：系统减弱动效时全局关闭（docs/02 约定；GSAP 侧另有 matchMedia 条件） */
 @media (prefers-reduced-motion: reduce) {
   *,

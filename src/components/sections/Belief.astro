@@ -1,0 +1,196 @@
+---
+// Belief — "Our Belief" 白底宣言段 + 可展开 Manifesto（原型移植，颜色全部映射 tokens）
+import { belief } from '../../data/home';
+---
+
+<section class="belief" id={belief.id} data-section={belief.id}>
+  <div class="shell belief-grid">
+    <div class="reveal">
+      <p class="eyebrow">{belief.eyebrow}</p>
+      <h2>
+        {belief.heading.pre}<br />
+        <span>{belief.heading.accent}</span>
+      </h2>
+    </div>
+    <div class="belief-rule reveal" aria-hidden="true"></div>
+    <div class="belief-copy reveal reveal-delay">
+      <p>{belief.copy}</p>
+      <button
+        class="text-link"
+        id="manifestoToggle"
+        aria-expanded="false"
+        aria-controls="manifestoPanel"
+        data-label-open={belief.manifestoLabel.open}
+        data-label-close={belief.manifestoLabel.close}
+      >
+        <span class="toggle-label">{belief.manifestoLabel.open}</span>
+        <span class="toggle-arrow" aria-hidden="true">→</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 展开面板：grid-template-rows 0fr→1fr 过渡实现平滑高度动画 -->
+  <div class="shell manifesto-panel" id="manifestoPanel">
+    <div class="manifesto-inner">
+      {belief.manifesto.map((paragraph) => <p>{paragraph}</p>)}
+    </div>
+  </div>
+</section>
+
+<style>
+  .belief {
+    position: relative;
+    overflow: hidden;
+    padding: var(--space-9) 0 var(--space-8);
+    color: var(--color-text-on-light);
+    background: var(--color-surface);
+  }
+
+  /* 右下角装饰同心圆 — surface-tint 系叠圈，白底上仅作微弱纹理 */
+  .belief::after {
+    content: '';
+    position: absolute;
+    right: -140px;
+    bottom: -230px;
+    width: 490px;
+    height: 490px;
+    border: 1px solid var(--color-border-on-light);
+    border-radius: 50%;
+    box-shadow:
+      0 0 0 35px var(--color-surface-tint),
+      0 0 0 36px var(--color-border-on-light),
+      0 0 0 70px var(--color-surface-tint),
+      0 0 0 71px var(--color-border-on-light);
+    pointer-events: none;
+  }
+
+  .belief-grid {
+    display: grid;
+    grid-template-columns: 1fr 1px 1.1fr;
+    gap: 70px;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  h2 {
+    font-size: clamp(42px, 4vw, 54px);
+    line-height: 1.12;
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  h2 span {
+    color: var(--color-accent);
+  }
+
+  /* 中缝竖线 */
+  .belief-rule {
+    height: 110px;
+    background: var(--color-border-on-light);
+  }
+
+  .belief-copy p {
+    font-size: 20px;
+    line-height: 1.75;
+    color: var(--color-text-muted-on-light);
+    margin: 0 0 var(--space-5);
+  }
+
+  #manifestoToggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 17px;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  #manifestoToggle:hover {
+    color: var(--color-accent-deep);
+  }
+
+  .toggle-arrow {
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+
+  #manifestoToggle:hover .toggle-arrow {
+    transform: translateX(3px);
+  }
+
+  /* 展开面板：0fr → 1fr（配合 inner 的 min-height:0 / overflow:hidden） */
+  .manifesto-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--duration-reveal) var(--ease-out);
+    position: relative;
+    z-index: 2;
+  }
+
+  .manifesto-panel.open {
+    grid-template-rows: 1fr;
+  }
+
+  .manifesto-inner {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .manifesto-inner p {
+    font-size: 18px;
+    line-height: 1.8;
+    color: var(--color-text-muted-on-light);
+    max-width: 780px;
+    margin: 0;
+  }
+
+  .manifesto-inner p:first-child {
+    margin-top: var(--space-7);
+  }
+
+  .manifesto-inner p + p {
+    margin-top: var(--space-5);
+  }
+
+  @media (max-width: 1120px) {
+    .belief-grid {
+      gap: var(--space-7);
+    }
+  }
+
+  @media (max-width: 760px) {
+    .belief {
+      padding: var(--space-8) 0 var(--space-7);
+    }
+    .belief-grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-5);
+    }
+    .belief-rule {
+      display: none;
+    }
+    h2 {
+      font-size: 38px;
+    }
+    .belief-copy p {
+      font-size: 18px;
+    }
+  }
+</style>
+
+<script>
+  // Manifesto 展开/收起：切换 open 类 + 按钮文案与箭头（label 来自 data 属性，零硬编码文案）
+  const toggle = document.getElementById('manifestoToggle');
+  const panel = document.getElementById('manifestoPanel');
+
+  if (toggle && panel) {
+    const label = toggle.querySelector('.toggle-label');
+    const arrow = toggle.querySelector('.toggle-arrow');
+
+    toggle.addEventListener('click', () => {
+      const isOpen = panel.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', String(isOpen));
+      if (label) label.textContent = isOpen ? toggle.dataset.labelClose ?? '' : toggle.dataset.labelOpen ?? '';
+      if (arrow) arrow.textContent = isOpen ? '↑' : '→';
+    });
+  }
+</script>

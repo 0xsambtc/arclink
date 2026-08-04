@@ -1,0 +1,184 @@
+---
+// Hero — M1 基线版（沿用原型 SVG 网络图；M2 用 cobe globe 双变体替换此视觉区）
+import Button from '../ui/Button.astro';
+import { hero } from '../../data/home';
+---
+
+<section class="hero" id="home" data-section="home">
+  <div class="hero-stars" aria-hidden="true"></div>
+  <div class="shell hero-grid">
+    <div class="hero-copy reveal">
+      <p class="eyebrow">{hero.eyebrow}</p>
+      <h1>
+        {hero.headline.pre}<br />
+        <span>{hero.headline.accent}</span><br />
+        {hero.headline.post}
+      </h1>
+      <p class="hero-description">{hero.description}</p>
+      <div class="hero-actions">
+        <Button variant="primary" size="large" data-open-modal="project">Start a Project <span aria-hidden="true">→</span></Button>
+        <Button variant="outline" size="large" data-open-modal="network">Join Our Network <span aria-hidden="true">→</span></Button>
+      </div>
+    </div>
+    <div class="network-graphic reveal reveal-delay" aria-label="Global execution network">
+      <svg class="network-svg" viewBox="0 0 720 500" role="img" aria-label="Connected global network">
+        <g class="map-dots" opacity=".58">
+          <circle cx="115" cy="170" r="2"></circle><circle cx="135" cy="155" r="2"></circle><circle cx="150" cy="190" r="2"></circle><circle cx="175" cy="145" r="2"></circle><circle cx="195" cy="200" r="2"></circle><circle cx="210" cy="170" r="2"></circle><circle cx="250" cy="190" r="2"></circle><circle cx="295" cy="160" r="2"></circle><circle cx="315" cy="205" r="2"></circle><circle cx="335" cy="185" r="2"></circle><circle cx="360" cy="215" r="2"></circle><circle cx="390" cy="172" r="2"></circle><circle cx="420" cy="190" r="2"></circle><circle cx="450" cy="205" r="2"></circle><circle cx="475" cy="180" r="2"></circle><circle cx="500" cy="215" r="2"></circle><circle cx="530" cy="195" r="2"></circle><circle cx="560" cy="225" r="2"></circle><circle cx="585" cy="210" r="2"></circle><circle cx="610" cy="245" r="2"></circle><circle cx="180" cy="255" r="2"></circle><circle cx="220" cy="275" r="2"></circle><circle cx="265" cy="260" r="2"></circle><circle cx="310" cy="300" r="2"></circle><circle cx="355" cy="280" r="2"></circle><circle cx="400" cy="310" r="2"></circle><circle cx="450" cy="285" r="2"></circle><circle cx="510" cy="315" r="2"></circle><circle cx="565" cy="300" r="2"></circle>
+        </g>
+        <g class="network-lines">
+          <path d="M110 300 Q220 90 350 250"></path><path d="M110 300 Q300 120 545 180"></path><path d="M175 155 Q340 55 495 225"></path><path d="M230 345 Q350 180 465 320"></path><path d="M350 250 Q480 80 610 275"></path><path d="M350 250 Q470 205 545 180"></path><path d="M465 320 Q560 170 655 330"></path><path d="M230 345 Q410 410 610 275"></path><path d="M495 225 Q600 165 670 250"></path>
+        </g>
+        <g class="network-points">
+          <circle cx="110" cy="300" r="6"></circle><circle cx="175" cy="155" r="5"></circle><circle cx="230" cy="345" r="6"></circle><circle cx="350" cy="250" r="7"></circle><circle cx="465" cy="320" r="6"></circle><circle cx="495" cy="225" r="6"></circle><circle cx="545" cy="180" r="6"></circle><circle cx="610" cy="275" r="6"></circle><circle cx="655" cy="330" r="5"></circle><circle cx="670" cy="250" r="5"></circle>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    min-height: 790px;
+    position: relative;
+    overflow: hidden;
+    padding-top: 88px;
+    color: var(--color-text-on-dark);
+    background: radial-gradient(
+      circle at 75% 40%,
+      var(--color-glow) 0,
+      var(--color-bg) 45%,
+      var(--color-bg-deep) 100%
+    );
+  }
+
+  .hero-stars {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(75, 130, 255, 0.65) 0 1px, transparent 1.5px);
+    background-size: 65px 65px;
+    opacity: 0.13;
+  }
+
+  .hero-grid {
+    min-height: 660px;
+    display: grid;
+    grid-template-columns: 0.88fr 1.12fr;
+    align-items: center;
+    gap: var(--space-6);
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-copy {
+    padding: var(--space-7) 0;
+  }
+
+  h1 {
+    font-size: clamp(52px, 5.1vw, 78px);
+    line-height: 1.06;
+    letter-spacing: var(--tracking-tight);
+    margin: 0 0 var(--space-6);
+  }
+
+  h1 span {
+    color: var(--color-accent-bright);
+  }
+
+  .hero-description {
+    font-size: 18px;
+    line-height: 1.85;
+    color: var(--color-text-muted-on-dark);
+    max-width: 610px;
+    margin: 0;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+    flex-wrap: wrap;
+  }
+
+  .network-graphic {
+    position: relative;
+    height: 560px;
+  }
+
+  .network-svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .map-dots circle {
+    fill: var(--color-accent);
+  }
+
+  .network-lines path {
+    fill: none;
+    stroke: var(--color-accent-bright);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-dasharray: 7 7;
+    animation: dash 10s linear infinite;
+    filter: drop-shadow(0 0 3px var(--color-accent-deep));
+  }
+
+  .network-points circle {
+    fill: var(--color-text-on-dark);
+    stroke: var(--color-accent-bright);
+    stroke-width: 4;
+    filter: drop-shadow(0 0 9px var(--color-accent-bright));
+    animation: pulse 2.6s ease-in-out infinite;
+  }
+
+  @keyframes dash {
+    to {
+      stroke-dashoffset: -100;
+    }
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 0.65;
+      transform: scale(0.9);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.25);
+    }
+  }
+
+  @media (max-width: 1120px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+    }
+    .network-graphic {
+      height: 430px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .hero {
+      padding-top: 72px;
+      min-height: auto;
+    }
+    .hero-grid {
+      min-height: auto;
+      padding: var(--space-8) 0 var(--space-6);
+    }
+    h1 {
+      font-size: 45px;
+    }
+    .hero-description {
+      font-size: 16px;
+    }
+    .hero-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .network-graphic {
+      height: 320px;
+    }
+  }
+</style>

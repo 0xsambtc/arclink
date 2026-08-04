@@ -1,0 +1,133 @@
+---
+// NetworkCta — 加入网络 CTA 区（浅蓝底）；文案全部来自 data/home.ts 的 network 导出
+import Button from '../ui/Button.astro';
+import { network } from '../../data/home';
+
+// 圆点位置（left/top 百分比）— 与原型一致；delay 制造错落脉冲
+const dots = [
+  { left: '12%', top: '40%', delay: '0s' },
+  { left: '28%', top: '27%', delay: '0.35s' },
+  { left: '40%', top: '52%', delay: '0.7s' },
+  { left: '55%', top: '30%', delay: '1.05s' },
+  { left: '63%', top: '58%', delay: '1.4s' },
+  { left: '75%', top: '41%', delay: '1.75s' },
+  { left: '85%', top: '64%', delay: '2.1s' },
+  { left: '47%', top: '73%', delay: '2.45s' },
+];
+---
+
+<section class="network" id={network.id} data-section="network">
+  <div class="shell network-grid">
+    <div class="network-copy reveal">
+      <p class="eyebrow">{network.eyebrow}</p>
+      <h2>{network.heading}</h2>
+      <p class="network-description">{network.description}</p>
+      <div class="network-actions">
+        <Button variant="primary" data-open-modal={network.ctaPrimary.modal}>
+          {network.ctaPrimary.label} <span aria-hidden="true">→</span>
+        </Button>
+        <Button variant="outline-dark" data-open-modal={network.ctaSecondary.modal}>
+          {network.ctaSecondary.label} <span aria-hidden="true">→</span>
+        </Button>
+      </div>
+    </div>
+    <div class="network-dots reveal reveal-delay" aria-hidden="true">
+      {dots.map((dot) => (
+        <span class="dot" style={`left:${dot.left};top:${dot.top};animation-delay:${dot.delay};`}></span>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .network {
+    padding: var(--space-9) 0;
+    background: var(--color-surface-tint);
+  }
+
+  .network-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: var(--space-9);
+  }
+
+  h2 {
+    font-size: 46px;
+    line-height: 1.12;
+    letter-spacing: var(--tracking-tight);
+    margin: 0 0 var(--space-5);
+  }
+
+  .network-description {
+    font-size: 17px;
+    line-height: 1.8;
+    color: var(--color-text-muted-on-light);
+    margin: 0;
+  }
+
+  .network-actions {
+    display: flex;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+    flex-wrap: wrap;
+  }
+
+  /* 脉冲网络示意 — 径向光晕上的 8 个错落脉冲圆点（rgba 仅作透明度叠加，基于 accent 系） */
+  .network-dots {
+    position: relative;
+    height: 300px;
+    background: radial-gradient(ellipse, rgba(52, 120, 255, 0.18), transparent 68%);
+  }
+
+  .dot {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-accent-bright);
+    box-shadow: 0 0 14px rgba(52, 120, 255, 0.75);
+    animation: pulse 2.6s var(--ease-out) infinite;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 0.65;
+      transform: scale(0.9);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.25);
+    }
+  }
+
+  @media (max-width: 1120px) {
+    .network-grid {
+      gap: var(--space-7);
+    }
+    h2 {
+      font-size: 40px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .network {
+      padding: var(--space-8) 0;
+    }
+    .network-grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-6);
+    }
+    h2 {
+      font-size: 33px;
+    }
+    .network-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .network-dots {
+      height: 220px;
+    }
+  }
+</style>

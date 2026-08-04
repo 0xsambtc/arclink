@@ -30,5 +30,19 @@ const {
   </head>
   <body>
     <slot />
+    <script>
+      // Scroll reveal 观察器（配合 global.css 的 .reveal）
+      const revealObserver = new IntersectionObserver(
+        (entries) =>
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              revealObserver.unobserve(entry.target);
+            }
+          }),
+        { threshold: 0.15 }
+      );
+      document.querySelectorAll('.reveal').forEach((el) => revealObserver.observe(el));
+    </script>
   </body>
 </html>
