@@ -5,14 +5,14 @@
 
 ## 当前状态一句话
 
-M0 本地部分完成（git main 分支、Astro 骨架构建通过）；下一步 M1 原型移植；M0 剩余的 GitHub/Workers Builds 接入等账号到位。
+M1 完成（首页 9 个 section 组件化 + 三弹窗表单，双端验证通过）；下一步 M2 双首屏变体（需覆盖城市清单）或 M3 表单链路（需飞书凭证）；M0 剩余的 GitHub/Workers Builds 接入等账号到位。
 
 ## 里程碑
 
 | # | 任务 | 状态 | 备注 |
 |---|---|---|---|
 | M0 | 仓库初始化（git init + GitHub 私有仓库 + Workers Builds 接入 + Astro 骨架 + 设计 token，push 即部署、workers.dev 可访问） | 🔵 | **本地部分已完成**（2026-08-03：git main + Astro 7 骨架 + tokens + 构建通过，commit c32f399）；剩 GitHub 仓库 + Workers Builds，等账号 |
-| M1 | 底座搭建：原型作底稿落进组件结构 + 按 docs/01 参照标准做视觉升级（token 化、Linear 式卡片、Anduril 式排版）——非照搬原型 | ⬜ | 原型在 ~/Downloads/arclink-interactive-prototype，仅作底稿 |
+| M1 | 底座搭建：原型作底稿落进组件结构 + 按 docs/01 参照标准做视觉升级（token 化、Linear 式卡片、Anduril 式排版）——非照搬原型 | ✅ | 2026-08-04 完成（commit d5f8594）：9 个 section 组件、home.ts 槽位化、三弹窗完整表单、双端截图验证 |
 | M2 | 双首屏变体（cobe globe + A+B 混合版 / 纯 B 版）→ 投票定稿 | ⬜ | timebox 3 天；需覆盖城市清单；执行防锚定机制（docs/01：B 独立起稿、先 B 后 A、外置评审标准） |
 | M3 | 表单链路端到端（Turnstile → 验证 → 存储 adapter → DirectMail + IM 告警） | ⬜ | 可与 M2 并行；存储用 adapter，工具未定不阻塞 |
 | M4 | SEO 基建（sitemap/robots/JSON-LD/路由骨架/content collections） | ⬜ | robots 已定全开放 |
@@ -38,6 +38,8 @@ M0 本地部分完成（git main 分支、Astro 骨架构建通过）；下一�
 （当前为空——下一个决策点出现在 M2 末尾：双首屏变体投票）
 
 ## 会话日志（倒序，只记里程碑级变化）
+
+- **2026-08-04（M1）**：原型移植完成——SiteHeader/Hero/Belief/Process/Platform/Industries/NetworkCta/Footer/ContactModals 九个组件，全部数据驱动（home.ts）；视觉升级落地（Linear 卡片、mono 序号替代 glyph、Mapping 居首）；三弹窗升级为完整表单（honeypot + Turnstile 挂载点，M3 接真实提交）；桌面 1440/移动 390 截图验证；6 个 section 由并行 workflow 构建（Platform agent 被误拦后由主循环补齐）。
 
 - **2026-08-03（M0 本地）**：git 仓库就位（main，两个 commit：docs / 骨架）；Astro 7.1.6 + React 19 + GSAP 3.15 + cobe 2.0.1 安装并构建通过；tokens.css 设计变量体系、Base 布局（防白闪 + reduced-motion）、占位首页、robots.txt（策略 A）、wrangler.jsonc 就绪。
 
