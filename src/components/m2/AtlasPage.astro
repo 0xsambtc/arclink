@@ -191,47 +191,7 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     <div class="shell hero-shell">
       <p class="hero-status mono-caption"><span class="js-status">{heroStatus}</span></p>
 
-      <!-- cobe 地球降级为右上小型档案图版（懒加载/移动端降级逻辑保留）；
-           QA修复 第3条：跨节 FLIP/槽位删除 —— 滚动离开 hero 时在原图框内收缩归档 + ARCHIVED 图章原地盖下 -->
-      <figure class="hero-figure">
-        <div class="fig-frame-border" aria-hidden="true"></div>
-        <div class="fig-body-hero">
-          <div class="globe-wrap">
-            <canvas id="hero-globe" role="img" aria-label={fmt(t.aria.globe, { n: metrics.citiesCovered })}></canvas>
-          </div>
-          <svg class="hero-map-fallback" viewBox={viewBox} role="img" aria-label={fmt(t.aria.mapFallback, { n: metrics.citiesCovered })}>
-            <g aria-hidden="true">
-              {gratLng.map((g) => (
-                <line class="grat-line-dark" x1={g.x} y1={vb.y} x2={g.x} y2={vb.y + vb.h} />
-              ))}
-              {gratLat.map((g) => (
-                <line class="grat-line-dark" x1={vb.x} y1={g.y} x2={vb.x + vb.w} y2={g.y} />
-              ))}
-            </g>
-            {cityPts.map((p) => (
-              <g transform={`translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`}>
-                <circle class="fb-dot" r="3" />
-                <text
-                  class="fb-label"
-                  x={labelPos[p.code].dx}
-                  y={labelPos[p.code].dy}
-                  text-anchor={labelPos[p.code].anchor}
-                >
-                  {p.code}
-                </text>
-              </g>
-            ))}
-          </svg>
-        </div>
-        <figcaption class="hero-figcaption mono-caption">
-          <span>{fmt(t.press.globePlate, { n: metrics.citiesCovered })}</span>
-          <!-- QA修复 第2条：蓝点含义标注（mono 编号语言，双语共用） -->
-          <span>{fmt(t.press.markerNote, { n: metrics.citiesCovered })}</span>
-          <span>AS OF {metrics.asOf}</span>
-        </figcaption>
-        <!-- QA修复 第3条：归档图章原地盖在图框角；无 JS / 减动效 = 直接呈现终态（CSS rotate -4°） -->
-        <p class="archive-stamp mono-caption" aria-hidden="true">{fmt(t.press.stamp, { d: metrics.asOf })}</p>
-      </figure>
+      <!-- 地球图版已移入 hero-bottom 右列（samuel 第一性 review：品牌刊名优先，图版归入下方数据轴） -->
 
       <!-- S2 整版字标图版：ARCLINK 巨字即 FIG.01，12 条真实交付弧线在字腔内部描画（clipPath 内 <text> 用页面 Inter，无需转曲） -->
       <figure class="hero-plate">
@@ -268,6 +228,46 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
             <a class="hero-jump mono-caption" href="#coverage">{t.hero.jump}</a>
           </div>
         </div>
+        <!-- FIG.02 地球档案图版：右列数据轴上件（懒加载/降级/原位归档+图章逻辑不变） -->
+        <figure class="hero-figure">
+          <div class="fig-frame-border" aria-hidden="true"></div>
+          <div class="fig-body-hero">
+            <div class="globe-wrap">
+              <canvas id="hero-globe" role="img" aria-label={fmt(t.aria.globe, { n: metrics.citiesCovered })}></canvas>
+            </div>
+            <svg class="hero-map-fallback" viewBox={viewBox} role="img" aria-label={fmt(t.aria.mapFallback, { n: metrics.citiesCovered })}>
+              <g aria-hidden="true">
+                {gratLng.map((g) => (
+                  <line class="grat-line-dark" x1={g.x} y1={vb.y} x2={g.x} y2={vb.y + vb.h} />
+                ))}
+                {gratLat.map((g) => (
+                  <line class="grat-line-dark" x1={vb.x} y1={g.y} x2={vb.x + vb.w} y2={g.y} />
+                ))}
+              </g>
+              {cityPts.map((p) => (
+                <g transform={`translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`}>
+                  <circle class="fb-dot" r="3" />
+                  <text
+                    class="fb-label"
+                    x={labelPos[p.code].dx}
+                    y={labelPos[p.code].dy}
+                    text-anchor={labelPos[p.code].anchor}
+                  >
+                    {p.code}
+                  </text>
+                </g>
+              ))}
+            </svg>
+          </div>
+          <figcaption class="hero-figcaption mono-caption">
+            <span>{fmt(t.press.globePlate, { n: metrics.citiesCovered })}</span>
+            <!-- QA修复 第2条：蓝点含义标注（mono 编号语言，双语共用） -->
+            <span>{fmt(t.press.markerNote, { n: metrics.citiesCovered })}</span>
+            <span>AS OF {metrics.asOf}</span>
+          </figcaption>
+          <!-- QA修复 第3条：归档图章原地盖在图框角；无 JS / 减动效 = 直接呈现终态（CSS rotate -4°） -->
+          <p class="archive-stamp mono-caption" aria-hidden="true">{fmt(t.press.stamp, { d: metrics.asOf })}</p>
+        </figure>
         <!-- 插页构件：log 卡骑 SEC.00/01 页界（comp-print 胆量时刻②） -->
         <aside class="hero-log tipped" aria-label={t.aria.log}>
           <p class="hero-log-title mono-caption">{t.hero.logTitle} ({events.length})</p>
@@ -1163,12 +1163,13 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
 
   /* cobe 降级为右上小型档案图版；QA修复 第3条：归档飞行删除，z 回落 1 —— 字标（z2）按缺陷3意图压回球体 */
   .hero-figure {
-    /* samuel 评审：字标覆盖数据图版不合理 —— 改入流右对齐 + 固定 40px 轻咬合（见 .hero-plate 负 margin），
-       12 个城市 marker 全程可见，仅字标 cap 与球体下缘相切 */
+    /* samuel 第一性 review：刊名优先、无强制接触 —— 图版落 hero-bottom 右列，与 log 构成右侧数据轴 */
     position: relative;
     z-index: 1;
-    width: min(24vw, 300px);
-    margin: var(--space-4) 0 0 auto;
+    grid-column: 8 / 13;
+    justify-self: end;
+    width: min(100%, 340px);
+    margin: 0;
     display: flex;
     flex-direction: column;
     will-change: transform;
@@ -1267,8 +1268,8 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
   .hero-plate {
     position: relative;
     z-index: 2;
-    /* 轻咬合：固定 40px 相切（≈字高 15%），仅字标末字 cap 与球体下缘交叠 */
-    margin: -2.5rem 0 0;
+    /* 刊名优先：紧随 running header，满幅字标是卷首第一元素 */
+    margin: var(--space-7) 0 0;
   }
 
   .hero-title {
