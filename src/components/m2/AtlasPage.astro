@@ -447,6 +447,8 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
 
   <!-- ============ SEC.03 / COVERAGE — 中央跨页（S4/缺陷4）：满版出血图版 + 浮卡覆盖台 + 骑线巨数 ============ -->
   <section class="sec sec-coverage" id="coverage" data-folio="03" data-secname="COVERAGE">
+    <!-- samuel 评审：插页硬切换需要物理宣告 —— 骑线页签（书页边索引标签，token 双主题自适配；mono 编号语言不译） -->
+    <span class="plate-tab mono-caption" aria-hidden="true">PLATE · FIG.05 — COVERAGE</span>
     <div class="shell">
       <header class="sec-head mono-caption" data-reveal>
         <span>SEC.03 / COVERAGE — PLATE</span>
@@ -2348,6 +2350,23 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     margin-top: var(--space-7);
   }
 
+  /* 骑线页签：书页边索引标签宣告"翻到插页"（token 双主题自适配：页签=页色，插页=异色） */
+  .sec-coverage {
+    position: relative;
+  }
+
+  .plate-tab {
+    position: absolute;
+    top: 0;
+    left: calc((100% - min(var(--shell-max), 100% - 72px)) / 2);
+    transform: translateY(-50%);
+    z-index: 3;
+    background: var(--color-bg);
+    color: var(--color-text-on-dark);
+    border: 1px solid var(--hairline);
+    padding: var(--space-2) var(--space-4);
+  }
+
   .fig-plate {
     margin: 0;
     border-inline: 0;
@@ -2604,9 +2623,8 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     padding: 0;
   }
 
-  .cap-card:nth-child(2n) {
-    margin-top: var(--space-7);
-  }
+  /* samuel 评审：等价则等形 —— 六能力平级，错位下坠（原缺陷7方案）会被读作层级暗示，删除；
+     将来 PM 确认能力主次后方可用大小卡表达真实层级 */
 
   /* 定案2：卡 = accent 短横线标记 + CAP.0n mono chip + 标题 + 描述；hover 仅边框/标记提亮 */
   .cap-card {
