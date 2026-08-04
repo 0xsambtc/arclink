@@ -5,6 +5,7 @@ import AtlasPage from '../../../components/m2/AtlasPage.astro';
 import { atlasCopy } from '../../../data/m2-atlas.copy';
 ---
 
-<Base noindex lang="zh" bg="#f6f2ea" title={`${atlasCopy.zh.meta.title} · 纸面版`} description={atlasCopy.zh.meta.description}>
+{/* 配色方案 A「NORTH PAPER」：页底色同步冷纸（缺陷5修复，与 AtlasPage theme-paper --color-bg 一致） */}
+<Base noindex lang="zh" bg="#f3f5f9" title={`${atlasCopy.zh.meta.title} · 纸面版`} description={atlasCopy.zh.meta.description}>
   <AtlasPage locale="zh" theme="paper" />
 </Base>

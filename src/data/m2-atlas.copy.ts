@@ -25,6 +25,27 @@ export interface AtlasCopy {
   industries: { title: string; lede: string; items: { key: string; label: string; description: string }[] };
   manifesto: { lines: string[] };
   cta: { title: string; sub: string; button: string };
+  /** S1/S2/S3/S4 印张 chrome 的 mono 标注（编号语言不译：en/zh 引用同一常量） */
+  press: {
+    wordmark: string;
+    globePlate: string;
+    slot: string;
+    stamp: string;
+    spread: string;
+    megaSuffix: string;
+    methodMarginalia: string;
+    detach: string;
+    railHead: string;
+  };
+  /** S5 打样台（叙事字段翻译；caption/download 为 mono 编号语言，双语同值） */
+  proof: {
+    title: string;
+    hook: string;
+    inputLabel: string;
+    placeholder: string;
+    caption: string;
+    download: string;
+  };
   aria: {
     globe: string;
     mapFallback: string;
@@ -37,8 +58,29 @@ export interface AtlasCopy {
     record: string;
     node: string;
     industriesList: string;
+    proofPanel: string;
   };
 }
+
+// 印张 chrome mono 标注（docs/10 字体宪法：编号语言不翻译 — en/zh 共用同一常量，防止双语漂移）
+// FIG 重编号：FIG.01 字标图版（S2）/ FIG.02 档案地球 / FIG.03 每记录公里 / FIG.04 方法图 /
+// FIG.05 覆盖跨页（S4）/ FIG.06–11 能力图版 / FIG.12 打样台（S5）
+const pressMono = {
+  wordmark: 'FIG.01 — WORDMARK PLATE · 12 DELIVERY ARCS SET IN THE NAME',
+  globePlate: 'FIG.02 — FIELD GLOBE · {n} NODES',
+  slot: 'PLATE SLOT — FIG.02 · RECEIVING',
+  stamp: 'ARCHIVED — FIG.02 · AS OF {d}',
+  spread: 'FIG.05 — COVERAGE SPREAD · EQUIRECTANGULAR · GRATICULE 30°',
+  megaSuffix: 'TOTAL RECORD KM',
+  methodMarginalia: 'RAW TRACE → VERIFIED PACKET · ONE CONTRACT',
+  detach: 'DETACH — RETURN TO ARCLINK',
+  railHead: 'ARCLINK ANNUAL — EDITION 2026',
+} as const;
+
+const proofMono = {
+  caption: 'PROOF — SEED «{s}» · 9 ARCS · DETERMINISTIC',
+  download: 'DOWNLOAD .SVG',
+} as const;
 
 const en: AtlasCopy = {
   meta: { title: 'M2 · Atlas — ARCLINK', description: heroEn.description },
@@ -84,7 +126,7 @@ const en: AtlasCopy = {
   capabilities: {
     title: 'Six instruments, one platform.',
     lede: platformEn.description,
-    note: 'Hover a plate to draw its arcfield signature — every figure is generated, seeded by the module title',
+    note: 'Every plate rests at 40% inked — hover to draw it full. All figures are generated, seeded by the module title',
     features: platformEn.features.map((f, i) => ({ title: f.title, description: f.description, seed: featureSeeds[i] })),
   },
   industries: {
@@ -98,6 +140,15 @@ const en: AtlasCopy = {
     sub: 'Add your city to the next edition — coverage begins with a single brief.',
     button: 'Request coverage',
   },
+  press: pressMono,
+  proof: {
+    title: 'Proof your own plate.',
+    hook: 'Same rule, same seed, same output. Our figures are not drawn — they are generated. Yours too.',
+    inputLabel: 'Seed',
+    placeholder: 'Type any seed — try your name',
+    caption: proofMono.caption,
+    download: proofMono.download,
+  },
   aria: {
     globe: 'Rotating globe plotting {n} Arclink node cities',
     mapFallback: 'Map of {n} Arclink node cities',
@@ -110,6 +161,7 @@ const en: AtlasCopy = {
     record: 'Delivery record: ',
     node: 'Node city: ',
     industriesList: 'Industry index',
+    proofPanel: 'Seed proofing press: type any seed to generate a deterministic arcfield plate',
   },
 };
 
@@ -157,7 +209,7 @@ const zh: AtlasCopy = {
   capabilities: {
     title: '六件仪器，一个平台。',
     lede: platformZh.description,
-    note: '悬停任一图版即描画其弧场签名——所有图形皆由生成器产出，种子为模块英文名',
+    note: '每张图版静置时先露四成墨——悬停即描画完整。所有图形皆由生成器产出，种子为模块英文名',
     features: platformZh.features.map((f, i) => ({ title: f.title, description: f.description, seed: featureSeeds[i] })),
   },
   industries: {
@@ -171,6 +223,15 @@ const zh: AtlasCopy = {
     sub: '把你的城市加入下一版——覆盖，从一份需求简报开始。',
     button: '请求覆盖',
   },
+  press: pressMono,
+  proof: {
+    title: '打一张你自己的图版。',
+    hook: '同一规则，同一种子，同一输出。我们的图形不画，只生成——你的也是。',
+    inputLabel: '种子',
+    placeholder: '输入任意字符——试试你的名字',
+    caption: proofMono.caption,
+    download: proofMono.download,
+  },
   aria: {
     globe: '旋转地球，标绘 {n} 座 Arclink 节点城市',
     mapFallback: '{n} 座 Arclink 节点城市地图',
@@ -183,6 +244,7 @@ const zh: AtlasCopy = {
     record: '交付记录：',
     node: '节点城市：',
     industriesList: '行业索引',
+    proofPanel: '种子打样台：输入任意种子，即可生成一张确定性弧场图版',
   },
 };
 
