@@ -13,7 +13,7 @@ M1 完成（首页 9 个 section 组件化 + 三弹窗表单，双端验证通�
 |---|---|---|---|
 | M0 | 仓库初始化（git init + GitHub 私有仓库 + Workers Builds 接入 + Astro 骨架 + 设计 token，push 即部署、workers.dev 可访问） | 🔵 | **本地部分已完成**（2026-08-03：git main + Astro 7 骨架 + tokens + 构建通过，commit c32f399）；剩 GitHub 仓库 + Workers Builds，等账号 |
 | M1 | 底座搭建：原型作底稿落进组件结构 + 按 docs/01 参照标准做视觉升级（token 化、Linear 式卡片、Anduril 式排版）——非照搬原型 | ✅ | 2026-08-04 完成（commit d5f8594）：9 个 section 组件、home.ts 槽位化、三弹窗完整表单、双端截图验证 |
-| M2 | 双首屏变体（cobe globe + A+B 混合版 / 纯 B 版）→ 投票定稿 | ⬜ | timebox 3 天；需覆盖城市清单；执行防锚定机制（docs/01：B 独立起稿、先 B 后 A、外置评审标准） |
+| M2 | 双变体实物对比（A=年鉴融合版 / B=地面站纯版，定调见 docs/10）→ 投票定稿 | 🔵 | 2026-08-04 开工；覆盖数据用占位（coverage.ts，等真实清单替换）；共用宪法 + 弧场引擎 |
 | M3 | 表单链路端到端（Turnstile → 验证 → 存储 adapter → DirectMail + IM 告警） | ⬜ | 可与 M2 并行；存储用 adapter，工具未定不阻塞 |
 | M4 | SEO 基建（sitemap/robots/JSON-LD/路由骨架/content collections） | ⬜ | robots 已定全开放 |
 | M5 | 上线（域名/DNS/发信域/Cloudflare 排雷/GSC+Bing/监控） | ⬜ | 检查清单见 docs/06、docs/08 |
@@ -36,7 +36,7 @@ M1 完成（首页 9 个 section 组件化 + 三弹窗表单，双端验证通�
 
 ## 待 samuel 决策的队列
 
-1. **选主调**（docs/10）：甲·勘测年鉴 / 乙·地面站 / 丙·弧场——Claude 裁决建议为"甲为主调 + 吸收乙的 signature 交互 + 丙作共用图形引擎"，M2 按"年鉴融合版 vs 地面站纯版"双变体实物对比定稿。
+（✅ 2026-08-04 主调已定：融合方案——下一个决策点是 M2 末尾的双变体投票：变体 A 年鉴融合版 vs 变体 B 地面站纯版）
 
 ## 会话日志（倒序，只记里程碑级变化）
 

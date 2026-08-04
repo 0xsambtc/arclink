@@ -15,6 +15,15 @@
   --color-brand-ink: #0a1d33;
   --color-brand-blue: #147dfd;
 
+  /* 调性字阶（勘测年鉴融合版，docs/10：两极字阶，中间字号原则上不存在） */
+  --text-display-xl: clamp(4.5rem, 12vw, 11rem);
+  --text-display-m: clamp(2rem, 4.5vw, 3.5rem);
+  --text-mono-caption: 0.8125rem;
+
+  /* 细线（年鉴图框/分隔） */
+  --hairline: rgba(255, 255, 255, 0.1);
+  --hairline-on-light: rgba(10, 29, 51, 0.15);
+
   --color-surface: #ffffff;
   --color-surface-alt: #f3f7ff;
   --color-surface-tint: #eef5ff;

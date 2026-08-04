@@ -7,12 +7,14 @@ interface Props {
   title?: string;
   description?: string;
   lang?: string;
+  noindex?: boolean;
 }
 
 const {
   title = 'ARCLINK — Execution Infrastructure for the Physical World',
   description = 'Arclink enables enterprises to plan, deploy and verify real-world operations through technology, standardized workflows and trusted local execution.',
   lang = 'en',
+  noindex = false,
 } = Astro.props;
 ---
 
@@ -23,6 +25,7 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#030b1d" />
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
     <style is:inline>

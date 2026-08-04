@@ -18,11 +18,12 @@ Arclink（新加坡主体）官网。业务：海外地理信息采集（GEO dat
 - **部署**：Cloudflare Workers static assets（免费无商用限制、静态带宽不限量）。Vercel Hobby 明文禁商用，已排除。**CI/CD git-first**：GitHub 私有仓库 + Workers Builds，push 即部署、分支/PR 出 preview；Claude 在里程碑/任务边界提交；`wrangler deploy` 仅作 CI 故障逃生通道。
 - **发信**：阿里云 DirectMail 为主（收件方是阿里邮箱，同生态送达稳；¥2/1000 封）；Resend 备选（未来发海外收件人时用）。发信用 `send.` 子域，根域 DNS 归阿里邮箱。
 - **分析**：Cloudflare Web Analytics。不用 GA4（大陆被墙且拖慢加载——虽然买家在海外，但仍不选）。
+- **调性**（docs/10，2026-08-04 samuel 拍板）：主调"勘测年鉴"（页面元素要么是排版系统本身，要么是带真实出处的 FIG. 图版）+ 地面站两个 signature 交互（开机序列 hero、可操作覆盖台）+ **弧场生成器为全站唯一图形引擎**（`src/lib/arcfield.ts`）。共同宪法：mono=事实/Inter=陈述、三图元（点=城市/弧=真实交付事件/hex=覆盖）、proof-of-life（图形 hover 出真实记录）、数据构建时注入 + `AS OF` 标注、性能硬指标（LCP<1.5s/CLS<0.05/<3MB/60fps）。
 - **SEO/AI 搜索**（见 docs/08）：架构无硬伤，上线必做的排雷——Cloudflare 新 zone 默认拦 AI 爬虫，须在 AI Crawl Control 放行**全部爬虫**（robots 策略已定为 A：全开放含训练爬虫，samuel 2026-08-03 拍板）；**永不启用网络层 block-Training**（会连带拦 Googlebot/Bingbot）；robots.txt 自维护于 `public/`（全 Allow + Sitemap 行），不开 managed robots.txt 和 Pay Per Crawl；JSON-LD 用 Organization/WebSite/BreadcrumbList/Service；SEO 路由骨架 `/services|industries|case-studies|compare/[slug]`。
 
 ## 开放问题（做之前先问或先查 docs）
 
-1. UI 走"A+B 混合"还是"纯 B（覆盖叙事）"——计划共用底座 + 两个首屏变体实拍对比后定，见 `docs/01-ui-design.md`。
+1. M2 双变体投票：变体 A（年鉴融合版）vs 变体 B（地面站纯版），实物对比定稿（docs/10）。
 2. 域名购买中；到手后确认是否与阿里邮箱同域（定 docs/05 DNS 方案）；Cloudflare/阿里云账号均待注册开通。
 4. 内容框架等 PM 交付，headline 建议对齐 2026 行业话术 "Physical AI"；GEO 内容规范（定义式段落/真实数字/FAQ/对比页）见 docs/08 第四节。
 
