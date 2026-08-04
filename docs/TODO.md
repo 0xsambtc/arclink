@@ -13,7 +13,7 @@ M1 完成（首页 9 个 section 组件化 + 三弹窗表单，双端验证通�
 |---|---|---|---|
 | M0 | 仓库初始化（git init + GitHub 私有仓库 + Workers Builds 接入 + Astro 骨架 + 设计 token，push 即部署、workers.dev 可访问） | 🔵 | **本地部分已完成**（2026-08-03：git main + Astro 7 骨架 + tokens + 构建通过，commit c32f399）；剩 GitHub 仓库 + Workers Builds，等账号 |
 | M1 | 底座搭建：原型作底稿落进组件结构 + 按 docs/01 参照标准做视觉升级（token 化、Linear 式卡片、Anduril 式排版）——非照搬原型 | ✅ | 2026-08-04 完成（commit d5f8594）：9 个 section 组件、home.ts 槽位化、三弹窗完整表单、双端截图验证 |
-| M2 | 双变体实物对比（A=年鉴融合版 / B=地面站纯版，定调见 docs/10）→ 投票定稿 | 🔵 | **双变体已构建完成待投票**（2026-08-04，commit 4ab6924）：`/m2/atlas` 与 `/m2/station`，`npm run preview` 查看；投票后按胜者做全站统一 |
+| M2 | 变体实物对比 → 投票定稿（定调见 docs/10） | 🔵 | **三变体 × 双语已就绪待投票**（2026-08-04，commit a2fec9d）：`/m2/atlas`（年鉴·深色）/ `/m2/atlas-paper`（年鉴·纸面）/ `/m2/station`（地面站），各有 `/zh/` 中文版；已含原型正式文案（能力/行业/宣言区）；投票后按胜者做全站统一 |
 | M3 | 表单链路端到端（Turnstile → 验证 → 存储 adapter → DirectMail + IM 告警） | ⬜ | 可与 M2 并行；存储用 adapter，工具未定不阻塞 |
 | M4 | SEO 基建（sitemap/robots/JSON-LD/路由骨架/content collections） | ⬜ | robots 已定全开放 |
 | M5 | 上线（域名/DNS/发信域/Cloudflare 排雷/GSC+Bing/监控） | ⬜ | 检查清单见 docs/06、docs/08 |
