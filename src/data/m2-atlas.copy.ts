@@ -12,7 +12,8 @@ export interface AtlasCopy {
   meta: { title: string; description: string };
   hero: { deck: string; jump: string; logTitle: string };
   index: { title: string; lede: string; rows: { label: string; note: string }[]; footnote: string };
-  method: { title: string; lede: string; phases: string[] };
+  /** next：SEC.02 末尾右下 mono 预告行（QA修复 第5条；编号语言不译，叙事词双语） */
+  method: { title: string; lede: string; phases: string[]; next: string };
   coverage: {
     title: string;
     lede: string;
@@ -29,7 +30,8 @@ export interface AtlasCopy {
   press: {
     wordmark: string;
     globePlate: string;
-    slot: string;
+    /** QA修复 第2条：FIG.02 caption 的 marker 含义标注 */
+    markerNote: string;
     stamp: string;
     spread: string;
     megaSuffix: string;
@@ -68,7 +70,8 @@ export interface AtlasCopy {
 const pressMono = {
   wordmark: 'FIG.01 — WORDMARK PLATE · 12 DELIVERY ARCS SET IN THE NAME',
   globePlate: 'FIG.02 — FIELD GLOBE · {n} NODES',
-  slot: 'PLATE SLOT — FIG.02 · RECEIVING',
+  markerNote: 'MARKERS = NODE CITIES ({n})',
+  // QA修复 第3条：归档改原位收缩，PLATE SLOT（RECEIVING）键随跨节 FLIP 一并删除；stamp 保留、改盖在 hero 图框角
   stamp: 'ARCHIVED — FIG.02 · AS OF {d}',
   spread: 'FIG.05 — COVERAGE SPREAD · EQUIRECTANGULAR · GRATICULE 30°',
   megaSuffix: 'TOTAL RECORD KM',
@@ -108,6 +111,8 @@ const en: AtlasCopy = {
       'Every trace is cross-checked against a second source before it is allowed to enter the atlas. No match, no record.',
       'Verified packets are handed over with a signed manifest — the same record you can audit on this page.',
     ],
+    // QA修复 第5条：SEC.03 反色跨页的物理预告（PLATE V = FIG.05 覆盖跨页）
+    next: 'NEXT — PLATE V / COVERAGE',
   },
   coverage: {
     title: 'One plate, operable.',
@@ -126,12 +131,14 @@ const en: AtlasCopy = {
   capabilities: {
     title: 'Six instruments, one platform.',
     lede: platformEn.description,
-    note: 'Every plate rests at 40% inked — hover to draw it full. All figures are generated, seeded by the module title',
+    // QA修复 第6条：删除机制教程语（露墨比例/悬停描画/种子出处），改纯出处语
+    note: 'Plates FIG.06–11 — one rule, six data seeds.',
     features: platformEn.features.map((f, i) => ({ title: f.title, description: f.description, seed: featureSeeds[i] })),
   },
   industries: {
     title: 'Indexed by industry.',
-    lede: `${industriesEn.heading} Hover or focus a row to open its file.`,
+    // QA修复 第7条：描述常显后删除"悬停调档案"操作说明
+    lede: industriesEn.heading,
     items: industriesEn.items.map((it) => ({ key: it.key, label: it.label, description: it.description })),
   },
   manifesto: { lines: [...beliefEn.manifesto] },
@@ -191,6 +198,8 @@ const zh: AtlasCopy = {
       '每条轨迹都要与第二来源交叉核对，才被允许写入图集。对不上号，就不成记录。',
       '核验通过的数据包随签名清单一并交付——也就是你在本页可以查验的同一份记录。',
     ],
+    // QA修复 第5条：编号语言（NEXT/PLATE V）不译，叙事词"覆盖跨页"翻译
+    next: 'NEXT — PLATE V / 覆盖跨页',
   },
   coverage: {
     title: '一张图版，可以操作。',
@@ -209,12 +218,14 @@ const zh: AtlasCopy = {
   capabilities: {
     title: '六件仪器，一个平台。',
     lede: platformZh.description,
-    note: '每张图版静置时先露四成墨——悬停即描画完整。所有图形皆由生成器产出，种子为模块英文名',
+    // QA修复 第6条：删除机制教程语，改纯出处语
+    note: '图版 FIG.06–11——同一条生成规则，六个数据种子。',
     features: platformZh.features.map((f, i) => ({ title: f.title, description: f.description, seed: featureSeeds[i] })),
   },
   industries: {
     title: '按行业归档。',
-    lede: `${industriesZh.heading}悬停或聚焦任意一行，即可调出该行业的档案。`,
+    // QA修复 第7条：描述常显后删除"悬停调档案"操作说明
+    lede: industriesZh.heading,
     items: industriesZh.items.map((it) => ({ key: it.key, label: it.label, description: it.description })),
   },
   manifesto: { lines: [...beliefZh.manifesto] },

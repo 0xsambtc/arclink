@@ -174,11 +174,12 @@ const capPlates = t.capabilities.features.map((f, i) => ({
 // —— S5 打样台默认图版（无 JS 降级态；客户端脚本以同一 generateArcfield 重算）——
 const proofPaths = generateArcfield({ width: 260, height: 150, count: 9, amplitude: 0.3, seed: 'ARCLINK' });
 
-// —— SEC.05 行业索引（Obys 式行式档案；Mapping 首位；hover/focus 出描述 + 弧场，种子=行业 key）——
+// —— SEC.05 行业索引（Obys 式行式档案；Mapping 首位；QA修复 第7条：description 常显不再 hover 门控；
+// 每行弧场肉眼可辨差异 —— count=3+index、amplitude=0.15+index*0.06，种子仍为行业 key）——
 const industryRows = t.industries.items.map((it, i) => ({
   ...it,
   ind: `IND.${String(i + 1).padStart(2, '0')}`,
-  paths: generateArcfield({ width: 240, height: 130, count: 9, amplitude: 0.26, seed: it.key }),
+  paths: generateArcfield({ width: 240, height: 130, count: 3 + i, amplitude: 0.15 + i * 0.06, seed: it.key }),
 }));
 
 const buildDate = new Date().toISOString().slice(0, 10);
@@ -194,7 +195,8 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     <div class="shell hero-shell">
       <p class="hero-status mono-caption"><span class="js-status">{heroStatus}</span></p>
 
-      <!-- cobe 地球降级为右上小型档案图版（懒加载/移动端降级逻辑保留）；滚动时归档落进 SEC.01 槽位（S3） -->
+      <!-- cobe 地球降级为右上小型档案图版（懒加载/移动端降级逻辑保留）；
+           QA修复 第3条：跨节 FLIP/槽位删除 —— 滚动离开 hero 时在原图框内收缩归档 + ARCHIVED 图章原地盖下 -->
       <figure class="hero-figure">
         <div class="fig-frame-border" aria-hidden="true"><span class="crops" aria-hidden="true"></span></div>
         <div class="fig-body-hero">
@@ -227,8 +229,12 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
         </div>
         <figcaption class="hero-figcaption mono-caption">
           <span>{fmt(t.press.globePlate, { n: metrics.citiesCovered })}</span>
+          <!-- QA修复 第2条：蓝点含义标注（mono 编号语言，双语共用） -->
+          <span>{fmt(t.press.markerNote, { n: metrics.citiesCovered })}</span>
           <span>AS OF {metrics.asOf}</span>
         </figcaption>
+        <!-- QA修复 第3条：归档图章原地盖在图框角；无 JS / 减动效 = 直接呈现终态（CSS rotate -4°） -->
+        <p class="archive-stamp mono-caption" aria-hidden="true">{fmt(t.press.stamp, { d: metrics.asOf })}</p>
       </figure>
 
       <!-- S2 整版字标图版：ARCLINK 巨字即 FIG.01，12 条真实交付弧线在字腔内部描画（clipPath 内 <text> 用页面 Inter，无需转曲） -->
@@ -283,7 +289,7 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     </div>
   </section>
 
-  <!-- ============ SEC.01 / INDEX — 信任数字 specimen（缺陷6）+ 归档槽位（S3） ============ -->
+  <!-- ============ SEC.01 / INDEX — 信任数字 specimen（缺陷6；QA修复 第3条：归档槽位删除，归档在 hero 原位完成） ============ -->
   <section class="sec sec-index" data-folio="01" data-secname="INDEX">
     <div class="shell">
       <header class="sec-head mono-caption" data-reveal>
@@ -295,25 +301,6 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
         <div class="index-intro">
           <h2 class="sec-title" data-reveal>{t.index.title}</h2>
           <p class="sec-lede" data-reveal>{t.index.lede}</p>
-        </div>
-        <!-- S3 归档槽位：hero 档案地球（FIG.02）滚动落版于此；无 JS / 减动效 = 直接渲染归档终态 -->
-        <div class="plate-slot" aria-hidden="true">
-          <div class="slot-frame">
-            <span class="crops" aria-hidden="true"></span>
-            <svg class="slot-map" viewBox={viewBox}>
-              {gratLng.map((g) => (
-                <line class="slot-grat" x1={g.x} y1={vb.y} x2={g.x} y2={vb.y + vb.h} />
-              ))}
-              {gratLat.map((g) => (
-                <line class="slot-grat" x1={vb.x} y1={g.y} x2={vb.x + vb.w} y2={g.y} />
-              ))}
-              {cityPts.map((p) => (
-                <circle class="slot-dot" cx={p.x.toFixed(1)} cy={p.y.toFixed(1)} r="4" />
-              ))}
-            </svg>
-          </div>
-          <p class="slot-hint mono-caption">{t.press.slot}</p>
-          <p class="slot-stamp mono-caption">{fmt(t.press.stamp, { d: metrics.asOf })}</p>
         </div>
       </div>
 
@@ -399,6 +386,8 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
           </div>
         ))}
       </div>
+      <!-- QA修复 第5条：节末右下 mono 预告行 —— 为下一节反色跨页的突变给足物理暗示 -->
+      <p class="method-next mono-caption" data-reveal>{t.method.next}</p>
       <p class="method-marginalia mono-caption" aria-hidden="true">{t.press.methodMarginalia}</p>
     </div>
   </section>
@@ -591,23 +580,23 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
         <p class="sec-lede ind-lede" data-reveal>{t.industries.lede}</p>
       </div>
 
+      <!-- QA修复 第7条：description 常显（label col1-5 / 描述 col6-10 / 弧场 col11-12 / mono 序号钉右缘）；
+           hover 仅提亮 + 重描弧场，不再门控内容，行也不再需要 tabindex -->
       <ol class="idx-list" aria-label={t.aria.industriesList}>
         {industryRows.map((it) => (
-          <li class="idx-row" tabindex="0">
+          <li class="idx-row">
             <span class="row-rule row-rule--bleed" aria-hidden="true"></span>
             <span class="idx-num mono-caption">{it.ind}</span>
             <span class="idx-label">{it.label}</span>
             <div class="idx-detail">
-              <svg class="idx-field" viewBox="0 0 240 130" aria-hidden="true">
-                {it.paths.map((d) => (
-                  <path d={d} pathLength="1" />
-                ))}
-              </svg>
-              <div>
-                <p class="idx-desc">{it.description}</p>
-                <p class="idx-src mono-caption">ARCFIELD · SEED «{it.key.toUpperCase()}»</p>
-              </div>
+              <p class="idx-desc">{it.description}</p>
+              <p class="idx-src mono-caption">ARCFIELD · SEED «{it.key.toUpperCase()}»</p>
             </div>
+            <svg class="idx-field" viewBox="0 0 240 130" aria-hidden="true">
+              {it.paths.map((d) => (
+                <path d={d} pathLength="1" />
+              ))}
+            </svg>
           </li>
         ))}
       </ol>
@@ -630,7 +619,8 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
         ))}
       </div>
 
-      <!-- CTA = 装订进年鉴的回函卡（左缘齿孔虚线 + DETACH 竖注 + 油墨条），下缘压过 colophon 顶线 -->
+      <!-- CTA = 装订进年鉴的回函卡（左缘齿孔虚线 + DETACH 竖注），下缘压过 colophon 顶线
+           QA修复 第8条：此处油墨条删除（功能卡上违和），全站仅 colophon 保留一处 -->
       <div class="cta-band tipped" data-reveal>
         <span class="crops" aria-hidden="true"></span>
         <span class="cta-detach mono-caption" aria-hidden="true">{t.press.detach}</span>
@@ -641,7 +631,6 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
         <div class="cta-col">
           <a class="cta-btn" href="/">{t.cta.button}</a>
           <span class="cta-note mono-caption">ARCLINK ANNUAL — EDITION 2026</span>
-          <span class="ink-bar" aria-hidden="true"><i></i><i></i><i></i></span>
         </div>
       </div>
     </div>
@@ -813,20 +802,29 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
           dark: paper ? 0 : 1,
           diffuse: 1.2,
           mapSamples: 16000,
-          mapBrightness: paper ? 1.6 : 4,
-          baseColor: paper ? [0.85, 0.87, 0.91] : [0.05, 0.09, 0.16],
+          // QA修复 第4条：暗色主题 mapBrightness 4→6、baseColor 提亮，球体轮廓在 #030b1d 上可辨（纸面不变）
+          mapBrightness: paper ? 1.6 : 6,
+          baseColor: paper ? [0.85, 0.87, 0.91] : [0.12, 0.18, 0.3],
           markerColor: paper ? [0.08, 0.49, 0.99] : [0.2, 0.47, 1],
           glowColor: paper ? [0.91, 0.93, 0.96] : [0.08, 0.16, 0.33],
           markers: reduced ? markers : [],
         });
         // cobe v2 无 onRender：自建 rAF 循环驱动旋转 + 开机序列逐城点亮（地面站 signature 1）
+        // QA修复 第2条：marker 不再按切片突现 —— 每颗点按自身 age 从 0 缓动生长到 0.06
+        // （约 600ms ease-out；age = now - (t0 + 900 + i*260)），到位后常驻、不消失
         if (!reduced) {
           const tick = () => {
             phi += 0.003;
-            const shown = Math.floor((performance.now() - t0 - 900) / 260);
+            const now = performance.now();
             globe.update({
               phi,
-              markers: markers.slice(0, Math.max(0, Math.min(markers.length, shown))),
+              markers: markers
+                .map((m: { location: [number, number]; size: number }, i: number) => {
+                  const age = now - (t0 + 900 + i * 260);
+                  const p = age <= 0 ? 0 : Math.min(1, age / 600);
+                  return { location: m.location, size: 0.06 * (1 - Math.pow(1 - p, 3)) };
+                })
+                .filter((m: { size: number }) => m.size > 0),
             });
             requestAnimationFrame(tick);
           };
@@ -880,9 +878,9 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
       }
     }
 
-    // globe 图版浮现
-    gsap.set('.fig-body-hero', { opacity: 0, scale: 0.92 });
-    gsap.to('.fig-body-hero', { opacity: 1, scale: 1, duration: 1.1, ease: 'power2.out', delay: 0.8 });
+    // globe 图版浮现（QA修复 第3条：入场改作用于整只 figure —— 原位归档的收缩单独作用 .fig-body-hero，两支 tween 不抢同一元素）
+    gsap.set('.hero-figure', { opacity: 0, scale: 0.96 });
+    gsap.to('.hero-figure', { opacity: 1, scale: 1, duration: 1.1, ease: 'power2.out', delay: 0.8 });
 
     // 标语与跳转
     gsap.set(['.hero-deck', '.hero-links'], { opacity: 0, y: 18 });
@@ -985,13 +983,13 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
       });
     });
 
-    // 缺陷7：能力卡弧场进入视口先描到 40%（终态交还 CSS，hover 全描由 CSS 承接）
+    // 缺陷7 + QA修复 第6条：能力卡弧场进入视口先描到 70%（终态交还 CSS，hover 全描由 CSS 承接）
     gsap.utils.toArray<HTMLElement>('.cap-card').forEach((card) => {
       const paths = card.querySelectorAll<SVGPathElement>('.cap-field path');
       if (!paths.length) return;
       gsap.set(paths, { strokeDashoffset: 1 });
       gsap.to(paths, {
-        strokeDashoffset: 0.6,
+        strokeDashoffset: 0.3,
         duration: 0.9,
         ease: 'power2.out',
         stagger: 0.06,
@@ -1016,52 +1014,28 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     return () => cleanups.forEach((fn) => fn());
   });
 
-  // S3「归档落版」v2：hero 档案地球滚动位移进 SEC.01 槽位 + mono 图章盖下（rect 差值手写，
-  // gsap 包内方案，全程 transform/opacity；无 JS / 减动效时槽位直接渲染归档终态）
+  // S3「原位归档」v3（QA修复 第3条）：跨节 FLIP 与 SEC.01 槽位删除 ——
+  // 滚动离开 hero 时地球图版在原图框内收缩至 0.92 + ARCHIVED 图章原地盖下（保留原 1.3→1 / -6°→-4° 图章动效）；
+  // hero 其余元素（LOG 面板 / hero 描述）不再淡至 0.16，全程全透明度可读；
+  // 全程 transform/opacity；无 JS / 减动效时图章直接呈现 CSS 终态、图版不缩
   mm.add('(prefers-reduced-motion: no-preference) and (min-width: 761px)', () => {
-    const figEl = document.querySelector<HTMLElement>('.hero-figure');
-    const slotEl = document.querySelector<HTMLElement>('.slot-frame');
-    if (!figEl || !slotEl) return;
+    const bodyEl = document.querySelector<HTMLElement>('.fig-body-hero');
+    const stampEl = document.querySelector<HTMLElement>('.archive-stamp');
+    if (!bodyEl || !stampEl) return;
 
-    gsap.set(['.fig-frame-border', '.hero-figcaption'], { opacity: 0 });
-    gsap.set('.slot-map', { opacity: 0 }); // 动效路径下静态迷你图版让位给真身
-    gsap.set('.slot-stamp', { opacity: 0, scale: 1.3, rotate: -6, transformOrigin: '80% 50%' });
-
-    // FLIP 差值：同一时刻量测两个 rect，差值与滚动位置无关；transform-origin 0 0 保证几何精确
-    const d = () => {
-      const fx = Number(gsap.getProperty(figEl, 'x')) || 0;
-      const fy = Number(gsap.getProperty(figEl, 'y')) || 0;
-      const fs = Number(gsap.getProperty(figEl, 'scale')) || 1;
-      const f = figEl.getBoundingClientRect();
-      const natW = f.width / fs;
-      const natL = f.left - fx;
-      const natT = f.top - fy;
-      const sl = slotEl.getBoundingClientRect();
-      return { x: sl.left - natL, y: sl.top - natT, s: sl.width / natW };
-    };
+    gsap.set(stampEl, { opacity: 0, scale: 1.3, rotate: -6, transformOrigin: '80% 50%' });
 
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: '.sec-hero',
         start: 'top top',
-        endTrigger: '.plate-slot',
-        end: 'top 45%',
+        end: 'bottom 70%',
         scrub: true,
         invalidateOnRefresh: true,
       },
     });
-    tl.to(figEl, {
-      x: () => d().x,
-      y: () => d().y,
-      scale: () => d().s,
-      transformOrigin: '0 0',
-      ease: 'none',
-      duration: 1,
-    }, 0)
-      .to(['.fig-frame-border', '.hero-figcaption'], { opacity: 1, ease: 'none', duration: 0.25 }, 0.1)
-      .to(['.hero-plate', '.hero-bottom'], { opacity: 0.16, ease: 'none', duration: 0.5 }, 0.12)
-      .to('.slot-hint', { opacity: 0.3, ease: 'none', duration: 0.1 }, 0.8)
-      .to('.slot-stamp', { opacity: 1, scale: 1, rotate: -4, ease: 'power2.out', duration: 0.18 }, 0.8);
+    tl.to(bodyEl, { scale: 0.92, transformOrigin: '50% 50%', ease: 'none', duration: 1 }, 0)
+      .to(stampEl, { opacity: 1, scale: 1, rotate: -4, ease: 'power2.out', duration: 0.2 }, 0.72);
   });
 </script>
 
@@ -1151,6 +1125,9 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     /* 缺陷2修复：正文两档 —— lede 升档、支撑文降档 */
     --lede-size: 1.25rem;
     --support-size: 0.9375rem;
+    /* QA修复 第1条：一切 accent 实底元素的前景恒为纯白、主题无关
+       （--color-text-on-dark 在纸面主题=墨色，禁止再作按钮前景） */
+    --color-text-on-accent: #fff;
     background: var(--color-bg);
     color: var(--color-text-on-dark);
     overflow-x: clip; /* 所有出血的前提，不许删 */
@@ -1220,7 +1197,7 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     background-repeat: no-repeat;
   }
 
-  /* S1 油墨条：墨 / 专色 / 纸色（全站仅 CTA 回函卡与 colophon 两处，出现越少越像真的） */
+  /* S1 油墨条：墨 / 专色 / 纸色（QA修复 第8条：CTA 回函卡处删除，全站仅 colophon 一处，出现越少越像真的） */
   .ink-bar {
     display: inline-flex;
     gap: 3px;
@@ -1231,8 +1208,10 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     height: 14px;
   }
 
+  /* QA修复 第8条：墨色块加 hairline 边 —— 深色主题下 navy 块不再溶进页底色 */
   .ink-bar i:nth-child(1) {
     background: var(--color-bg-navy);
+    border: 1px solid var(--hairline);
   }
 
   .ink-bar i:nth-child(2) {
@@ -1297,14 +1276,16 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     gap: 6px;
   }
 
+  /* QA修复 第8条：进度刻度 = 7 个 hairline 点（不再上实色油墨条）；当前节点亮用 soft 墨 */
   .spine-tick {
-    width: 5px;
-    height: 2px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
     background: var(--hairline);
   }
 
   .spine-tick.is-on {
-    background: var(--color-accent-bright);
+    background: var(--color-text-soft-on-dark);
   }
 
   .sec-title {
@@ -1377,12 +1358,12 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     color: var(--color-text-muted-on-dark);
   }
 
-  /* cobe 降级为右上小型档案图版；z4 保证 S3 归档飞行时压过 SEC.01 内容 */
+  /* cobe 降级为右上小型档案图版；QA修复 第3条：归档飞行删除，z 回落 1 —— 字标（z2）按缺陷3意图压回球体 */
   .hero-figure {
     position: absolute;
     top: 4svh;
     right: 0;
-    z-index: 4;
+    z-index: 1;
     width: min(30vw, 380px);
     margin: 0;
     will-change: transform;
@@ -1401,6 +1382,10 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    /* QA修复 第4条：暗色主题给球体一块 navy 面板底 + hairline 图框（.fig-frame-border），
+       轮廓不再溶进 #030b1d（纸面主题在主题区归零） */
+    background: var(--color-bg-navy);
+    will-change: transform; /* QA3 原位归档收缩载体 */
   }
 
   .globe-wrap {
@@ -1432,10 +1417,28 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
   .hero-figcaption {
     display: flex;
     justify-content: space-between;
-    gap: var(--space-4);
+    gap: var(--space-2) var(--space-4);
+    flex-wrap: wrap; /* QA2：caption 增至三条 mono 标注，小图框内允许折行 */
     border-top: 1px solid var(--hairline);
     padding: var(--space-3) var(--space-4);
     color: var(--color-text-muted-on-dark);
+  }
+
+  /* QA修复 第3条：归档图章 —— 原 slot-stamp 移到 hero 图框角；无 JS / 减动效直接呈现终态（rotate -4°），
+     动效路径由 GSAP 以 opacity 0 / 1.3 / -6° 起始、随滚动盖下 */
+  .archive-stamp {
+    position: absolute;
+    top: -14px;
+    right: -12px;
+    z-index: 5;
+    margin: 0;
+    padding: 5px 10px;
+    border: 1.5px solid var(--color-accent-bright);
+    background: var(--color-bg);
+    color: var(--color-accent-bright);
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    transform: rotate(-4deg);
   }
 
   .grat-line-dark {
@@ -1602,7 +1605,7 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     color: var(--color-accent-bright);
   }
 
-  /* ============ SEC.01 INDEX — specimen 页 + 归档槽（缺陷1/6 + S3） ============ */
+  /* ============ SEC.01 INDEX — specimen 页（缺陷1/6；QA修复 第3条：归档槽 CSS 随槽位一并删除） ============ */
   .sec-index {
     --sec-pt: 128px;
     --sec-pb: 120px;
@@ -1615,60 +1618,6 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
 
   .index-intro {
     grid-column: 1 / 7;
-  }
-
-  /* S3 归档槽位：col 9-12 带角线空图框，接收 hero 档案地球 */
-  .plate-slot {
-    grid-column: 9 / 13;
-    justify-self: end;
-    width: min(100%, 300px);
-    position: relative;
-  }
-
-  .slot-frame {
-    position: relative;
-    aspect-ratio: 1 / 1;
-    border: 1px solid var(--hairline);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-4);
-  }
-
-  .slot-map {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  .slot-grat {
-    stroke: var(--hairline);
-    stroke-width: 0.75;
-  }
-
-  .slot-dot {
-    fill: var(--color-accent);
-  }
-
-  .slot-hint {
-    margin: var(--space-3) 0 0;
-    color: var(--color-text-soft-on-dark);
-  }
-
-  /* S3 图章：无 JS / 减动效直接渲染归档终态（rotate -4°）；动效路径由 GSAP 以 1.3→1 / -6°→-4° 盖下 */
-  .slot-stamp {
-    position: absolute;
-    top: -14px;
-    right: -12px;
-    z-index: 5;
-    margin: 0;
-    padding: 5px 10px;
-    border: 1.5px solid var(--color-accent-bright);
-    background: var(--color-bg);
-    color: var(--color-accent-bright);
-    letter-spacing: 0.08em;
-    white-space: nowrap;
-    transform: rotate(-4deg);
   }
 
   /* FIG.03 刻度图归位数据：作为 IDX.04 行内附件（缺陷6） */
@@ -1847,6 +1796,11 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     background: #fafbfd;
   }
 
+  /* QA修复 第4条：纸面地球本就浅色，不上暗面板 */
+  .theme-paper .fig-body-hero {
+    background: none;
+  }
+
   /* 纸面主题装订沟阴影（深色主题没有"沟"） */
   .theme-paper .spine::after {
     content: '';
@@ -1859,10 +1813,11 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     pointer-events: none;
   }
 
-  /* S1：纸面主题反色跨页四边出血色边（整版实地印刷） */
+  /* S1：纸面主题反色跨页四边出血色边（整版实地印刷）；QA5 的压页内阴影仅深色主题需要，此处归零 */
   .theme-paper .sec-coverage {
     border-top: 3px solid var(--color-accent-deep);
     border-bottom: 3px solid var(--color-accent-deep);
+    box-shadow: none;
   }
 
   .theme-paper .method-ring {
@@ -1928,6 +1883,13 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     color: var(--color-text-muted-on-dark);
   }
 
+  /* QA修复 第5条：节末右下 mono 预告行 —— 下一页整版实地印刷的物理暗示 */
+  .method-next {
+    margin: var(--space-7) 0 0;
+    text-align: right;
+    color: var(--color-text-soft-on-dark);
+  }
+
   /* 右页边竖排 marginalia（≥1200px；verso 页的活页边） */
   .method-marginalia {
     display: none;
@@ -1949,6 +1911,10 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     background: var(--color-surface);
     color: var(--color-brand-ink);
     --crop-ink: rgba(10, 29, 51, 0.4);
+    /* QA修复 第5条：白页突变保留（插页本应突变），但给足物理暗示 ——
+       顶缘 3px 出血色边（对应纸面版既有出血边）+ 顶缘约 10px 内阴影模拟压页 */
+    border-top: 3px solid var(--color-accent-deep);
+    box-shadow: inset 0 10px 12px -4px rgba(2, 8, 20, 0.3);
   }
 
   .theme-paper .sec-coverage {
@@ -2177,13 +2143,21 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     border-bottom: 1px solid var(--hairline-on-light);
   }
 
-  .region-btn:hover {
+  /* QA1：hover 提色仅限非 active 钮，避免 active 蓝底上叠蓝字 */
+  .region-btn:not([aria-pressed='true']):hover {
     color: var(--color-accent);
   }
 
+  /* QA修复 第1条：active = accent 实底钮，前景恒白（不得再用 --color-text-on-dark，纸面下它是墨色）
+     深色主题：#2563eb 白字 5.1:1 ✓ */
   .region-btn[aria-pressed='true'] {
-    background: var(--color-brand-ink);
-    color: var(--color-text-on-dark);
+    background: var(--color-accent);
+    color: var(--color-text-on-accent);
+  }
+
+  /* QA1：纸面反色跨页内 accent 被提亮为 #6b93f0（白字不足 4.5:1）——active 钮底改 accent-deep（#123f9e，白字 9.4:1） */
+  .theme-paper .sec-coverage .region-btn[aria-pressed='true'] {
+    background: var(--color-accent-deep);
   }
 
   .readouts {
@@ -2382,13 +2356,13 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     margin-top: auto;
   }
 
-  /* 缺陷7修复：默认露 40% 墨（无 JS 同样可见），hover 描满（pathLength=1 + CSS dash） */
+  /* 缺陷7修复 + QA修复 第6条：默认露 70% 墨（dashoffset 0.3，无 JS 同样可见），hover 描满（pathLength=1 + CSS dash） */
   .cap-field path {
     fill: none;
     stroke: var(--color-accent);
     stroke-width: 1.2;
     stroke-dasharray: 1;
-    stroke-dashoffset: 0.6;
+    stroke-dashoffset: 0.3;
     transition: stroke-dashoffset 0.9s var(--ease-out);
   }
 
@@ -2431,23 +2405,27 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     border-bottom: 1px solid var(--hairline);
   }
 
-  /* 账页线由 .row-rule--bleed 满版划出（缺陷1 出血语法 + 描画动词） */
+  /* 账页线由 .row-rule--bleed 满版划出（缺陷1 出血语法 + 描画动词）
+     QA修复 第7条：行改 12 列落位 —— label col1-5 / 描述 col6-10 常显 / 弧场 col11-12，mono 序号钉右缘 */
   .idx-row {
     position: relative;
     display: grid;
-    grid-template-columns: 96px minmax(0, 1fr) minmax(0, 380px);
-    gap: var(--space-5);
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 24px;
     align-items: center;
     padding: var(--space-6) 0;
-    outline-offset: 4px;
   }
 
   .idx-num {
+    position: absolute;
+    top: var(--space-6);
+    right: 0;
     color: var(--color-text-muted-on-dark);
   }
 
   /* 缺陷2修复：行业大字升 display-l 族（zh 降档见上方全局规则） */
   .idx-label {
+    grid-column: 1 / 6;
     font-size: clamp(2.5rem, 5.5vw, 5rem);
     font-weight: 680;
     letter-spacing: var(--tracking-tight);
@@ -2455,49 +2433,49 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     transition: color var(--duration-base) var(--ease-out);
   }
 
-  .idx-row:hover .idx-label,
-  .idx-row:focus .idx-label {
+  .idx-row:hover .idx-label {
     color: var(--color-accent-bright);
   }
 
+  /* QA7：描述常显 —— 不再有 opacity/transform 门控 */
   .idx-detail {
-    display: grid;
-    grid-template-columns: 120px minmax(0, 1fr);
-    gap: var(--space-4);
-    align-items: center;
-    opacity: 0;
-    transform: translateX(12px);
-    transition:
-      opacity var(--duration-base) var(--ease-out),
-      transform var(--duration-base) var(--ease-out);
-  }
-
-  .idx-row:hover .idx-detail,
-  .idx-row:focus .idx-detail,
-  .idx-row:focus-within .idx-detail {
-    opacity: 1;
-    transform: none;
+    grid-column: 6 / 11;
   }
 
   .idx-field {
+    grid-column: 11 / 13;
     display: block;
     width: 100%;
     height: auto;
   }
 
+  /* QA7：弧场默认 100% 可见（0.75px 细线）；hover 仅提亮 + 重描（dashoffset 动词；减动效下仅提亮、无动画） */
   .idx-field path {
     fill: none;
     stroke: var(--color-accent);
-    stroke-width: 1.1;
+    stroke-width: 0.75;
     stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    transition: stroke-dashoffset 0.8s var(--ease-out);
+    stroke-dashoffset: 0;
   }
 
-  .idx-row:hover .idx-field path,
-  .idx-row:focus .idx-field path,
-  .idx-row:focus-within .idx-field path {
-    stroke-dashoffset: 0;
+  .idx-row:hover .idx-field path {
+    stroke: var(--color-accent-bright);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .idx-row:hover .idx-field path {
+      animation: idx-redraw 0.8s var(--ease-out) both;
+    }
+  }
+
+  @keyframes idx-redraw {
+    from {
+      stroke-dashoffset: 1;
+    }
+
+    to {
+      stroke-dashoffset: 0;
+    }
   }
 
   .idx-desc {
@@ -2595,7 +2573,8 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     gap: var(--space-3);
   }
 
-  /* 全站唯一蓝色实心块（提案 2.3：蓝 = 活的数据 / 唯一 CTA）；缺陷8：54px → 64px */
+  /* 全站唯一蓝色实心块（提案 2.3：蓝 = 活的数据 / 唯一 CTA）；缺陷8：54px → 64px
+     QA修复 第1条：前景改 on-accent 恒白（纸面下 --color-text-on-dark=墨色，曾致"蓝钮黑字"） */
   .cta-btn {
     display: inline-flex;
     align-items: center;
@@ -2604,7 +2583,7 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
     padding: 0 var(--space-7);
     border-radius: var(--radius-sm);
     background: linear-gradient(135deg, var(--color-accent-deep), var(--color-accent));
-    color: var(--color-text-on-dark);
+    color: var(--color-text-on-accent);
     font-weight: 650;
     font-size: 1.0625rem;
     text-decoration: none;
@@ -2617,6 +2596,15 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
   .cta-btn:hover {
     transform: translateY(-2px);
     box-shadow: var(--glow-accent-strong);
+  }
+
+  /* QA修复 第1条：纸面 primary 钮平涂 accent（#1a55d0，白字 6.4:1），hover 走 accent-deep（#123f9e，9.4:1） */
+  .theme-paper .cta-btn {
+    background: var(--color-accent);
+  }
+
+  .theme-paper .cta-btn:hover {
+    background: var(--color-accent-deep);
   }
 
   .cta-note {
@@ -2686,14 +2674,6 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
 
     .proof-press {
       margin-top: 0;
-    }
-
-    .index-intro {
-      grid-column: 1 / 8;
-    }
-
-    .plate-slot {
-      grid-column: 8 / 13;
     }
 
     .console {
@@ -2776,11 +2756,6 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
 
     .log-lines {
       overflow-x: auto;
-    }
-
-    /* S3 槽位在移动端隐藏（无归档动效，避免与 hero 地图重复） */
-    .plate-slot {
-      display: none;
     }
 
     .cap-grid {
@@ -2875,20 +2850,20 @@ const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
       padding: var(--space-3) var(--space-4);
     }
 
-    /* 行业索引：小屏档案常开（无 hover 语义），弧场直接描画 */
+    /* 行业索引（QA7）：小屏纵向堆叠 —— 序号回文档流首行，弧场限宽 */
     .idx-row {
-      grid-template-columns: 1fr;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
       gap: var(--space-3);
     }
 
-    .idx-detail {
-      opacity: 1;
-      transform: none;
-      grid-template-columns: 100px minmax(0, 1fr);
+    .idx-num {
+      position: static;
     }
 
-    .idx-field path {
-      stroke-dashoffset: 0;
+    .idx-field {
+      max-width: 240px;
     }
 
     .row-rule--bleed {
