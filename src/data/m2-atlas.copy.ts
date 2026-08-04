@@ -11,7 +11,7 @@ export interface AtlasCopy {
       cluster=密集群簇显示模板（{code} 为城市代码 mono 不译，{k} 为近邻数） */
   hero: { deck: string; jump: string; logTitle: string; readoutLabel: string; nodeRecords: string; cluster: string };
   index: { title: string; lede: string; rows: { label: string; note: string }[]; footnote: string };
-  /** next：SEC.02 末尾右下 mono 预告行（QA修复 第5条；编号语言不译，叙事词双语） */
+  /** next：SEC.02 末尾右下 mono 预告行（编号语言不译，叙事词双语） */
   method: { title: string; lede: string; phases: string[]; next: string };
   coverage: {
     title: string;
@@ -21,17 +21,17 @@ export interface AtlasCopy {
     readouts: { region: string; nodes: string; records: string; km: string; last: string };
     pointer: string;
   };
-  /** 定案2：能力区无图形 —— 纯排版卡（note 出处语与 seed 随 FIG.06–11 图版一并删除） */
+  /** 能力区无图形 —— 纯排版卡（不设 note 出处语与 seed 字段） */
   capabilities: { title: string; lede: string; features: { title: string; description: string }[] };
   industries: { title: string; lede: string; items: { label: string; description: string }[] };
   manifesto: { lines: string[] };
   cta: { title: string; sub: string; button: string };
-  /** S1/S2/S3/S4 印张 chrome 的 mono 标注（编号语言不译：en/zh 引用同一常量） */
+  /** 印张 chrome 的 mono 标注（编号语言不译：en/zh 引用同一常量） */
   press: {
     wordmark: string;
     /** hero v3：FIG.02 活体外业图版图注头标题（{n} = 节点数） */
     liveplate: string;
-    /** QA修复 第2条：FIG.02 caption 的 marker 含义标注 */
+    /** FIG.02 caption 的 marker 含义标注 */
     markerNote: string;
     stamp: string;
     spread: string;
@@ -39,20 +39,6 @@ export interface AtlasCopy {
     methodMarginalia: string;
     detach: string;
     railHead: string;
-  };
-  /** 打样台（docs/11 定案2：迁独立彩蛋页 /proof 与 /zh/proof，由 ProofRoom 引用）——
-      叙事字段翻译；caption/download/metaTitle/runningHead/back/colophonLink 为 mono 编号语言，双语同值 */
-  proof: {
-    metaTitle: string;
-    runningHead: string;
-    back: string;
-    colophonLink: string;
-    title: string;
-    hook: string;
-    inputLabel: string;
-    placeholder: string;
-    caption: string;
-    download: string;
   };
   aria: {
     globe: string;
@@ -68,34 +54,25 @@ export interface AtlasCopy {
     record: string;
     node: string;
     industriesList: string;
-    proofPanel: string;
+    stock: string;
   };
 }
 
 // 印张 chrome mono 标注（docs/10 字体宪法：编号语言不翻译 — en/zh 共用同一常量，防止双语漂移）
-// FIG 重编号（docs/11 定案2：只剩 5 个真图形）：FIG.01 字标图版 / FIG.02 档案地球 /
+// FIG 编号（仅 5 个真图形，见 docs/11）：FIG.01 字标图版 / FIG.02 档案地球 /
 // FIG.03 每记录公里（SEC.01 行内）/ FIG.04 方法管线 / FIG.05 覆盖跨页
 const pressMono = {
   wordmark: 'FIG.01 — WORDMARK PLATE · 12 DELIVERY ARCS SET IN THE NAME',
-  // hero v3：FIG.02 由「档案地球」升格为全宽活体外业图版（球格 + 日志 + 读出条同框）
+  // hero v3：FIG.02 = 全宽活体外业图版（球格 + 日志 + 读出条同框）
   liveplate: 'FIG.02 — LIVE FIELD PLATE · {n} NODES',
   markerNote: 'MARKERS = NODE CITIES ({n})',
-  // QA修复 第3条：归档改原位收缩，PLATE SLOT（RECEIVING）键随跨节 FLIP 一并删除；stamp 保留、改盖在 hero 图框角
+  // 归档为原位收缩，不设 PLATE SLOT（RECEIVING）键；stamp 盖在 hero 图框角
   stamp: 'ARCHIVED — FIG.02 · AS OF {d}',
   spread: 'FIG.05 — COVERAGE SPREAD · EQUIRECTANGULAR · GRATICULE 30°',
   megaSuffix: 'TOTAL RECORD KM',
   methodMarginalia: 'RAW TRACE → VERIFIED PACKET · ONE CONTRACT',
   detach: 'DETACH — RETURN TO ARCLINK',
   railHead: 'ARCLINK ANNUAL — EDITION 2026',
-} as const;
-
-const proofMono = {
-  metaTitle: 'PROOF ROOM — ARCFIELD PRESS · ARCLINK',
-  runningHead: 'PROOF ROOM — ARCFIELD PRESS',
-  back: '← BACK TO ATLAS',
-  colophonLink: 'PROOF ROOM ↗',
-  caption: 'PROOF — SEED «{s}» · 9 ARCS · DETERMINISTIC',
-  download: 'DOWNLOAD .SVG',
 } as const;
 
 const en: AtlasCopy = {
@@ -127,7 +104,7 @@ const en: AtlasCopy = {
       'Every trace is cross-checked against a second source before it is allowed to enter the atlas. No match, no record.',
       'Verified packets are handed over with a signed manifest — the same record you can audit on this page.',
     ],
-    // QA修复 第5条：SEC.03 反色跨页的物理预告（PLATE V = FIG.05 覆盖跨页）
+    // SEC.03 反色跨页的物理预告（PLATE V = FIG.05 覆盖跨页）
     next: 'NEXT — PLATE V / COVERAGE',
   },
   coverage: {
@@ -147,12 +124,12 @@ const en: AtlasCopy = {
   capabilities: {
     title: 'Six instruments, one platform.',
     lede: platformEn.description,
-    // 定案2：能力区无图形 —— 纯排版卡，note 出处语随图版删除
+    // 能力区无图形 —— 纯排版卡，不设 note 出处语
     features: platformEn.features.map((f) => ({ title: f.title, description: f.description })),
   },
   industries: {
     title: 'Indexed by industry.',
-    // QA修复 第7条：描述常显后删除"悬停调档案"操作说明
+    // 描述常显，不设"悬停调档案"操作说明
     lede: industriesEn.heading,
     items: industriesEn.items.map((it) => ({ label: it.label, description: it.description })),
   },
@@ -163,18 +140,6 @@ const en: AtlasCopy = {
     button: 'Request coverage',
   },
   press: pressMono,
-  proof: {
-    metaTitle: proofMono.metaTitle,
-    runningHead: proofMono.runningHead,
-    back: proofMono.back,
-    colophonLink: proofMono.colophonLink,
-    title: 'Proof your own plate.',
-    hook: 'Same rule, same seed, same output. Our figures are not drawn — they are generated. Yours too.',
-    inputLabel: 'Seed',
-    placeholder: 'Type any seed — try your name',
-    caption: proofMono.caption,
-    download: proofMono.download,
-  },
   aria: {
     globe: 'Rotating globe plotting {n} Arclink node cities',
     mapFallback: 'Map of {n} Arclink node cities',
@@ -188,7 +153,7 @@ const en: AtlasCopy = {
     record: 'Delivery record: ',
     node: 'Node city: ',
     industriesList: 'Industry index',
-    proofPanel: 'Seed proofing press: type any seed to generate a deterministic arcfield plate',
+    stock: 'Paper stock — switch between paper and night editions',
   },
 };
 
@@ -222,7 +187,7 @@ const zh: AtlasCopy = {
       '每条轨迹都要与第二来源交叉核对，才被允许写入图集。对不上号，就不成记录。',
       '核验通过的数据包随签名清单一并交付——也就是你在本页可以查验的同一份记录。',
     ],
-    // QA修复 第5条：编号语言（NEXT/PLATE V）不译，叙事词"覆盖跨页"翻译
+    // 编号语言（NEXT/PLATE V）不译，叙事词"覆盖跨页"翻译
     next: 'NEXT — PLATE V / 覆盖跨页',
   },
   coverage: {
@@ -242,12 +207,12 @@ const zh: AtlasCopy = {
   capabilities: {
     title: '六件仪器，一个平台。',
     lede: platformZh.description,
-    // 定案2：能力区无图形 —— 纯排版卡，note 出处语随图版删除
+    // 能力区无图形 —— 纯排版卡，不设 note 出处语
     features: platformZh.features.map((f) => ({ title: f.title, description: f.description })),
   },
   industries: {
     title: '按行业归档。',
-    // QA修复 第7条：描述常显后删除"悬停调档案"操作说明
+    // 描述常显，不设"悬停调档案"操作说明
     lede: industriesZh.heading,
     items: industriesZh.items.map((it) => ({ label: it.label, description: it.description })),
   },
@@ -258,18 +223,6 @@ const zh: AtlasCopy = {
     button: '请求覆盖',
   },
   press: pressMono,
-  proof: {
-    metaTitle: proofMono.metaTitle,
-    runningHead: proofMono.runningHead,
-    back: proofMono.back,
-    colophonLink: proofMono.colophonLink,
-    title: '打一张你自己的图版。',
-    hook: '同一规则，同一种子，同一输出。我们的图形不画，只生成——你的也是。',
-    inputLabel: '种子',
-    placeholder: '输入任意字符——试试你的名字',
-    caption: proofMono.caption,
-    download: proofMono.download,
-  },
   aria: {
     globe: '旋转地球，标绘 {n} 座 Arclink 节点城市',
     mapFallback: '{n} 座 Arclink 节点城市地图',
@@ -283,7 +236,7 @@ const zh: AtlasCopy = {
     record: '交付记录：',
     node: '节点城市：',
     industriesList: '行业索引',
-    proofPanel: '种子打样台：输入任意种子，即可生成一张确定性弧场图版',
+    stock: '纸样切换——在纸面版与夜航版之间切换',
   },
 };
 

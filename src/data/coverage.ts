@@ -1,5 +1,5 @@
 // ⚠️ 占位覆盖数据 — 结构即最终结构，数值为占位
-// samuel 提供真实覆盖城市清单后仅替换本文件（docs/TODO 等待输入项）
+// 真实覆盖城市清单到位后仅替换本文件（docs/TODO 等待输入项）
 // docs/10 骨架第 5 条：上线前必须换真数据并核对口径（AS OF 日期、Total/Unique 区分）
 
 export interface City {

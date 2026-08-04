@@ -1,5 +1,5 @@
 ---
-// M2 变体 A —「勘测年鉴」融合版（docs/10 裁决：甲·年鉴主调 + 乙·地面站两个 signature）
+// M2 变体 A —「勘测年鉴」融合版（见 docs/10：甲·年鉴主调 + 乙·地面站两个 signature）
 // 页面主体组件：Props = { locale }；叙事文案全部来自 src/data/m2-atlas.copy.ts（en/zh 同构），
 // mono 编号语言（SEC./FIG./IDX./PH./CAP./IND.、城市代码、KM/UTC/坐标）不翻译，双语共用。
 // 数据唯一来源 = src/data/coverage.ts；图形唯一来源 = src/lib/arcfield.ts
@@ -87,7 +87,7 @@ const regionStats = Object.fromEntries(
         nodes: String(nodes.length),
         records: String(evs.length),
         km: `${fmtNum(kmSum)} KM`,
-        kmNum: kmSum, // S4 mega 读数 countUp 用数值
+        kmNum: kmSum, // mega 读数 countUp 用数值
         last: evs.map((e) => e.utc).sort().at(-1) ?? '—',
       },
     ];
@@ -95,7 +95,7 @@ const regionStats = Object.fromEntries(
 );
 
 // —— 图版裁切（全图 1000×500 → 覆盖区域 + 图边留白）——
-// 缺陷4/S4：水平留白 70 → 130，经纬网延伸出城市簇、画到满版跨页的物理屏缘
+// 水平留白 130：经纬网必须延伸出城市簇、画到满版跨页的物理屏缘
 const xs = cityPts.map((p) => p.x);
 const ys = cityPts.map((p) => p.y);
 const vb = {
@@ -105,7 +105,7 @@ const vb = {
   h: Math.max(...ys) - Math.min(...ys) + 125,
 };
 
-// —— S2 整版字标图版：12 条真实 eventArcs 的地图坐标变换进字标包围盒（critique-creativity S2）——
+// —— 整版字标图版：12 条真实 eventArcs 的地图坐标变换进字标包围盒 ——
 const WM_W = 1000;
 const WM_H = 192;
 const wmBox = {
@@ -163,28 +163,26 @@ const methodArcs = [
 ];
 const exemplar = eventArcs[0];
 
-// —— SEC.04 平台能力（docs/11 定案2：假图形处决 —— 无弧场图版，纯排版卡；CAP 编号为 mono 编号语言）——
+// —— SEC.04 平台能力（见 docs/11：无弧场图版，纯排版卡；CAP 编号为 mono 编号语言）——
 const capItems = t.capabilities.features.map((f, i) => ({
   ...f,
   cap: `CAP.${String(i + 1).padStart(2, '0')}`,
 }));
 
-// —— SEC.05 行业索引（Obys 式行式档案；Mapping 首位；QA修复 第7条：description 常显；
-// docs/11 定案2：行内弧场缩略删除，列位归还描述）——
+// —— SEC.05 行业索引（Obys 式行式档案；Mapping 首位；description 常显；
+// 不设行内弧场缩略，列位归描述，见 docs/11）——
 const industryRows = t.industries.items.map((it, i) => ({
   ...it,
   ind: `IND.${String(i + 1).padStart(2, '0')}`,
 }));
 
 const buildDate = new Date().toISOString().slice(0, 10);
-// docs/11 定案2：打样台迁独立彩蛋页 —— colophon 行内 mono 链接进入（en→/proof，zh→/zh/proof）
-const proofHref = locale === 'zh' ? '/zh/proof' : '/proof';
 // hero v3：payload 增补 code —— 拾取覆盖层按 DOM 顺序与 markers 一一对应（同源 cities 数组）
 const globePayload = { cities: cities.map((c) => ({ lat: c.lat, lng: c.lng, code: c.code })) };
 const heroStatus = `ARCLINK ANNUAL — SEC.00 / FRONTISPIECE · INIT ${fmtLat(cityByCode.SIN.lat)} ${fmtLng(cityByCode.SIN.lng)} · LINK UP · ${metrics.citiesCovered} NODES`;
 const megaSuffix = t.press.megaSuffix; // inline 脚本 define:vars 用
 
-// —— hero v3 FIG.02 活体外业图版（评审修正 #2/#5/#6）——
+// —— hero v3 FIG.02 活体外业图版 ——
 // 节点关联记录数（marker 读出条内容用：名称/CODE/坐标/记录数）
 const recordCount: Record<string, number> = {};
 events.forEach((e) => {
@@ -195,7 +193,7 @@ const nodeMarks = cityPts.map((p) => ({
   ...p,
   readout: `${p.name.toUpperCase()} — ${p.code} · ${fmtLat(p.lat)} ${fmtLng(p.lng)} · ${fmt(t.hero.nodeRecords, { m: recordCount[p.code] ?? 0 })}`,
 }));
-// 仪器格四角 mono 坐标 = 数据集的 lat/lng 极值（评审修正 #2：格是仪器，坐标是格的视野标定）
+// 仪器格四角 mono 坐标 = 数据集的 lat/lng 极值（格是仪器，坐标是格的视野标定）
 const lats = cities.map((c) => c.lat);
 const lngs = cities.map((c) => c.lng);
 const plateCorners = {
@@ -204,19 +202,32 @@ const plateCorners = {
   bl: `${fmtLat(Math.min(...lats))} ${fmtLng(Math.min(...lngs))}`,
   br: `${fmtLat(Math.min(...lats))} ${fmtLng(Math.max(...lngs))}`,
 };
-// 读出条无 JS 默认帧 = 最新记录（有 JS + 动效时被 4s is-live 轮转接管，评审修正 #6）
+// 读出条无 JS 默认帧 = 最新记录（有 JS + 动效时被 4s is-live 轮转接管）
 const defaultEvent = eventArcs.find((e) => e.utc === lastUtc) ?? eventArcs[0];
 const defaultIdx = `R.${String(defaultEvent.i + 1).padStart(2, '0')}`;
 const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的默认帧沿用同一条最新记录
 ---
 
 <main id="main" class:list={['atlas', theme === 'paper' && 'theme-paper']}>
-  <!-- ============ SEC.00 / FRONTISPIECE — 整版字标图版（S2）+ standfirst + FIG.02 活体外业图版（hero v3） ============ -->
+  <script is:inline>
+    // 纸样偏好在首帧生效（元素已存在、页面未绘制），避免加载后换纸闪色
+    (() => {
+      const el = document.currentScript.parentElement;
+      const saved = localStorage.getItem('arclink-stock');
+      if (!saved) return;
+      const paper = saved === 'paper';
+      el.classList.toggle('theme-paper', paper);
+      const bg = paper ? '#f3f5f9' : '#030b1d';
+      document.documentElement.style.background = bg;
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
+    })();
+  </script>
+  <!-- ============ SEC.00 / FRONTISPIECE — 整版字标图版 + standfirst + FIG.02 活体外业图版（hero v3） ============ -->
   <section class="sec sec-hero" data-folio="00" data-secname="FRONTISPIECE">
     <div class="shell hero-shell">
       <p class="hero-status mono-caption"><span class="js-status">{heroStatus}</span></p>
 
-      <!-- S2 整版字标图版：ARCLINK 巨字即 FIG.01，12 条真实交付弧线在字腔内部描画（clipPath 内 <text> 用页面 Inter，无需转曲） -->
+      <!-- 整版字标图版：ARCLINK 巨字即 FIG.01，12 条真实交付弧线在字腔内部描画（clipPath 内 <text> 用页面 Inter，无需转曲） -->
       <figure class="hero-plate">
         <h1 class="hero-title" aria-label="ARCLINK">
           <span class="wm-mask">
@@ -244,7 +255,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
         </figcaption>
       </figure>
 
-      <!-- standfirst：deck 升字号 col 1-8 + SEC.03 跳转同基线行 col 10-12 右对齐（评审修正 #8） -->
+      <!-- standfirst：deck 升字号 col 1-8 + SEC.03 跳转同基线行 col 10-12 右对齐 -->
       <div class="hero-standfirst grid-12">
         <p class="hero-deck">{t.hero.deck}</p>
         <a class="hero-jump mono-caption" href="#coverage">{t.hero.jump}</a>
@@ -260,7 +271,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
           <span>AS OF {metrics.asOf}</span>
         </figcaption>
         <div class="lp-body">
-          <!-- 左：仪器格 —— graticule chrome 铺满整格 + 四角坐标极值（评审修正 #2：矩形是对齐单位，球是格内读数） -->
+          <!-- 左：仪器格 —— graticule chrome 铺满整格 + 四角坐标极值（矩形是对齐单位，球是格内读数） -->
           <div class="lp-globe">
             <span class="lp-corner lp-corner--tl mono-caption" aria-hidden="true">{plateCorners.tl}</span>
             <span class="lp-corner lp-corner--tr mono-caption" aria-hidden="true">{plateCorners.tr}</span>
@@ -293,7 +304,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
                   </g>
                 ))}
               </svg>
-              <!-- 拾取层（评审修正 #3）：12 个真实 <button> 覆盖点（22px 命中区 + 8px 视觉环），
+              <!-- 拾取层：12 个真实 <button> 覆盖点（22px 命中区 + 8px 视觉环），
                    位置由投影函数逐帧写入；背面（z ≤ 0.12）隐藏；hover/focus 同一事件路径 -->
               <div
                 class="globe-overlay"
@@ -309,7 +320,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
               </div>
             </div>
           </div>
-          <!-- 右：交付日志 —— 标题行 auto + 12 行 1fr 强制等高填满共享高 H（评审修正 #1：不齐在数学上不可能发生） -->
+          <!-- 右：交付日志 —— 标题行 auto + 12 行 1fr 强制等高填满共享高 H（不齐在数学上不可能发生） -->
           <div class="lp-log">
             <p class="lp-log-title mono-caption">{t.hero.logTitle} ({events.length})</p>
             <ol class="log-lines" aria-label={t.aria.log} style={`--lp-rows: ${events.length}`}>
@@ -332,8 +343,8 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
             </ol>
           </div>
         </div>
-        <!-- 底缘读出条：默认跟随 is-live 4s 轮转（评审修正 #6）；交互 120ms 淡入换帧；
-             右端归档图章位（v2 归档语法收进图版，滚动离开时 GSAP 盖下；无 JS / 减动效呈现终态） -->
+        <!-- 底缘读出条：默认跟随 is-live 4s 轮转；交互 120ms 淡入换帧；
+             右端归档图章位（归档语法在图版之内，滚动离开时 GSAP 盖下；无 JS / 减动效呈现终态） -->
         <div class="lp-readout mono-caption">
           <span class="lp-readout-label">{t.hero.readoutLabel}</span>
           <span class="lp-readout-idx">{defaultIdx}</span>
@@ -344,7 +355,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     </div>
   </section>
 
-  <!-- ============ SEC.01 / INDEX — 信任数字 specimen（缺陷6；QA修复 第3条：归档槽位删除，归档在 hero 原位完成） ============ -->
+  <!-- ============ SEC.01 / INDEX — 信任数字 specimen（不设归档槽位：归档在 hero 原位完成） ============ -->
   <section class="sec sec-index" data-folio="01" data-secname="INDEX">
     <div class="shell">
       <header class="sec-head mono-caption" data-reveal>
@@ -394,7 +405,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     </div>
   </section>
 
-  <!-- ============ SEC.02 / METHOD — verso 页：右轴标题 + 图版左出血 + 阶梯三相（缺陷1） ============ -->
+  <!-- ============ SEC.02 / METHOD — verso 页：右轴标题 + 图版左出血 + 阶梯三相 ============ -->
   <section class="sec sec-method" data-folio="02" data-secname="METHOD">
     <div class="shell">
       <header class="sec-head sec-head--verso mono-caption" data-reveal>
@@ -439,21 +450,21 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
           </div>
         ))}
       </div>
-      <!-- QA修复 第5条：节末右下 mono 预告行 —— 为下一节反色跨页的突变给足物理暗示 -->
+      <!-- 节末右下 mono 预告行 —— 为下一节反色跨页的突变给足物理暗示 -->
       <p class="method-next mono-caption" data-reveal>{t.method.next}</p>
       <p class="method-marginalia mono-caption" aria-hidden="true">{t.press.methodMarginalia}</p>
     </div>
   </section>
 
-  <!-- ============ SEC.03 / COVERAGE — 中央跨页（S4/缺陷4）：满版出血图版 + 浮卡覆盖台 + 骑线巨数 ============ -->
+  <!-- ============ SEC.03 / COVERAGE — 中央跨页：满版出血图版 + 浮卡覆盖台 + 骑线巨数 ============ -->
   <section class="sec sec-coverage" id="coverage" data-folio="03" data-secname="COVERAGE">
-    <!-- samuel 评审：插页硬切换需要物理宣告 —— 骑线页签（书页边索引标签，token 双主题自适配；mono 编号语言不译） -->
+    <!-- 插页硬切换需要物理宣告 —— 骑线页签（书页边索引标签，token 双主题自适配；mono 编号语言不译） -->
     <span class="plate-tab mono-caption" aria-hidden="true">PLATE · FIG.05 — COVERAGE</span>
     <div class="shell">
       <header class="sec-head mono-caption" data-reveal>
         <span>SEC.03 / COVERAGE — PLATE</span>
       </header>
-      <!-- 缺陷4：本节标题落右轴（col 7-12），标题块叠印图版上缘 -->
+      <!-- 本节标题落右轴（col 7-12），标题块叠印图版上缘 -->
       <div class="cov-intro grid-12">
         <h2 class="sec-title cov-title" data-reveal>{t.coverage.title}</h2>
         <p class="sec-lede cov-lede" data-reveal>{t.coverage.lede}</p>
@@ -514,7 +525,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
               </g>
             </svg>
           </div>
-          <!-- S1 语法：跨页图版的图注转竖排，贴书口（右缘） -->
+          <!-- 跨页图版的图注转竖排，贴书口（右缘） -->
           <figcaption class="fig-cap fig-cap--spine mono-caption">
             <span>{t.press.spread} · AS OF {metrics.asOf}</span>
           </figcaption>
@@ -543,7 +554,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
           </p>
         </aside>
 
-        <!-- S4 骑线巨数：区域公里读数骑出反色图版下缘（mix-blend difference，两主题通吃；读数本体在侧栏 dl，此处 aria-hidden） -->
+        <!-- 骑线巨数：区域公里读数骑出反色图版下缘（mix-blend difference，两主题通吃；读数本体在侧栏 dl，此处 aria-hidden） -->
         <p class="cov-mega" aria-hidden="true">
           <span id="cov-mega-num" class="cov-mega-num">{fmtNum(totalKm)}</span>
           <span id="cov-mega-label" class="cov-mega-label mono-caption">{regionStats.all.label} — {t.press.megaSuffix}</span>
@@ -552,7 +563,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     </div>
   </section>
 
-  <!-- ============ SEC.04 / CAPABILITIES — 平台能力（docs/11 定案2：无图形，排版立住；打样台迁 /proof） ============ -->
+  <!-- ============ SEC.04 / CAPABILITIES — 平台能力（无图形，排版立住；见 docs/11） ============ -->
   <section class="sec sec-capabilities" data-folio="04" data-secname="CAPABILITIES">
     <div class="shell">
       <header class="sec-head mono-caption" data-reveal>
@@ -566,7 +577,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
         </div>
       </div>
 
-      <!-- 缺陷7 错位双列保留；定案2：卡改纯排版 —— accent 短横线标记 + CAP.0n mono chip + 标题 + 描述，hover 仅边框/标记提亮 -->
+      <!-- 双列纯排版卡 —— accent 短横线标记 + CAP.0n mono chip + 标题 + 描述，hover 仅边框/标记提亮 -->
       <ol class="cap-grid">
         {capItems.map((f) => (
           <li class="cap-card">
@@ -580,7 +591,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     </div>
   </section>
 
-  <!-- ============ SEC.05 / INDUSTRIES — 行业档案索引（缺陷1/2：标题 col1-4 + lede col6-10；大字升 display-l；账页线满版出血） ============ -->
+  <!-- ============ SEC.05 / INDUSTRIES — 行业档案索引（标题 col1-4 + lede col6-10；大字升 display-l；账页线满版出血） ============ -->
   <section class="sec sec-industries" data-folio="05" data-secname="INDUSTRIES">
     <div class="shell">
       <header class="sec-head sec-head--verso mono-caption" data-reveal>
@@ -591,7 +602,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
         <p class="sec-lede ind-lede" data-reveal>{t.industries.lede}</p>
       </div>
 
-      <!-- QA修复 第7条：description 常显；docs/11 定案2：行内弧场缩略删除，col11-12 列位归还描述 ——
+      <!-- description 常显；不设行内弧场缩略，列位归描述（见 docs/11）——
            行 = label（display-l，col1-5）+ 描述常显（col6-11）+ mono 序号钉右缘；hover 仅提亮 -->
       <ol class="idx-list" aria-label={t.aria.industriesList}>
         {industryRows.map((it) => (
@@ -606,7 +617,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     </div>
   </section>
 
-  <!-- ============ MANIFESTO — 刊末宣言（缺陷8：display-l + 三行阶梯）+ CTA 回函卡 ============ -->
+  <!-- ============ MANIFESTO — 刊末宣言（display-l + 三行阶梯）+ CTA 回函卡 ============ -->
   <section class="sec sec-manifesto" data-folio="05" data-secname="END MATTER">
     <div class="shell">
       <header class="sec-head mono-caption" data-reveal>
@@ -622,7 +633,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
       </div>
 
       <!-- CTA = 装订进年鉴的回函卡（左缘齿孔虚线 + DETACH 竖注），下缘压过 colophon 顶线
-           docs/11 定案3：角线与 EDITION 复记删除（EDITION 2026 chrome 仅书脊轨一处） -->
+           不加角线与 EDITION 复记（EDITION 2026 chrome 仅书脊轨一处，见 docs/11） -->
       <div class="cta-band tipped" data-reveal>
         <span class="cta-detach mono-caption" aria-hidden="true">{t.press.detach}</span>
         <div>
@@ -634,19 +645,31 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     </div>
   </section>
 
-  <!-- ============ COLOPHON — 版权页收针（docs/11 定案3：套准十字与油墨条删除，一行 mono 口径 + proof 链接） ============ -->
+  <!-- ============ COLOPHON — 版权页收针（一行 mono 口径；不设套准十字与油墨条，见 docs/11） ============ -->
   <footer class="colophon" data-folio="06" data-secname="COLOPHON">
     <div class="shell colophon-stack">
       <p class="mono-caption colophon-line">
         ARCLINK ANNUAL · EDITION 2026 — M2 VARIANT A «FIELD ATLAS» · DATA AS OF {metrics.asOf} UTC ·
-        {cities.length} NODES / {events.length} RECORDS / {fmtNum(totalKm)} KM · SET IN INTER + MONO · BUILT {buildDate} ·
-        <a class="colophon-link" href={proofHref}>{t.proof.colophonLink}</a>
+        {cities.length} NODES / {events.length} RECORDS / {fmtNum(totalKm)} KM · SET IN INTER + MONO · BUILT {buildDate}
       </p>
+      <!-- 纸样切换：同一套印版换纸印刷（版权页规格行的一部分，非 UI 部件） -->
+      <div class="stock-switch" role="group" aria-label={t.aria.stock}>
+        <span class="mono-caption stock-label">STOCK</span>
+        <button type="button" class="stock-chip" data-stock="paper" aria-pressed="false">
+          <span class="stock-swatch stock-swatch--paper" aria-hidden="true"></span>
+          <span class="mono-caption">PAPER</span>
+        </button>
+        <span class="mono-caption stock-sep" aria-hidden="true">/</span>
+        <button type="button" class="stock-chip" data-stock="night" aria-pressed="false">
+          <span class="stock-swatch stock-swatch--night" aria-hidden="true"></span>
+          <span class="mono-caption">NIGHT</span>
+        </button>
+      </div>
       <p class="mono-caption colophon-end">END — SEC.06 / COLOPHON</p>
     </div>
   </footer>
 
-  <!-- 缺陷9修复 + S1 书脊轨：左缘 running head + 当前节名 + 进度刻度（≥1200px；EDITION 2026 自 sec-head 移入此处常驻） -->
+  <!-- 书脊轨：左缘 running head + 当前节名 + 进度刻度（≥1200px；EDITION 2026 chrome 常驻此处一次） -->
   <div class="spine" aria-hidden="true">
     <span class="spine-head mono-caption">{t.press.railHead}</span>
     <span class="spine-sec mono-caption" id="spine-sec">SEC.00 / FRONTISPIECE</span>
@@ -664,7 +687,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
 <script type="application/json" id="atlas-data" set:html={JSON.stringify(globePayload)} />
 
 <!-- 可操作覆盖台（功能而非动效：不依赖 motion 偏好；无 JS 时默认 ALL 全量可见）
-     S4 增补：切区域时 mega 读数滚动 + match 弧线 dashoffset 重放（减动效时直接呈现终值） -->
+     切区域时 mega 读数滚动 + match 弧线 dashoffset 重放（减动效时直接呈现终值） -->
 <script is:inline define:vars={{ regionStats, megaSuffix }}>
   const plate = document.getElementById('cov-plate');
   const buttons = Array.from(document.querySelectorAll('.region-btn'));
@@ -739,8 +762,31 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
 </script>
 
 <script>
-  // Folio 页码 + 书脊轨（缺陷9）更新：同一个 IntersectionObserver 喂两处（非动效，reduced-motion 下同样工作）
+  // Folio 页码 + 书脊轨更新：同一个 IntersectionObserver 喂两处（非动效，reduced-motion 下同样工作）
   const folioNum = document.getElementById('folio-num');
+  // 纸样切换：同一套印版换纸印刷 —— 切 .atlas 主题类 + 存偏好 + 广播给球体重着色
+  {
+    const atlas = document.querySelector('.atlas') as HTMLElement | null;
+    const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('.stock-chip'));
+    const sync = (stock: string) => {
+      const paper = stock === 'paper';
+      atlas?.classList.toggle('theme-paper', paper);
+      const bg = paper ? '#f3f5f9' : '#030b1d';
+      document.documentElement.style.background = bg;
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
+      chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.stock === stock)));
+      document.dispatchEvent(new CustomEvent('stock:change', { detail: { stock } }));
+    };
+    sync(atlas?.classList.contains('theme-paper') ? 'paper' : 'night');
+    chips.forEach((chip) =>
+      chip.addEventListener('click', () => {
+        const stock = chip.dataset.stock ?? 'paper';
+        localStorage.setItem('arclink-stock', stock);
+        sync(stock);
+      })
+    );
+  }
+
   const spineSec = document.getElementById('spine-sec');
   const spineTicks = Array.from(document.querySelectorAll<HTMLElement>('.spine-tick'));
   const folioSecs = document.querySelectorAll<HTMLElement>('[data-folio]');
@@ -763,8 +809,8 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
 
 <script>
   // ============ FIG.02 LIVE FIELD PLATE 控制器（hero v3） ============
-  // cobe 球（视觉底）+ 投影 DOM 覆盖 <button> 拾取（评审修正 #3）+ 日志↔球双向联动 + 底缘读出条。
-  // 状态机（评审修正 #5）：IDLE(自转) / MARKER_LOCK(拾取冻结) / LOG_TWEEN(甩动) / RESUME_DELAY(800ms)。
+  // cobe 球（视觉底）+ 投影 DOM 覆盖 <button> 拾取 + 日志↔球双向联动 + 底缘读出条。
+  // 状态机：IDLE(自转) / MARKER_LOCK(拾取冻结) / LOG_TWEEN(甩动) / RESUME_DELAY(800ms)。
   // 移动端（≤760）不初始化球：静态 SVG + 点日志行 → 读出条；reduced-motion：静态帧，交互仅高亮 + 读出。
   import createGlobe from 'cobe';
   import { gsap } from 'gsap';
@@ -780,7 +826,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
   // 无 JS 默认帧内容存底：reduced-motion（无轮转）下交互结束的回落帧
   const roDefault = { idx: roIdx?.textContent ?? '', text: roMain?.textContent ?? '' };
 
-  // 读出条换帧：120ms 淡入 + 序号格 accent 闪一帧（评审修正 #9：hover 高频触发，禁打字机）
+  // 读出条换帧：120ms 淡入 + 序号格 accent 闪一帧（hover 高频触发，禁打字机）
   const writeReadout = (idx: string, text: string) => {
     if (!roIdx || !roMain || (roMain.textContent === text && roIdx.textContent === idx)) return;
     roIdx.textContent = idx;
@@ -791,7 +837,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
       el.classList.add('is-swap');
     }
   };
-  // GSAP 编排脚本的 4s is-live 轮转经此事件喂读出条默认帧（评审修正 #6）
+  // GSAP 编排脚本的 4s is-live 轮转经此事件喂读出条默认帧
   document.addEventListener('lp:readout', (e) => {
     const d = (e as CustomEvent<{ idx: string; text: string }>).detail;
     if (!plate?.classList.contains('is-engaged')) writeReadout(d.idx, d.text);
@@ -823,7 +869,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
            cy = sinφ·sinθ·x + cosθ·y − cosφ·sinθ·z     —— 屏幕纵轴（clip，上为正）
            cz = −sinφ·cosθ·x + sinθ·y + cosφ·cosθ·z    —— 视向深度（> 0 朝向观察者）
          方形画布、offset=0 时归一化屏幕坐标：sx = (1 + cx·r·S)/2，sy = (1 − cy·r·S)/2（S = scale）
-       校准注记（评审修正 #4，实施前以 node 对 dist 源逐城实算复核）：
+       校准注记（数值已以 node 对 dist 源逐城实算复核）：
          ① 官方 rotate-to 公式 φ_target = π − (lng·π/180 − π/2) = 3π/2 − lng 代入上式：
             12 城 sx 全部 = 0.500000 且 cz > 0 —— 公式与着色器解析一致，直接采用；
          ② 球体轮廓 clip 半径 0.8 → 轮廓像素直径 = 0.8·S·画布宽；S = 1.08 时轮廓约占画布 86%，
@@ -833,10 +879,10 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     const SPEED = 0.003; // IDLE 角速度 rad/frame（沿旧版）
     const SCALE = 1.08; // cobe scale：格内读数感更足且辉光不裁边（校准注记②）
     const R_MARK = 0.85; // marker 抬升半径（cobe 内部常数）
-    const Z_HIDE = 0.12; // 背面阈值：z ≤ 0.12 覆盖点隐藏（评审修正 #3）
+    const Z_HIDE = 0.12; // 背面阈值：z ≤ 0.12 覆盖点隐藏
     const HIT = 22; // 命中半径 px
-    const HYST = 4; // 切换迟滞 px（评审修正 #5）
-    const CLUSTER = 18; // 簇判定屏距 px（评审修正 #5）
+    const HYST = 4; // 切换迟滞 px
+    const CLUSTER = 18; // 簇判定屏距 px
     const norm = (a: number) => ((a % TAU) + TAU) % TAU;
     const unit = cities.map((c) => {
       const la = (c.lat * Math.PI) / 180;
@@ -844,7 +890,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
       return [Math.cos(la) * Math.cos(lo), Math.sin(la), -Math.cos(la) * Math.sin(lo)];
     });
     const theta = 0.2;
-    const rot = { phi: 4.4 }; // gsap tween 载体；常态 mod 2π（评审修正 #4）
+    const rot = { phi: 4.4 }; // gsap tween 载体；常态 mod 2π
     const spin = { v: 0 }; // 当前角速度（恢复自转时 400ms 缓入至 SPEED）
     // 投影缓存：归一化屏幕坐标 + 视向深度
     const sx = new Float64Array(cities.length);
@@ -876,8 +922,16 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
           boxH = overlay.clientHeight || boxH;
         });
         const t0 = performance.now();
-        // 纸面主题：冷纸浅色地球（配色方案 A「NORTH PAPER」）；深色主题不变（QA修复 第4条配色沿用）
-        const paper = !!canvas.closest('.theme-paper');
+        // 纸样决定球体配色：PAPER=NORTH PAPER 冷纸浅球，NIGHT=深藏青球（换纸时同帧 update 重着色）
+        const atlasEl = canvas.closest('.atlas') as HTMLElement;
+        const stockPalette = (paper: boolean) => ({
+          dark: paper ? 0 : 1,
+          mapBrightness: paper ? 1.6 : 6,
+          baseColor: (paper ? [0.85, 0.87, 0.91] : [0.12, 0.18, 0.3]) as [number, number, number],
+          markerColor: (paper ? [0.08, 0.49, 0.99] : [0.2, 0.47, 1]) as [number, number, number],
+          glowColor: (paper ? [0.91, 0.93, 0.96] : [0.08, 0.16, 0.33]) as [number, number, number],
+        });
+        const paper = atlasEl.classList.contains('theme-paper');
         const scales = cities.map(() => ({ v: 1 })); // 每城 marker 交互缩放（gsap tween 载体）
         // 开机逐城生长沿旧版（age 起点 t0+900+i*260，600ms ease-out），到位后乘交互缩放，不消失
         const buildMarkers = (now: number) =>
@@ -895,14 +949,16 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
           phi: rot.phi,
           theta,
           scale: SCALE,
-          dark: paper ? 0 : 1,
           diffuse: 1.2,
           mapSamples: 16000,
-          mapBrightness: paper ? 1.6 : 6,
-          baseColor: paper ? [0.85, 0.87, 0.91] : [0.12, 0.18, 0.3],
-          markerColor: paper ? [0.08, 0.49, 0.99] : [0.2, 0.47, 1],
-          glowColor: paper ? [0.91, 0.93, 0.96] : [0.08, 0.16, 0.33],
+          ...stockPalette(paper),
           markers: reduced ? buildMarkers(t0) : [],
+        });
+
+        // 换纸事件：球体同帧改色（reduced-motion 下无 rAF，需手动补一帧）
+        document.addEventListener('stock:change', (ev) => {
+          const isPaper = (ev as CustomEvent<{ stock: string }>).detail.stock === 'paper';
+          globe.update({ ...stockPalette(isPaper), markers: buildMarkers(performance.now()) });
         });
 
         // 覆盖点逐帧落位：transform 平移（合成层，无 layout）；背面隐藏并退出 tab 序
@@ -919,7 +975,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
           }
         };
 
-        // —— 状态机（评审修正 #5）：任何新交互 kill 上一支 tween，抢占关系单点裁决 ——
+        // —— 状态机：任何新交互 kill 上一支 tween，抢占关系单点裁决 ——
         type LpState = 'IDLE' | 'MARKER_LOCK' | 'LOG_TWEEN' | 'RESUME_DELAY';
         let state: LpState = 'IDLE';
         let activeMarker = -1; // 拾取锁定的城市 index
@@ -959,7 +1015,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
           if (iT >= 0) setScale(iT, 1);
           activeLog = null;
         };
-        // 密集群（SIN/KUL/JKT，校准注记③）：正面近邻 < 18px 计数 → 读出条簇显示（评审修正 #5）
+        // 密集群（SIN/KUL/JKT，校准注记③）：正面近邻 < 18px 计数 → 读出条簇显示
         const clusterText = (i: number) => {
           let k = 0;
           for (let j = 0; j < cities.length; j++) {
@@ -1007,10 +1063,10 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
             render(); // reduced-motion：仅高亮 + 读出，不 tween 旋转（规格 C）
             return;
           }
-          // 120ms dwell 后才发甩动 —— 快速扫过 12 行不触发 12 支 tween（评审修正 #5）
+          // 120ms dwell 后才发甩动 —— 快速扫过 12 行不触发 12 支 tween
           dwellTimer = window.setTimeout(() => {
             if (activeLog !== btn || iF < 0) return;
-            // 目标角 = cobe 官方 rotate-to（校准注记①）；phi 常态 mod 2π + 最短弧（评审修正 #4）
+            // 目标角 = cobe 官方 rotate-to（校准注记①）；phi 常态 mod 2π + 最短弧
             const target = norm(1.5 * Math.PI - (cities[iF].lng * Math.PI) / 180);
             rot.phi = norm(rot.phi);
             const delta = ((((target - rot.phi + Math.PI) % TAU) + TAU) % TAU) - Math.PI;
@@ -1018,7 +1074,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
           }, 120);
         };
 
-        // 交互移出 → RESUME_DELAY 800ms 后恢复自转（0 → SPEED 400ms 速度缓入，评审修正 #4）
+        // 交互移出 → RESUME_DELAY 800ms 后恢复自转（0 → SPEED 400ms 速度缓入）
         const release = () => {
           window.clearTimeout(dwellTimer);
           if (activeMarker >= 0) {
@@ -1052,12 +1108,12 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
         };
 
         // —— 指针拾取：最近者胜 + 4px 迟滞；命中判定在 rAF 内逐帧执行 ——
-        // （评审 A 缺陷①的修复：球转到静止指针下同样命中 / 转离同样脱离）
+        // （球转到静止指针下同样命中 / 转离同样脱离）
         let px = -1;
         let py = -1;
         let pointerIn = false;
         overlay.addEventListener('pointermove', (e) => {
-          const r = overlay.getBoundingClientRect(); // 实时框：归档收缩 scale 后比例自动正确（评审 C）
+          const r = overlay.getBoundingClientRect(); // 实时框：归档收缩 scale 后比例自动正确
           px = (e.clientX - r.left) / r.width;
           py = (e.clientY - r.top) / r.height;
           pointerIn = true;
@@ -1079,7 +1135,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
               bestD = d;
             }
           }
-          // 迟滞：已锁定目标仍在命中区附近且新目标未近出 4px → 保持，防 SIN/KUL 抖动（评审修正 #5）
+          // 迟滞：已锁定目标仍在命中区附近且新目标未近出 4px → 保持，防 SIN/KUL 抖动
           if (activeMarker >= 0 && best !== activeMarker && zz[activeMarker] > Z_HIDE) {
             const dCur = Math.hypot((sx[activeMarker] - px) * boxW, (sy[activeMarker] - py) * boxH);
             if (dCur <= HIT + HYST && bestD >= dCur - HYST) return;
@@ -1091,7 +1147,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
           }
         };
 
-        // 键盘可达：覆盖点 focus = 拾取，日志行 focus = 联动 —— 与 hover 同一事件路径（评审修正 #3）
+        // 键盘可达：覆盖点 focus = 拾取，日志行 focus = 联动 —— 与 hover 同一事件路径
         nodeBtns.forEach((b, i) => {
           b.addEventListener('focus', () => {
             focusHeld = true;
@@ -1173,7 +1229,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
       });
     }
 
-    // S2 字标图版入场：整块 mask 升起 + 字腔内 12 条真实交付弧描画（无 JS / 减动效时静态全绘）
+    // 字标图版入场：整块 mask 升起 + 字腔内 12 条真实交付弧描画（无 JS / 减动效时静态全绘）
     const wm = document.querySelector('.wm-svg');
     if (wm) {
       gsap.set(wm, { yPercent: 106 });
@@ -1194,7 +1250,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     gsap.to(['.hero-deck', '.hero-jump'], { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', stagger: 0.12, delay: 1.5 });
 
     // 日志逐行追加 + 每 4s 轮转高亮（唯一不停的元素：ticker 本体是数据）；
-    // hero v3（评审修正 #6）：读出条默认跟随轮转行（经 lp:readout 事件喂给图版控制器），
+    // hero v3：读出条默认跟随轮转行（经 lp:readout 事件喂给图版控制器），
     // 交互期间（.live-plate.is-engaged）轮转暂停，RESUME_DELAY 结束后恢复
     const logTitle = document.querySelector('.lp-log-title');
     const lines = gsap.utils.toArray<HTMLElement>('.log-line');
@@ -1216,7 +1272,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
       lines[0].classList.add('is-live');
       feedReadout();
       const cycle = window.setInterval(() => {
-        if (plateEl?.classList.contains('is-engaged')) return; // 交互期间暂停轮转（评审修正 #6）
+        if (plateEl?.classList.contains('is-engaged')) return; // 交互期间暂停轮转
         lines[live].classList.remove('is-live');
         live = (live + 1) % lines.length;
         lines[live].classList.add('is-live');
@@ -1292,7 +1348,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
       });
     }
 
-    // 动效动词分化（critique-creativity：删通用 fade-up，各内容类型专属动词）——
+    // 动效动词分化：不用通用 fade-up，各内容类型专属动词 ——
     // 表格行 = hairline 从 0 到 100% 划出（spec-row / idx-row 的 .row-rule，transform 纪律内）
     gsap.utils.toArray<HTMLElement>('.row-rule').forEach((el) => {
       gsap.set(el, { scaleX: 0, transformOrigin: '0 50%' });
@@ -1320,9 +1376,9 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     return () => cleanups.forEach((fn) => fn());
   });
 
-  // S3「原位归档」hero v3：滚动离开 hero 时图版主体两栏（.lp-body）收缩至 0.92 +
-  // ARCHIVED 图章在读出条右端盖下（保留原 1.3→1 / -6°→-4° 图章动效）。
-  // 评审修正 #7：收缩仅作用 .lp-body —— 图注头 / 读出条 / 外框不缩，骑线对齐在滚动中不破裂；
+  // 「原位归档」hero v3：滚动离开 hero 时图版主体两栏（.lp-body）收缩至 0.92 +
+  // ARCHIVED 图章在读出条右端盖下（1.3→1 / -6°→-4° 图章动效）。
+  // 收缩仅作用 .lp-body —— 图注头 / 读出条 / 外框不缩，骑线对齐在滚动中不破裂；
   // 全程 transform/opacity；无 JS / 减动效时图章直接呈现 CSS 终态、图版不缩
   mm.add('(prefers-reduced-motion: no-preference) and (min-width: 761px)', () => {
     const bodyEl = document.querySelector<HTMLElement>('.lp-body');
@@ -1348,12 +1404,12 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
 <style>
   /* ============ 年鉴基底（深色纸面） ============ */
   .atlas {
-    /* 缺陷1修复：出血基元 —— 任一 shell 子元素以 margin: var(--bleed) 触及视口物理边缘 */
+    /* 出血基元 —— 任一 shell 子元素以 margin: var(--bleed) 触及视口物理边缘 */
     --bleed: calc(50% - 50vw);
-    /* 缺陷2修复：正文两档 —— lede 升档、支撑文降档 */
+    /* 正文两档 —— lede 升档、支撑文降档 */
     --lede-size: 1.25rem;
     --support-size: 0.9375rem;
-    /* QA修复 第1条：一切 accent 实底元素的前景恒为纯白、主题无关
+    /* 一切 accent 实底元素的前景恒为纯白、主题无关
        （--color-text-on-dark 在纸面主题=墨色，禁止再作按钮前景） */
     --color-text-on-accent: #fff;
     background: var(--color-bg);
@@ -1361,19 +1417,19 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     overflow-x: clip; /* 所有出血的前提，不许删 */
   }
 
-  /* 缺陷1修复：shell 内 12 列落位基准（≤760px 一刀切回栈式） */
+  /* shell 内 12 列落位基准（≤760px 一刀切回栈式） */
   .grid-12 {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: 24px;
   }
 
-  /* 缺陷1修复：打破统一节距 —— 逐节赋 --sec-pt / --sec-pb（插页前后收紧、插页本身放大） */
+  /* 打破统一节距 —— 逐节赋 --sec-pt / --sec-pb（插页前后收紧、插页本身放大） */
   .sec {
     padding: var(--sec-pt, 160px) 0 var(--sec-pb, 160px);
   }
 
-  /* 缺陷10修复：sec-head 缩为 SEC.0n / NAME + 套准十字（EDITION 2026 移入书脊轨常驻一次） */
+  /* sec-head 仅 SEC.0n / NAME（EDITION 2026 常驻书脊轨一处，此处不复记） */
   .sec-head {
     display: flex;
     justify-content: space-between;
@@ -1389,8 +1445,8 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     flex-direction: row-reverse;
   }
 
-  /* S1 裁切角线：单元素 8 层 background 画四角直角短线，外扩 7px，零 JS
-     docs/11 定案3 chrome 减密：全站仅 SEC.03 反色插页四角一处（--crop-ink 在 .sec-coverage 作用域定义） */
+  /* 裁切角线：单元素 8 层 background 画四角直角短线，外扩 7px，零 JS
+     chrome 减密（见 docs/11）：全站仅 SEC.03 反色插页四角一处（--crop-ink 在 .sec-coverage 作用域定义） */
   .crops {
     position: absolute;
     inset: -7px;
@@ -1437,7 +1493,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     right: var(--bleed);
   }
 
-  /* 缺陷9修复 + S1 书脊轨：左缘常驻 running head + 当前节 + 进度刻度（≥1200px） */
+  /* 书脊轨：左缘常驻 running head + 当前节 + 进度刻度（≥1200px） */
   .spine {
     position: fixed;
     left: 0;
@@ -1467,7 +1523,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     gap: 6px;
   }
 
-  /* QA修复 第8条：进度刻度 = 7 个 hairline 点（不再上实色油墨条）；当前节点亮用 soft 墨 */
+  /* 进度刻度 = 7 个 hairline 点（不上实色油墨条）；当前节点亮用 soft 墨 */
   .spine-tick {
     width: 4px;
     height: 4px;
@@ -1509,7 +1565,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     font-size: clamp(1.75rem, 3.8vw, 2.875rem);
   }
 
-  /* 缺陷2 zh 降档：display-l 族中文对应 */
+  /* zh 降档：display-l 族中文对应 */
   :global(html[lang='zh']) .idx-label,
   :global(html[lang='zh']) .manifesto-line {
     font-size: clamp(2rem, 4.5vw, 3.75rem);
@@ -1530,15 +1586,15 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     color: var(--color-text-muted-on-dark);
   }
 
-  /* ============ SEC.00 HERO v3 — 整版字标图版（S2）+ standfirst + FIG.02 活体外业图版 ============
-     评审修正 #10 落地注记：本 hero 定位 = 止损 + 录屏帧；SOTD 主攻在 S1/S4/S5，后续不再往球上加注 */
+  /* ============ SEC.00 HERO v3 — 整版字标图版 + standfirst + FIG.02 活体外业图版 ============
+     定位注记：hero 版面已定形，后续不再往球上加注 */
   .sec-hero {
     padding: 0;
   }
 
   .hero-shell {
     position: relative;
-    /* 评审裁决（D 节）：min-height 100svh 删除 —— 内容自身高度即版面高度，不留空腔 */
+    /* 不设 min-height 100svh —— 内容自身高度即版面高度，不留空腔 */
     padding: var(--space-5) 0 0;
   }
 
@@ -1548,7 +1604,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     color: var(--color-text-muted-on-dark);
   }
 
-  /* S2 字标图版：ARCLINK 巨字 = FIG.01 */
+  /* 字标图版：ARCLINK 巨字 = FIG.01 */
   .hero-plate {
     position: relative;
     z-index: 2;
@@ -1594,12 +1650,12 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     stroke-dashoffset: 0; /* 无 JS / 减动效：静态全绘 */
   }
 
-  /* 配色A纪律：#147dfd 冷纸上 3.58:1 —— 仅限大字与图形描边（此处为字腔内描边，合规） */
+  /* 冷纸纪律：#147dfd 冷纸上 3.58:1 —— 仅限大字与图形描边（此处为字腔内描边，合规） */
   .theme-paper .wm-arc {
     stroke: var(--color-brand-blue);
   }
 
-  /* 移动端回退实心字标（S2 降级） */
+  /* 移动端回退实心字标 */
   .hero-title-fallback {
     display: none;
     font-size: clamp(3.5rem, 14vw, 9rem);
@@ -1619,7 +1675,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     color: var(--color-text-muted-on-dark);
   }
 
-  /* —— standfirst：两块 monumental 图版之间的引言行（评审修正 #8：升字号、上疏下密耦合 FIG.02） —— */
+  /* —— standfirst：两块 monumental 图版之间的引言行（升字号、上疏下密耦合 FIG.02） —— */
   .hero-standfirst {
     align-items: baseline;
     margin: var(--space-7) 0 var(--space-5);
@@ -1634,7 +1690,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     color: var(--color-text-muted-on-dark);
   }
 
-  /* SEC.03 跳转与 deck 同基线行 col 10-12 右对齐（评审：行尾追加 = 半空行，否决） */
+  /* SEC.03 跳转与 deck 同基线行 col 10-12 右对齐（不追加在 deck 行尾 —— 行尾追加会读作半空行） */
   .hero-jump {
     grid-column: 10 / 13;
     justify-self: end;
@@ -1651,7 +1707,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
 
   /* ============ FIG.02 活体外业图版：全宽图版框，骑 SEC.00/01 页界 48px（插页咬合语义） ============ */
   .live-plate {
-    /* 主体共享高 H（评审修正 #1 放行条件）：两格同高，底缘由数学锁死 */
+    /* 主体共享高 H：两格同高，底缘由数学锁死 */
     --lp-h: clamp(440px, 56vh, 560px);
     position: relative;
     z-index: 3;
@@ -1671,7 +1727,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     color: var(--color-text-muted-on-dark);
   }
 
-  /* 主体两栏 57/43，中缝 hairline；归档收缩仅作用此载体（评审修正 #7） */
+  /* 主体两栏 57/43，中缝 hairline；归档收缩仅作用此载体 */
   .lp-body {
     display: grid;
     grid-template-columns: minmax(0, 4fr) minmax(0, 3fr);
@@ -1679,8 +1735,8 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     will-change: transform;
   }
 
-  /* —— 左：仪器格（评审修正 #2）—— graticule chrome 铺满整格（零 JS），
-     矩形是对齐单位，球是格内的仪表读数；QA4 的 navy 面板底沿用（纸面主题在主题区归零） */
+  /* —— 左：仪器格 —— graticule chrome 铺满整格（零 JS），
+     矩形是对齐单位，球是格内的仪表读数；navy 面板底（纸面主题在主题区归零） */
   .lp-globe {
     position: relative;
     display: flex;
@@ -1716,7 +1772,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
   .lp-corner--bl { bottom: var(--space-3); left: var(--space-4); }
   .lp-corner--br { bottom: var(--space-3); right: var(--space-4); }
 
-  /* 球径公式（评审修正 #2）：min(92% 格宽, H − 24px)；900px 视口 ≈ 480px（≥440 红线） */
+  /* 球径公式：min(92% 格宽, H − 24px)；900px 视口 ≈ 480px（≥440 红线） */
   .globe-box {
     position: relative;
     width: min(92%, calc(var(--lp-h) - 24px));
@@ -1769,7 +1825,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     letter-spacing: 0.04em;
   }
 
-  /* —— 拾取层（评审修正 #3）：投影 DOM 覆盖 button，22px 命中区 + 8px 视觉环 —— */
+  /* —— 拾取层：投影 DOM 覆盖 button，22px 命中区 + 8px 视觉环 —— */
   .globe-overlay {
     position: absolute;
     inset: 0;
@@ -1829,7 +1885,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     pointer-events: none;
   }
 
-  /* —— 右：日志格（评审修正 #1）—— 标题行 auto + 12 行 1fr 强制等高填满 —— */
+  /* —— 右：日志格 —— 标题行 auto + 12 行 1fr 强制等高填满 —— */
   .lp-log {
     display: flex;
     flex-direction: column;
@@ -1917,7 +1973,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     background: color-mix(in srgb, var(--color-accent) 10%, transparent);
   }
 
-  /* —— 底缘读出条：hairline 上缘；默认跟随轮转，交互 120ms 淡入换帧（评审修正 #6/#9） —— */
+  /* —— 底缘读出条：hairline 上缘；默认跟随轮转，交互 120ms 淡入换帧 —— */
   .lp-readout {
     display: flex;
     align-items: center;
@@ -1949,7 +2005,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     animation: lp-swap 120ms var(--ease-out);
   }
 
-  /* 序号格 accent 闪一帧（评审修正 #9 的配套：换帧的机械咔嗒感） */
+  /* 序号格 accent 闪一帧：换帧的机械咔嗒感 */
   .lp-readout-idx.is-swap {
     animation: lp-flash 240ms var(--ease-out);
   }
@@ -1978,7 +2034,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     }
   }
 
-  /* 归档图章迁读出条右端（v2 归档语法收进图版）；无 JS / 减动效直接呈现终态（rotate -4°），
+  /* 归档图章在读出条右端（归档语法在图版之内）；无 JS / 减动效直接呈现终态（rotate -4°），
      动效路径由 GSAP 以 opacity 0 / 1.3 / -6° 起始、随滚动盖下 */
   .archive-stamp {
     margin: 0 0 0 auto;
@@ -1991,7 +2047,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     transform: rotate(-4deg);
   }
 
-  /* ============ SEC.01 INDEX — specimen 页（缺陷1/6；QA修复 第3条：归档槽 CSS 随槽位一并删除） ============ */
+  /* ============ SEC.01 INDEX — specimen 页（不设归档槽位及其 CSS） ============ */
   .sec-index {
     --sec-pt: 128px;
     --sec-pb: 120px;
@@ -2006,7 +2062,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     grid-column: 1 / 7;
   }
 
-  /* FIG.03 刻度图归位数据：作为 IDX.04 行内附件（缺陷6） */
+  /* FIG.03 刻度图归位数据：作为 IDX.04 行内附件 */
   .fig-ticks {
     margin: 0;
     width: 100%;
@@ -2039,7 +2095,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     border-bottom: 1px solid var(--hairline);
   }
 
-  /* 缺陷6修复：数字列成为行主体（specimen），label 缩为引题，note 右对齐 */
+  /* 数字列是行主体（specimen），label 缩为引题，note 右对齐 */
   .spec-row {
     position: relative;
     display: grid;
@@ -2059,7 +2115,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     letter-spacing: 0.02em;
   }
 
-  /* 缺陷2/6修复：数字升 display-l 族，左对齐 —— 数字本身是版面事件 */
+  /* 数字升 display-l 族，左对齐 —— 数字本身是版面事件 */
   .spec-value {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
@@ -2087,7 +2143,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     color: var(--color-text-muted-on-dark);
   }
 
-  /* ============ SEC.02 METHOD — verso 页：右轴 + 图版左出血 + 阶梯三相（缺陷1） ============ */
+  /* ============ SEC.02 METHOD — verso 页：右轴 + 图版左出血 + 阶梯三相 ============ */
   .sec-method {
     --sec-pt: 112px;
     --sec-pb: 112px;
@@ -2098,7 +2154,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     row-gap: var(--space-2);
   }
 
-  /* 缺陷1修复：SEC.02 标题右置 col 7-12 右对齐（verso 翻页感） */
+  /* SEC.02 标题右置 col 7-12 右对齐（verso 翻页感） */
   .method-title {
     grid-column: 7 / 13;
     text-align: right;
@@ -2109,7 +2165,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     max-width: none;
   }
 
-  /* 图版左出血：订进书脊轨（comp-print §3），右缘收在 col 9 */
+  /* 图版左出血：订进书脊轨，右缘收在 col 9 */
   .fig-method {
     margin: var(--space-8) 25% 0 var(--bleed);
     border-left: 0;
@@ -2142,10 +2198,10 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     stroke-width: 1;
   }
 
-  /* ============ 纸面主题（Paper Atlas）— 配色方案 A「NORTH PAPER」冷纸（缺陷5修复，prop-palette 逐 token 采纳） ============
+  /* ============ 纸面主题（Paper Atlas）—「NORTH PAPER」冷纸 ============
      概念：把纸的色温调到与品牌墨水同一侧 —— #f3f5f9 是带 2–3% 藏青倾向的冷白（北窗光下的白纸）。
      纪律：#147dfd（--color-brand-blue）冷纸上 3.58:1，仅限大字（≥24px bold）与图形描边（≥3:1），禁止小字。
-     muted α.68→.78（正文过 7:1）、soft α.55→.66（小字过 4.5:1）—— 顺带修掉旧值 4.25:1 的 AA 违规。 */
+     muted α=.78（正文过 7:1）、soft α=.66（小字过 4.5:1）。 */
   .atlas.theme-paper {
     --color-bg: #f3f5f9;
     --color-bg-deep: #eaeef5;
@@ -2165,23 +2221,23 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     --color-brand-ink: #f3f5f9;
     --hairline-on-light: rgba(243, 245, 249, 0.2);
     --color-text-muted-on-light: rgba(243, 245, 249, 0.7);
-    /* 纸面无辉光：降为一次极浅墨影（critique-creativity：印刷品没有辉光，物理谬误修正） */
+    /* 纸面无辉光：仅一次极浅墨影 —— 印刷品没有辉光 */
     --glow-accent: 0 1px 2px rgba(10, 29, 51, 0.1);
     --glow-accent-strong: 0 2px 6px rgba(10, 29, 51, 0.14);
   }
 
-  /* 图版页专用亮蓝（prop-palette：藏青底上小字 #6b93f0 = 5.71:1；hover 再提一档） */
+  /* 图版页专用亮蓝：藏青底上小字 #6b93f0 = 5.71:1；hover 再提一档 */
   .theme-paper .sec-coverage {
     --color-accent: #6b93f0;
     --color-accent-bright: #9dbcff;
   }
 
-  /* 第二纸种（冷白）= 纸张层次，比阴影诚实（comp-print 0.5） */
+  /* 第二纸种（冷白）= 纸张层次，比阴影诚实 */
   .theme-paper .tipped {
     background: #fafbfd;
   }
 
-  /* QA修复 第4条：纸面地球本就浅色，不上暗面板（graticule chrome 的 background-image 保留，hairline 自随主题换墨） */
+  /* 纸面地球本就浅色，不上暗面板（graticule chrome 的 background-image 保留，hairline 自随主题换墨） */
   .theme-paper .lp-globe {
     background-color: transparent;
   }
@@ -2198,7 +2254,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     pointer-events: none;
   }
 
-  /* S1：纸面主题反色跨页四边出血色边（整版实地印刷）；QA5 的压页内阴影仅深色主题需要，此处归零 */
+  /* 纸面主题反色跨页四边出血色边（整版实地印刷）；压页内阴影仅深色主题需要，此处归零 */
   .theme-paper .sec-coverage {
     border-top: 3px solid var(--color-accent-deep);
     border-bottom: 3px solid var(--color-accent-deep);
@@ -2236,7 +2292,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     letter-spacing: 0.08em;
   }
 
-  /* 三相说明阶梯下落：阶梯方向 = 管线流向，构图复述内容（comp-print §3） */
+  /* 三相说明阶梯下落：阶梯方向 = 管线流向，构图复述内容 */
   .method-cols {
     margin-top: var(--space-7);
     row-gap: var(--space-6);
@@ -2268,7 +2324,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     color: var(--color-text-muted-on-dark);
   }
 
-  /* QA修复 第5条：节末右下 mono 预告行 —— 下一页整版实地印刷的物理暗示 */
+  /* 节末右下 mono 预告行 —— 下一页整版实地印刷的物理暗示 */
   .method-next {
     margin: var(--space-7) 0 0;
     text-align: right;
@@ -2287,7 +2343,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     color: var(--color-text-soft-on-dark);
   }
 
-  /* ============ SEC.03 COVERAGE — 中央跨页（缺陷4/S4）：反色插页升格为年鉴中央跨页 ============ */
+  /* ============ SEC.03 COVERAGE — 中央跨页：反色插页即年鉴中央跨页 ============ */
   /* position: relative 且不设 z-index：mega 数字的 mix-blend 需要在根层叠上下文中取整页 backdrop */
   .sec-coverage {
     --sec-pt: 144px;
@@ -2296,7 +2352,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     background: var(--color-surface);
     color: var(--color-brand-ink);
     --crop-ink: rgba(10, 29, 51, 0.4);
-    /* QA修复 第5条：白页突变保留（插页本应突变），但给足物理暗示 ——
+    /* 白页突变保留（插页本应突变），但给足物理暗示 ——
        顶缘 3px 出血色边（对应纸面版既有出血边）+ 顶缘约 10px 内阴影模拟压页 */
     border-top: 3px solid var(--color-accent-deep);
     box-shadow: inset 0 10px 12px -4px rgba(2, 8, 20, 0.3);
@@ -2324,7 +2380,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     color: var(--color-text-muted-on-light);
   }
 
-  /* 缺陷4修复：本节标题落右轴 col 7-12，标题块叠印图版上缘（负 margin 压进图版留白区） */
+  /* 本节标题落右轴 col 7-12，标题块叠印图版上缘（负 margin 压进图版留白区） */
   .cov-intro {
     position: relative;
     z-index: 2;
@@ -2342,7 +2398,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     max-width: none;
   }
 
-  /* S4 满版跨页舞台：100vw 出血，浮卡与骑线巨数的定位基准 */
+  /* 满版跨页舞台：100vw 出血，浮卡与骑线巨数的定位基准 */
   .cov-stage {
     position: relative;
     width: 100vw;
@@ -2387,7 +2443,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     height: auto;
   }
 
-  /* S1 语法：跨页图注在书口（右缘竖排），不在图下 */
+  /* 跨页图注在书口（右缘竖排），不在图下 */
   .fig-cap--spine {
     position: absolute;
     top: var(--space-6);
@@ -2398,7 +2454,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     writing-mode: vertical-rl;
   }
 
-  /* S4 骑线巨数：下半身骑出反色图版、压进下一节底色；difference 两主题通吃（folio 同款机制） */
+  /* 骑线巨数：下半身骑出反色图版、压进下一节底色；difference 两主题通吃（folio 同款机制） */
   .cov-mega {
     position: absolute;
     right: max(var(--shell-gutter), calc((100vw - var(--shell-max)) / 2));
@@ -2451,7 +2507,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     pointer-events: none;
   }
 
-  /* S4：出血放大后图元跟上 —— 印刷图版线号，不是 dashboard 细线 */
+  /* 出血放大后图元跟上 —— 印刷图版线号，不是 dashboard 细线 */
   .cov-arc {
     fill: none;
     stroke: var(--color-accent);
@@ -2496,7 +2552,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     letter-spacing: 0.04em;
   }
 
-  /* S4：覆盖台 = 插页浮卡，叠在地图左下大西洋空区（z3；移动端回落文档流） */
+  /* 覆盖台 = 插页浮卡，叠在地图左下大西洋空区（z3；移动端回落文档流） */
   .console {
     position: absolute;
     left: max(var(--shell-gutter), calc((100vw - var(--shell-max)) / 2));
@@ -2540,19 +2596,19 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     border-bottom: 1px solid var(--hairline-on-light);
   }
 
-  /* QA1：hover 提色仅限非 active 钮，避免 active 蓝底上叠蓝字 */
+  /* hover 提色仅限非 active 钮，避免 active 蓝底上叠蓝字 */
   .region-btn:not([aria-pressed='true']):hover {
     color: var(--color-accent);
   }
 
-  /* QA修复 第1条：active = accent 实底钮，前景恒白（不得再用 --color-text-on-dark，纸面下它是墨色）
+  /* active = accent 实底钮，前景恒白（不得用 --color-text-on-dark，纸面下它是墨色）
      深色主题：#2563eb 白字 5.1:1 ✓ */
   .region-btn[aria-pressed='true'] {
     background: var(--color-accent);
     color: var(--color-text-on-accent);
   }
 
-  /* QA1：纸面反色跨页内 accent 被提亮为 #6b93f0（白字不足 4.5:1）——active 钮底改 accent-deep（#123f9e，白字 9.4:1） */
+  /* 纸面反色跨页内 accent 已提亮为 #6b93f0（白字不足 4.5:1）——active 钮底用 accent-deep（#123f9e，白字 9.4:1） */
   .theme-paper .sec-coverage .region-btn[aria-pressed='true'] {
     background: var(--color-accent-deep);
   }
@@ -2597,9 +2653,9 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     min-height: 2.4em;
   }
 
-  /* ============ SEC.04 CAPABILITIES — 纯排版卡（docs/11 定案2：无图形，排版立住） ============ */
+  /* ============ SEC.04 CAPABILITIES — 纯排版卡（无图形，排版立住，见 docs/11） ============ */
   .sec-capabilities {
-    /* S4 骑线巨数下半身落在本节顶部，--sec-pt 放大留身位 */
+    /* 骑线巨数下半身落在本节顶部，--sec-pt 放大留身位 */
     --sec-pt: 200px;
     --sec-pb: 128px;
   }
@@ -2613,7 +2669,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     grid-column: 1 / 6;
   }
 
-  /* 缺陷7修复：错位双列大卡（偶数卡下坠半格）保留 —— 构图不依赖图形 */
+  /* 双列大卡：构图不依赖图形 */
   .cap-grid {
     list-style: none;
     display: grid;
@@ -2623,10 +2679,9 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     padding: 0;
   }
 
-  /* samuel 评审：等价则等形 —— 六能力平级，错位下坠（原缺陷7方案）会被读作层级暗示，删除；
-     将来 PM 确认能力主次后方可用大小卡表达真实层级 */
+  /* 六能力平级：不做尺寸/错位差异（视觉差异会被读作层级暗示）；确认主次前保持等形 */
 
-  /* 定案2：卡 = accent 短横线标记 + CAP.0n mono chip + 标题 + 描述；hover 仅边框/标记提亮 */
+  /* 卡 = accent 短横线标记 + CAP.0n mono chip + 标题 + 描述；hover 仅边框/标记提亮 */
   .cap-card {
     display: flex;
     flex-direction: column;
@@ -2669,7 +2724,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     color: var(--color-text-muted-on-dark);
   }
 
-  /* ============ SEC.05 INDUSTRIES — 行式档案索引（缺陷1：标题 col1-4 / lede col6-10；缺陷2：大字升 display-l） ============ */
+  /* ============ SEC.05 INDUSTRIES — 行式档案索引（标题 col1-4 / lede col6-10，大字 display-l） ============ */
   .ind-head {
     align-items: start;
   }
@@ -2691,8 +2746,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     border-bottom: 1px solid var(--hairline);
   }
 
-  /* 账页线由 .row-rule--bleed 满版划出（缺陷1 出血语法 + 描画动词）
-     QA修复 第7条：行改 12 列落位 —— label col1-5 / 描述 col6-10 常显 / 弧场 col11-12，mono 序号钉右缘 */
+  /* 账页线由 .row-rule--bleed 满版划出；行为 12 列落位：label col1-5 / 描述 col6-11 常显 / mono 序号钉右缘 */
   .idx-row {
     position: relative;
     display: grid;
@@ -2709,7 +2763,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     color: var(--color-text-muted-on-dark);
   }
 
-  /* 缺陷2修复：行业大字升 display-l 族（zh 降档见上方全局规则） */
+  /* 行业大字用 display-l 族（zh 降档见上方全局规则） */
   .idx-label {
     grid-column: 1 / 6;
     font-size: clamp(2.5rem, 5.5vw, 5rem);
@@ -2723,7 +2777,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     color: var(--color-accent-bright);
   }
 
-  /* QA7：描述常显 —— 不再有 opacity/transform 门控；定案2：弧场缩略删除，col11-12 归还描述 */
+  /* 描述常显：无 opacity/transform 门控（信息不藏在 hover 后） */
   .idx-desc {
     grid-column: 6 / 12;
     margin: 0;
@@ -2732,7 +2786,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     color: var(--color-text-muted-on-dark);
   }
 
-  /* ============ MANIFESTO — 刊末宣言（缺陷8：display-l + 三行对角阶梯下坠引向 CTA） ============ */
+  /* ============ MANIFESTO — 刊末宣言（display-l + 三行对角阶梯下坠引向 CTA） ============ */
   .sec-manifesto {
     --sec-pt: 200px;
     --sec-pb: 96px;
@@ -2770,7 +2824,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     will-change: transform;
   }
 
-  /* CTA 回函卡（comp-print §7）：插页构件 + 左缘齿孔虚线 + DETACH 竖注，下缘压过 colophon 顶线 */
+  /* CTA 回函卡：插页构件 + 左缘齿孔虚线 + DETACH 竖注，下缘压过 colophon 顶线 */
   .cta-band {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -2808,8 +2862,8 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     color: var(--color-text-muted-on-dark);
   }
 
-  /* 全站唯一蓝色实心块（提案 2.3：蓝 = 活的数据 / 唯一 CTA）；缺陷8：54px → 64px
-     QA修复 第1条：前景改 on-accent 恒白（纸面下 --color-text-on-dark=墨色，曾致"蓝钮黑字"） */
+  /* 全站唯一蓝色实心块（蓝 = 活的数据 / 唯一 CTA）
+     前景必须用 on-accent 恒白：纸面主题下 --color-text-on-dark 是墨色，用它会得到蓝底黑字 */
   .cta-btn {
     display: inline-flex;
     align-items: center;
@@ -2833,7 +2887,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     box-shadow: var(--glow-accent-strong);
   }
 
-  /* QA修复 第1条：纸面 primary 钮平涂 accent（#1a55d0，白字 6.4:1），hover 走 accent-deep（#123f9e，9.4:1） */
+  /* 纸面 primary 钮平涂 accent（#1a55d0，白字 6.4:1），hover 走 accent-deep（#123f9e，9.4:1） */
   .theme-paper .cta-btn {
     background: var(--color-accent);
   }
@@ -2862,20 +2916,57 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     color: var(--color-text-soft-on-dark);
   }
 
-  /* docs/11 定案2：colophon 行内 mono 链接进打样间（口径行的一部分，同色系不抢注意力） */
-  .colophon-link {
+  /* ============ STOCK 纸样切换：两枚纸样色票 + mono 规格标签（印刷规格说明的形态，非 UI 开关） ============ */
+  .stock-switch {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
     color: var(--color-text-soft-on-dark);
-    text-decoration: none;
-    border-bottom: 1px solid var(--hairline);
-    padding-bottom: 1px;
-    transition:
-      color var(--duration-fast) var(--ease-out),
-      border-color var(--duration-fast) var(--ease-out);
   }
 
-  .colophon-link:hover {
-    color: var(--color-accent-bright);
-    border-color: var(--color-accent-bright);
+  .stock-label {
+    opacity: 0.7;
+  }
+
+  .stock-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    opacity: 0.55;
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+
+  .stock-chip:hover,
+  .stock-chip[aria-pressed='true'] {
+    opacity: 1;
+  }
+
+  .stock-swatch {
+    width: 10px;
+    height: 10px;
+    border: 1px solid var(--hairline);
+    outline: 1px solid transparent;
+    outline-offset: 2px;
+    transition: outline-color var(--duration-fast) var(--ease-out);
+  }
+
+  .stock-chip[aria-pressed='true'] .stock-swatch {
+    outline-color: currentColor;
+  }
+
+  .stock-swatch--paper {
+    background: #f3f5f9;
+  }
+
+  .stock-swatch--night {
+    background: #030b1d;
   }
 
   /* ============ Folio 页码 ============ */
@@ -2889,7 +2980,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
   }
 
   /* ============ 响应式 ============ */
-  /* 书脊轨 + 页边 marginalia 仅 ≥1200px（缺陷9） */
+  /* 书脊轨 + 页边 marginalia 仅 ≥1200px */
   @media (min-width: 1200px) {
     .spine {
       display: flex;
@@ -2900,7 +2991,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
     }
   }
 
-  /* 1200-1320px：gutter 提档，避免书脊轨压 shell 左缘（comp-print 0.4 配套） */
+  /* 1200-1320px：gutter 提档，避免书脊轨压 shell 左缘 */
   @media (min-width: 1200px) and (max-width: 1320px) {
     .shell {
       --shell-gutter: 64px;
@@ -3004,7 +3095,7 @@ const defaultRecord = defaultEvent.caption; // SEC.03 覆盖台指针读数的�
       padding: 6px var(--space-4);
     }
 
-    /* 评审修正 #9：读出条 sticky 于图版底缘 —— 点上部日志行时读数不落屏外 */
+    /* 读出条 sticky 于图版底缘：点上部日志行时读数不落屏外 */
     .lp-readout {
       position: sticky;
       bottom: 0;
