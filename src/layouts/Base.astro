@@ -8,6 +8,8 @@ interface Props {
   description?: string;
   lang?: string;
   noindex?: boolean;
+  /** 防白闪底色（首帧即着色）；纸面主题页传浅色 */
+  bg?: string;
 }
 
 const {
@@ -15,6 +17,7 @@ const {
   description = 'Arclink enables enterprises to plan, deploy and verify real-world operations through technology, standardized workflows and trusted local execution.',
   lang = 'en',
   noindex = false,
+  bg = '#030b1d',
 } = Astro.props;
 ---
 
@@ -24,16 +27,12 @@ const {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#030b1d" />
+    <meta name="theme-color" content={bg} />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
-    <style is:inline>
-      /* 深色站防白闪：CSS 加载前首帧即着色（docs/02 性能要点） */
-      html {
-        background: #030b1d;
-      }
-    </style>
+    {/* 防白/防黑闪：CSS 加载前首帧即着页面底色（docs/02 性能要点） */}
+    <style is:inline set:html={`html{background:${bg}}`}></style>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>

@@ -11,9 +11,11 @@ import { atlasCopy } from '../../data/m2-atlas.copy';
 
 interface Props {
   locale: 'en' | 'zh';
+  /** 色调主题：dark=深色年鉴（默认）；paper=纸面年鉴（同一页面另一套 token，docs/10 色调探索） */
+  theme?: 'dark' | 'paper';
 }
 
-const { locale } = Astro.props;
+const { locale, theme = 'dark' } = Astro.props;
 const t = atlasCopy[locale];
 
 const MAP_W = 1000;
@@ -168,7 +170,7 @@ const heroStatus = `ARCLINK ANNUAL — SEC.00 / FRONTISPIECE · INIT ${fmtLat(ci
 const defaultRecord = eventArcs.find((e) => e.utc === lastUtc)?.caption ?? eventArcs[0].caption;
 ---
 
-<main id="main" class="atlas">
+<main id="main" class:list={['atlas', theme === 'paper' && 'theme-paper']}>
   <!-- ============ SEC.00 / FRONTISPIECE — 会归档的封面（并入地面站开机序列） ============ -->
   <section class="sec sec-hero" data-folio="00">
     <div class="shell hero-shell">
@@ -610,19 +612,21 @@ const defaultRecord = eventArcs.find((e) => e.utc === lastUtc)?.caption ?? event
         const size = canvas.offsetWidth || 520;
         let phi = 4.4;
         const t0 = performance.now();
+        // 纸面主题：浅色地球（印刷图版感）；深色主题：GitHub/Vercel 式深色地球
+        const paper = !!canvas.closest('.theme-paper');
         const globe = createGlobe(canvas, {
           devicePixelRatio: 2,
           width: size * 2,
           height: size * 2,
           phi,
           theta: 0.2,
-          dark: 1,
+          dark: paper ? 0 : 1,
           diffuse: 1.2,
           mapSamples: 16000,
-          mapBrightness: 4,
-          baseColor: [0.05, 0.09, 0.16],
-          markerColor: [0.2, 0.47, 1],
-          glowColor: [0.08, 0.16, 0.33],
+          mapBrightness: paper ? 1.6 : 4,
+          baseColor: paper ? [0.86, 0.83, 0.76] : [0.05, 0.09, 0.16],
+          markerColor: paper ? [0.09, 0.34, 0.84] : [0.2, 0.47, 1],
+          glowColor: paper ? [0.94, 0.91, 0.85] : [0.08, 0.16, 0.33],
           markers: reduced ? markers : [],
         });
         // cobe v2 无 onRender：自建 rAF 循环驱动旋转 + 开机序列逐城点亮（地面站 signature 1）
@@ -1170,6 +1174,34 @@ const defaultRecord = eventArcs.find((e) => e.utc === lastUtc)?.caption ?? event
     stroke-width: 1;
   }
 
+  /* ============ 纸面主题（Paper Atlas）：同一页面、另一套 token —— 年鉴印在纸上 ============ */
+  .atlas.theme-paper {
+    --color-bg: #f6f2ea;
+    --color-bg-deep: #efe9dc;
+    --color-glow: #eee6d3;
+    --color-bg-navy: #0a1d33;
+    --color-bg-navy-alt: #12284e;
+    --color-text-on-dark: #0a1d33;
+    --color-text-muted-on-dark: rgba(10, 29, 51, 0.68);
+    --color-text-soft-on-dark: rgba(10, 29, 51, 0.55);
+    --color-border-on-dark: rgba(10, 29, 51, 0.16);
+    --hairline: rgba(10, 29, 51, 0.16);
+    --color-accent: #1c56d6;
+    --color-accent-bright: #1767ff;
+    --color-accent-deep: #1348b8;
+    /* 图版页反转：纸面版中"插页"变为深色（surface↔ink 在主题作用域内互换） */
+    --color-surface: #0a1d33;
+    --color-brand-ink: #f6f2ea;
+    --hairline-on-light: rgba(246, 242, 234, 0.22);
+    --color-text-muted-on-light: rgba(246, 242, 234, 0.66);
+    --glow-accent: 0 10px 25px rgba(23, 103, 255, 0.16);
+    --glow-accent-strong: 0 14px 30px rgba(23, 103, 255, 0.26);
+  }
+
+  .theme-paper .method-ring {
+    stroke: rgba(10, 29, 51, 0.25);
+  }
+
   .method-dot {
     fill: var(--color-accent-bright);
   }
@@ -1583,6 +1615,8 @@ const defaultRecord = eventArcs.find((e) => e.utc === lastUtc)?.caption ?? event
   /* ============ MANIFESTO — 刊末宣言幕间 + 唯一 CTA ============ */
   .manifesto-lines {
     margin: var(--space-8) 0 0;
+    /* ch 必须按 display 字号计算（否则继承正文字号 → 巨字挤进 260px 窄列） */
+    font-size: var(--text-display-m);
     max-width: 30ch;
   }
 

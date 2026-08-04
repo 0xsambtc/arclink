@@ -1,0 +1,10 @@
+---
+// M2 变体 A2「纸面年鉴」— 中文路由：同 AtlasPage，纸面主题 token
+import Base from '../../../layouts/Base.astro';
+import AtlasPage from '../../../components/m2/AtlasPage.astro';
+import { atlasCopy } from '../../../data/m2-atlas.copy';
+---
+
+<Base noindex lang="zh" bg="#f6f2ea" title={`${atlasCopy.zh.meta.title} · 纸面版`} description={atlasCopy.zh.meta.description}>
+  <AtlasPage locale="zh" theme="paper" />
+</Base>
