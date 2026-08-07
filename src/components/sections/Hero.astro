@@ -41,14 +41,14 @@ import { hero } from '../../data/home';
   <svg class="hero-transition" viewBox="0 0 1440 70" preserveAspectRatio="none" aria-hidden="true">
     <defs>
       <linearGradient id="htLine" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="#3478ff" stop-opacity="0"></stop>
-        <stop offset="0.35" stop-color="#3478ff" stop-opacity="0.75"></stop>
-        <stop offset="0.5" stop-color="#3478ff"></stop>
-        <stop offset="0.65" stop-color="#3478ff" stop-opacity="0.75"></stop>
-        <stop offset="1" stop-color="#3478ff" stop-opacity="0"></stop>
+        <stop offset="0" stop-color="var(--color-accent-bright)" stop-opacity="0"></stop>
+        <stop offset="0.35" stop-color="var(--color-accent-bright)" stop-opacity="0.75"></stop>
+        <stop offset="0.5" stop-color="var(--color-accent-bright)"></stop>
+        <stop offset="0.65" stop-color="var(--color-accent-bright)" stop-opacity="0.75"></stop>
+        <stop offset="1" stop-color="var(--color-accent-bright)" stop-opacity="0"></stop>
       </linearGradient>
     </defs>
-    <path class="ht-line" d="M0 34 H648 C684 34 696 56 720 56 C744 56 756 34 792 34 H1440" vector-effect="non-scaling-stroke"></path>
+    <path class="ht-line" d="M0 34 H600 C660 34 672 56 720 56 C768 56 780 34 840 34 H1440" vector-effect="non-scaling-stroke"></path>
     <circle class="ht-dot" cx="720" cy="56" r="4.5"></circle>
   </svg>
 </section>
@@ -60,20 +60,20 @@ import { hero } from '../../data/home';
     overflow: hidden;
     padding-top: var(--header-h);
     color: var(--color-text-on-dark);
-    background: radial-gradient(
-      circle at 75% 40%,
-      var(--color-glow) 0,
-      var(--color-bg) 45%,
-      var(--color-bg-deep) 100%
-    );
+    background:
+      radial-gradient(ellipse 620px 460px at 74% 42%, rgba(var(--color-accent-rgb), 0.16), transparent 70%),
+      radial-gradient(circle at 75% 40%, var(--color-glow) 0, var(--color-bg) 45%, var(--color-bg-deep) 100%);
   }
 
   .hero-stars {
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(circle, rgba(var(--color-accent-bright-rgb), 0.65) 0 1px, transparent 1.5px);
-    background-size: 65px 65px;
-    opacity: 0.13;
+    background-image:
+      radial-gradient(circle, rgba(var(--color-accent-bright-rgb), 0.7) 0 1px, transparent 1.5px),
+      radial-gradient(circle, rgba(var(--color-accent-bright-rgb), 0.45) 0 1px, transparent 1.5px);
+    background-size: 137px 149px, 89px 101px;
+    background-position: 0 0, 43px 67px;
+    opacity: 0.12;
   }
 
   .hero-grid {
@@ -108,7 +108,7 @@ import { hero } from '../../data/home';
 
   .hero-description {
     font-size: 18px;
-    line-height: 1.85;
+    line-height: 1.65;
     color: var(--color-text-muted-on-dark);
     max-width: 610px;
     margin: 0;
@@ -126,7 +126,7 @@ import { hero } from '../../data/home';
     .intro-step {
       opacity: 0;
       transform: translateY(26px);
-      animation: hero-in 0.9s var(--ease-out) var(--d, 0s) forwards;
+      animation: hero-in var(--duration-ambient) var(--ease-out) var(--d, 0s) forwards;
     }
   }
 
@@ -162,7 +162,7 @@ import { hero } from '../../data/home';
     inset: 0;
     width: 100%;
     height: 100%;
-    transition: opacity 0.8s var(--ease-out);
+    transition: opacity var(--duration-ambient) var(--ease-out);
   }
 
   .network-graphic.has-map .network-fallback {
@@ -219,7 +219,8 @@ import { hero } from '../../data/home';
 
   .ht-dot {
     fill: var(--color-text-on-dark);
-    filter: drop-shadow(0 0 10px var(--color-accent-bright)) drop-shadow(0 0 22px var(--color-accent-bright));
+    filter: drop-shadow(0 0 10px var(--color-accent-bright)) drop-shadow(0 0 22px var(--color-accent-bright))
+      drop-shadow(0 0 40px var(--color-accent-bright));
     animation: dot-breathe 3.6s ease-in-out infinite;
   }
 
@@ -315,9 +316,10 @@ import { hero } from '../../data/home';
     { lat: -23.55, lng: -46.63 }, // São Paulo
     { lat: -1.29, lng: 36.82 }, // Nairobi
   ];
+  // SEA 邻接靠节点表达，不拉短弧（密度失控=噪点）
   const ARC_PAIRS: [number, number][] = [
-    [0, 2], [0, 3], [0, 4], [0, 7], [0, 9], [0, 10], [0, 11], [0, 14],
-    [1, 5], [7, 14], [11, 12], [12, 15], [15, 16], [10, 17], [7, 9], [3, 6],
+    [0, 3], [0, 4], [0, 7], [0, 9], [0, 10], [0, 11], [0, 14],
+    [1, 5], [7, 14], [11, 12], [12, 15], [15, 16], [10, 17], [7, 9],
   ];
 
   function init() {
@@ -326,18 +328,26 @@ import { hero } from '../../data/home';
     if (!ctx) return;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const W = wrap.offsetWidth;
-    const H = wrap.offsetHeight;
+    let W = wrap.offsetWidth;
+    let H = wrap.offsetHeight;
     canvas.width = W * dpr;
     canvas.height = H * dpr;
     ctx.scale(dpr, dpr);
 
     // —— 投影：等距圆柱铺满容器宽（右缘微出血），边缘轻微下坠模拟俯视 ——
-    const mapW = W * 1.06;
-    const mapH = mapW * (MAP_GRID.rows / MAP_GRID.cols) * 0.98;
-    const x0 = -W * 0.02;
-    const y0 = (H - mapH) * 0.52;
-    const cx = x0 + mapW / 2;
+    let mapW = 0;
+    let mapH = 0;
+    let x0 = 0;
+    let y0 = 0;
+    let cx = 0;
+    const computeLayout = () => {
+      mapW = W * 1.06;
+      mapH = mapW * (MAP_GRID.rows / MAP_GRID.cols) * 0.98;
+      x0 = -W * 0.02;
+      y0 = (H - mapH) * 0.52;
+      cx = x0 + mapW / 2;
+    };
+    computeLayout();
     const sag = (x: number) => Math.pow((x - cx) / (mapW / 2), 2) * 24;
     const project = (lat: number, lng: number) => {
       const x = x0 + ((lng + 180) / 360) * mapW;
@@ -345,67 +355,88 @@ import { hero } from '../../data/home';
       return [x, y] as [number, number];
     };
 
-    // —— 大陆点阵：一次绘入离屏（亮度随与光心距离衰减 + 微随机），再套径向渐隐遮罩 ——
+    // —— 大陆点阵：绘入离屏缓存（亮度随光心衰减 + 微随机 + 城市簇微亮点），再套渐隐遮罩 ——
+    // 大陆是底纹（安静的深蓝），弧线与节点才是主角——亮度层级即视线路径
     const off = document.createElement('canvas');
-    off.width = W * dpr;
-    off.height = H * dpr;
     const octx = off.getContext('2d')!;
-    octx.scale(dpr, dpr);
-    const glowX = W * 0.62;
-    const glowY = H * 0.4;
-    const stepX = mapW / MAP_GRID.cols;
-    const stepY = (mapH / MAP_GRID.rows) as number;
-    let seed = 7;
-    const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-    for (const [row, start, len] of MAP_GRID.runs) {
-      for (let c = start; c < start + len; c++) {
-        const x = x0 + (c + 0.5) * stepX;
-        const y = y0 + (row + 0.5) * stepY + sag(x);
-        const d = Math.hypot(x - glowX, y - glowY);
-        const lit = Math.max(0, 1 - d / (W * 0.72));
-        const alpha = 0.2 + lit * 0.62 + (rand() - 0.5) * 0.12;
-        octx.fillStyle = `rgba(122, 168, 255, ${Math.max(0.08, Math.min(0.9, alpha)).toFixed(3)})`;
-        octx.beginPath();
-        octx.arc(x, y, 1.5, 0, Math.PI * 2);
-        octx.fill();
+    const glowXY = () => [W * 0.72, H * 0.45] as const;
+    const paintOffscreen = () => {
+      off.width = W * dpr;
+      off.height = H * dpr;
+      octx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const [glowX, glowY] = glowXY();
+      const stepX = mapW / MAP_GRID.cols;
+      const stepY = mapH / MAP_GRID.rows;
+      let seed = 7;
+      const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+      for (const [row, start, len] of MAP_GRID.runs) {
+        for (let c = start; c < start + len; c++) {
+          const x = x0 + (c + 0.5) * stepX;
+          const y = y0 + (row + 0.5) * stepY + sag(x);
+          const d = Math.hypot(x - glowX, y - glowY);
+          const lit = Math.max(0, 1 - d / (W * 0.72));
+          const alpha = 0.16 + lit * 0.5 + (rand() - 0.5) * 0.1;
+          octx.fillStyle = `rgba(96, 146, 255, ${Math.max(0.06, Math.min(0.62, alpha)).toFixed(3)})`;
+          octx.beginPath();
+          octx.arc(x, y, 1.5, 0, Math.PI * 2);
+          octx.fill();
+        }
       }
-    }
-    // 渐隐遮罩：径向（光心）× 左缘线性（让位给文案区）
-    octx.globalCompositeOperation = 'destination-in';
-    const rg = octx.createRadialGradient(glowX, glowY, W * 0.1, glowX, glowY, W * 0.78);
-    rg.addColorStop(0, 'rgba(0,0,0,1)');
-    rg.addColorStop(0.72, 'rgba(0,0,0,0.85)');
-    rg.addColorStop(1, 'rgba(0,0,0,0)');
-    octx.fillStyle = rg;
-    octx.fillRect(0, 0, W, H);
-    const lg = octx.createLinearGradient(0, 0, W * 0.3, 0);
-    lg.addColorStop(0, 'rgba(0,0,0,0.25)');
-    lg.addColorStop(1, 'rgba(0,0,0,1)');
-    octx.fillStyle = lg;
-    octx.fillRect(0, 0, W, H);
-    octx.globalCompositeOperation = 'source-over';
+      // 城市簇微亮点：节点周边略亮碎点，暗示密度
+      for (const c of CITIES) {
+        const [px, py] = project(c.lat, c.lng);
+        const n = 6 + Math.floor(rand() * 5);
+        for (let k = 0; k < n; k++) {
+          const ang = rand() * Math.PI * 2;
+          const rad = 6 + rand() * 20;
+          octx.fillStyle = `rgba(150, 190, 255, ${(0.5 + rand() * 0.2).toFixed(3)})`;
+          octx.beginPath();
+          octx.arc(px + Math.cos(ang) * rad, py + Math.sin(ang) * rad, 1.2, 0, Math.PI * 2);
+          octx.fill();
+        }
+      }
+      // 渐隐遮罩：径向（光心）× 左缘线性（让位给文案区）
+      octx.globalCompositeOperation = 'destination-in';
+      const rg = octx.createRadialGradient(glowX, glowY, W * 0.1, glowX, glowY, W * 0.78);
+      rg.addColorStop(0, 'rgba(0,0,0,1)');
+      rg.addColorStop(0.72, 'rgba(0,0,0,0.85)');
+      rg.addColorStop(1, 'rgba(0,0,0,0)');
+      octx.fillStyle = rg;
+      octx.fillRect(0, 0, W, H);
+      const lg = octx.createLinearGradient(0, 0, W * 0.3, 0);
+      lg.addColorStop(0, 'rgba(0,0,0,0.25)');
+      lg.addColorStop(1, 'rgba(0,0,0,1)');
+      octx.fillStyle = lg;
+      octx.fillRect(0, 0, W, H);
+      octx.globalCompositeOperation = 'source-over';
+    };
+    paintOffscreen();
 
-    // —— 弧线：预采样为折线（画部分弧 = 入场生长；流光沿折线跑） ——
+    // —— 弧线：预采样为折线（画部分弧 = 入场生长；流光沿折线跑）；弧顶抖动防近平行"喷射" ——
     const N = 48;
-    const arcs = ARC_PAIRS.map(([a, b], i) => {
-      const [ax, ay] = project(CITIES[a].lat, CITIES[a].lng);
-      const [bx, by] = project(CITIES[b].lat, CITIES[b].lng);
-      const mx = (ax + bx) / 2;
-      const dist = Math.hypot(bx - ax, by - ay);
-      const peak = Math.min(ay, by) - (dist * 0.34 + 46); // 高拱穹顶
-      const pts: [number, number][] = [];
-      for (let k = 0; k <= N; k++) {
-        const t = k / N;
-        const x = (1 - t) * (1 - t) * ax + 2 * (1 - t) * t * mx + t * t * bx;
-        const y = (1 - t) * (1 - t) * ay + 2 * (1 - t) * t * peak + t * t * by;
-        pts.push([x, y]);
-      }
-      return { pts, phase: (i * 0.37) % 1, born: 600 + i * 110 };
-    });
-    const nodes = CITIES.map((c, i) => {
-      const [x, y] = project(c.lat, c.lng);
-      return { x, y, hub: Boolean(c.hub), phase: (i * 0.53) % 1, born: 500 + i * 90 };
-    });
+    const buildArcs = () =>
+      ARC_PAIRS.map(([a, b], i) => {
+        const [ax, ay] = project(CITIES[a].lat, CITIES[a].lng);
+        const [bx, by] = project(CITIES[b].lat, CITIES[b].lng);
+        const mx = (ax + bx) / 2;
+        const dist = Math.hypot(bx - ax, by - ay);
+        const peak = Math.min(ay, by) - (dist * (0.3 + (i % 5) * 0.03) + 46);
+        const pts: [number, number][] = [];
+        for (let k = 0; k <= N; k++) {
+          const t = k / N;
+          const x = (1 - t) * (1 - t) * ax + 2 * (1 - t) * t * mx + t * t * bx;
+          const y = (1 - t) * (1 - t) * ay + 2 * (1 - t) * t * peak + t * t * by;
+          pts.push([x, y]);
+        }
+        return { pts, phase: (i * 0.37) % 1, born: 600 + i * 110 };
+      });
+    const buildNodes = () =>
+      CITIES.map((c, i) => {
+        const [x, y] = project(c.lat, c.lng);
+        return { x, y, hub: Boolean(c.hub), phase: (i * 0.53) % 1, born: 500 + i * 90 };
+      });
+    let arcs = buildArcs();
+    let nodes = buildNodes();
 
     const strokeArc = (pts: [number, number][], upTo: number, width: number, style: string) => {
       ctx.strokeStyle = style;
@@ -419,6 +450,11 @@ import { hero } from '../../data/home';
 
     const t0 = performance.now();
     const draw = (now: number) => {
+      // 自愈：2D 上下文被浏览器重置（GPU 重启/休眠唤醒）后 transform 归零、离屏位图清空
+      if (ctx.getTransform().a !== dpr) {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        paintOffscreen();
+      }
       const t = now - t0;
       ctx.clearRect(0, 0, W, H);
       ctx.drawImage(off, 0, 0, W, H);
@@ -428,8 +464,8 @@ import { hero } from '../../data/home';
         const grow = reduced ? 1 : Math.min(1, Math.max(0, (t - arc.born) / 900));
         if (grow <= 0) continue;
         const eased = 1 - Math.pow(1 - grow, 3);
-        strokeArc(arc.pts, eased, 3.2, 'rgba(52, 120, 255, 0.10)');
-        strokeArc(arc.pts, eased, 1.1, 'rgba(96, 150, 255, 0.55)');
+        strokeArc(arc.pts, eased, 6.5, 'rgba(52, 120, 255, 0.20)');
+        strokeArc(arc.pts, eased, 1.5, 'rgba(185, 212, 255, 0.85)');
         // 流光：沿弧线巡航的亮点 + 短尾
         if (!reduced && eased >= 1) {
           const p = (t / 4200 + arc.phase) % 1;
@@ -438,9 +474,9 @@ import { hero } from '../../data/home';
             const k = head - tail;
             if (k < 0) break;
             const [x, y] = arc.pts[k];
-            ctx.fillStyle = `rgba(190, 216, 255, ${(0.85 * (1 - tail / 6)).toFixed(3)})`;
+            ctx.fillStyle = `rgba(220, 235, 255, ${(0.9 * (1 - tail / 6)).toFixed(3)})`;
             ctx.beginPath();
-            ctx.arc(x, y, 1.7 - tail * 0.18, 0, Math.PI * 2);
+            ctx.arc(x, y, 1.9 - tail * 0.2, 0, Math.PI * 2);
             ctx.fill();
           }
         }
@@ -450,14 +486,17 @@ import { hero } from '../../data/home';
         const grow = reduced ? 1 : Math.min(1, Math.max(0, (t - node.born) / 600));
         if (grow <= 0) continue;
         const breathe = reduced ? 1 : 0.82 + 0.18 * Math.sin((t / 1000) * 2.2 + node.phase * Math.PI * 2);
-        const r = (node.hub ? 10 : 6.5) * (1 - Math.pow(1 - grow, 3)) * breathe;
-        const halo = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, r * 2.6);
-        halo.addColorStop(0, 'rgba(150, 190, 255, 0.85)');
-        halo.addColorStop(0.35, 'rgba(52, 120, 255, 0.4)');
+        // SEA 密集带非枢纽减档，让新加坡一枝独秀
+        const r = (node.hub ? 10 : 5) * (1 - Math.pow(1 - grow, 3)) * breathe;
+        const haloR = r * (node.hub ? 3.2 : 2.6);
+        const halo = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, haloR);
+        halo.addColorStop(0, 'rgba(190, 216, 255, 0.9)');
+        halo.addColorStop(0.25, 'rgba(120, 170, 255, 0.5)');
+        halo.addColorStop(0.6, 'rgba(52, 120, 255, 0.18)');
         halo.addColorStop(1, 'rgba(52, 120, 255, 0)');
         ctx.fillStyle = halo;
         ctx.beginPath();
-        ctx.arc(node.x, node.y, r * 2.6, 0, Math.PI * 2);
+        ctx.arc(node.x, node.y, haloR, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
         ctx.beginPath();
@@ -471,7 +510,7 @@ import { hero } from '../../data/home';
           beam.addColorStop(0.5, `rgba(190, 216, 255, ${(0.5 * breathe).toFixed(3)})`);
           beam.addColorStop(1, 'rgba(140, 180, 255, 0)');
           ctx.strokeStyle = beam;
-          ctx.lineWidth = 0.8;
+          ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(node.x - len, node.y);
           ctx.lineTo(node.x + len, node.y);
@@ -487,6 +526,25 @@ import { hero } from '../../data/home';
       draw(performance.now());
       raf = requestAnimationFrame(loop);
     };
+
+    // 容器尺寸变化：重建 backing store 与全部几何（否则 CSS 拉伸致模糊）
+    let resizeTimer = 0;
+    new ResizeObserver(() => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        if (wrap.offsetWidth === W && wrap.offsetHeight === H) return;
+        W = wrap.offsetWidth;
+        H = wrap.offsetHeight;
+        canvas.width = W * dpr;
+        canvas.height = H * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        computeLayout();
+        paintOffscreen();
+        arcs = buildArcs();
+        nodes = buildNodes();
+        if (reduced) draw(t0 + 60000);
+      }, 200);
+    }).observe(wrap);
 
     canvas.classList.add('is-ready');
     wrap.classList.add('has-map');

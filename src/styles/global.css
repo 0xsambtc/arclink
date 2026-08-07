@@ -25,6 +25,19 @@ body {
   margin-inline: auto;
 }
 
+/* 信息组灰标签：eyebrow 只作区块前导（每区一个），字段/信息标签一律用本类 */
+.micro-label {
+  font-size: var(--text-meta);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted-on-light);
+}
+
+[data-on-dark] .micro-label {
+  color: var(--color-text-soft-on-dark);
+}
+
 /* 浅底默认主蓝（AA）；深色区（[data-on-dark] 容器）用亮蓝 */
 .eyebrow {
   color: var(--color-accent);
@@ -65,6 +78,16 @@ body {
   transform: translateY(-2px);
 }
 
+/* 前进箭头与按钮同频微动（与 journey-back 的 ← 对称） */
+.button [aria-hidden] {
+  display: inline-block;
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.button:hover [aria-hidden] {
+  transform: translateX(3px);
+}
+
 /* 按压落键：从悬浮位快速落回，制造"按下"反馈 */
 .button:active {
   transform: translateY(0);
@@ -89,7 +112,7 @@ body {
 
 .button-outline:hover {
   border-color: var(--color-accent-bright);
-  background: rgba(37, 99, 235, 0.1);
+  background: rgba(var(--color-accent-rgb), var(--alpha-bg-hover));
 }
 
 .button-outline-dark {
@@ -154,8 +177,18 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-accent-bright);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+[data-on-dark] :focus-visible {
+  outline-color: var(--color-accent-bright);
+}
+
+/* 蓝渐变钮上蓝环不可读：白环 + 底色隔离圈 */
+.button-primary:focus-visible {
+  outline-color: #fff;
+  box-shadow: 0 0 0 2px rgba(var(--color-bg-rgb), 0.9);
 }
 
 .text-link {

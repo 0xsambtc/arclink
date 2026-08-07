@@ -5,7 +5,7 @@ import Base from '../layouts/Base.astro';
 import SiteHeader from '../components/sections/SiteHeader.astro';
 import Footer from '../components/sections/Footer.astro';
 import { site } from '../data/site';
-import { collectorForm, consentCopy } from '../data/forms';
+import { collectorForm, consentCopy, formMessages } from '../data/forms';
 import { countries } from '../data/countries';
 import '../styles/forms.css';
 import '../styles/subpage.css';
@@ -50,6 +50,7 @@ const t = collectorForm;
             <button class="button button-primary js-apply" data-application-type="individual" type="button">
               {t.tabs.individual.cta} <span aria-hidden="true">→</span>
             </button>
+            <p class="apply-confirmation" data-confirm="individual" hidden>{formMessages.toasts.success}</p>
           </div>
           <div class="tab-panel" id="teamPanel" role="tabpanel" aria-labelledby="tabTeam">
             <p class="eyebrow">{t.tabs.team.eyebrow}</p>
@@ -58,6 +59,7 @@ const t = collectorForm;
             <button class="button button-primary js-apply" data-application-type="team" type="button">
               {t.tabs.team.cta} <span aria-hidden="true">→</span>
             </button>
+            <p class="apply-confirmation" data-confirm="team" hidden>{formMessages.toasts.success}</p>
           </div>
         </section>
       </div>
@@ -75,6 +77,7 @@ const t = collectorForm;
     <div class="modal-body" data-application-form="individual">
       <p class="eyebrow">{t.modal.individual.eyebrow}</p>
       <h2 id="modalHeading">{t.modal.individual.heading}</h2>
+      <p class="form-intro">Fields marked <em>*</em> are required.</p>
       <form class="enhanced-form" id="individualForm" data-endpoint={t.endpoint} novalidate>
         <input type="hidden" name="type" value="individual" />
         <div class="hp-field" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off" /></div>
@@ -178,6 +181,7 @@ const t = collectorForm;
     <div class="modal-body" data-application-form="team" hidden>
       <p class="eyebrow">{t.modal.team.eyebrow}</p>
       <h2>{t.modal.team.heading}</h2>
+      <p class="form-intro">Fields marked <em>*</em> are required.</p>
       <form class="enhanced-form" id="teamForm" data-endpoint={t.endpoint} novalidate>
         <input type="hidden" name="type" value="team" />
         <div class="hp-field" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off" /></div>
@@ -301,9 +305,9 @@ const t = collectorForm;
   }
 
   .referral-panel p {
-    font-size: 14px;
+    font-size: var(--text-body-s);
     line-height: 1.75;
-    color: var(--color-text-muted-on-dark);
+    color: var(--color-text-soft-on-dark); /* 深底卡内正文=soft 档 */
     margin: 0;
   }
 
@@ -338,6 +342,14 @@ const t = collectorForm;
     transition: color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
   }
 
+  .network-tabs [role='tab']:hover {
+    color: var(--color-text-on-light);
+  }
+
+  .network-tabs [role='tab'][aria-selected='false']:hover {
+    border-bottom-color: var(--color-border-on-light);
+  }
+
   .network-tabs [role='tab'][aria-selected='true'] {
     color: var(--color-accent);
     border-bottom-color: var(--color-accent);
@@ -349,7 +361,7 @@ const t = collectorForm;
 
   .tab-panel.active {
     display: block;
-    animation: panel-in 0.28s var(--ease-out);
+    animation: panel-in var(--duration-panel) var(--ease-out);
   }
 
   @keyframes panel-in {
@@ -357,6 +369,23 @@ const t = collectorForm;
       opacity: 0;
       transform: translateY(6px);
     }
+  }
+
+  /* 申请成功后的持久确认（替换 CTA 位） */
+  .apply-confirmation {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--color-text-on-light);
+  }
+
+  .apply-confirmation::before {
+    content: '✓';
+    color: var(--color-accent);
+    font-weight: 700;
   }
 
   .tab-panel h3 {
@@ -379,8 +408,8 @@ const t = collectorForm;
     position: fixed;
     inset: 0;
     z-index: var(--z-modal-backdrop);
-    background: rgba(var(--color-bg-rgb), 0.6);
-    backdrop-filter: blur(4px);
+    background: rgba(var(--color-bg-rgb), 0.72);
+    backdrop-filter: blur(6px) saturate(0.65); /* 穿透的品牌蓝压灰，弹窗独占视觉焦点 */
     opacity: 0;
     visibility: hidden;
     transition:
@@ -411,9 +440,9 @@ const t = collectorForm;
     pointer-events: none;
     transform: translate(-50%, calc(-50% + 16px)) scale(0.98);
     transition:
-      opacity 0.32s var(--ease-out),
-      transform 0.32s var(--ease-out),
-      visibility 0s linear 0.32s;
+      opacity var(--duration-panel) var(--ease-out),
+      transform var(--duration-panel) var(--ease-out),
+      visibility 0s linear var(--duration-panel);
   }
 
   .application-modal.open {
@@ -430,10 +459,33 @@ const t = collectorForm;
     padding: var(--space-7);
   }
 
+  /* 底缘渐隐：暗示下方还有内容 */
+  .application-modal::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 44px;
+    background: linear-gradient(transparent, var(--color-surface));
+    pointer-events: none;
+  }
+
   .application-modal h2 {
     font-size: var(--text-heading-card);
     letter-spacing: var(--tracking-tight);
-    margin: var(--space-1) 0 var(--space-6);
+    margin: var(--space-1) 0 var(--space-2);
+  }
+
+  .application-modal .form-intro {
+    font-size: var(--text-caption);
+    color: var(--color-text-muted-on-light);
+    margin: 0 0 var(--space-5);
+  }
+
+  .application-modal .form-intro em {
+    color: var(--color-accent);
+    font-style: normal;
   }
 
   /* 关闭钮：与岗位卡同 glyph 语言（+ 旋 45°） */
@@ -444,14 +496,19 @@ const t = collectorForm;
     z-index: 1;
     width: 36px;
     height: 36px;
-    border: 0;
+    border: 1px solid var(--color-border-on-light);
     border-radius: 50%;
-    background: var(--color-surface-tint);
+    background: var(--color-surface);
     color: var(--color-text-on-light);
     font-size: 22px;
     line-height: 1;
     cursor: pointer;
+    box-shadow: 0 2px 8px rgba(10, 29, 51, 0.12); /* 压过滚动内容时仍是浮层控件 */
     transition: background var(--duration-fast) var(--ease-out);
+  }
+
+  .modal-close:focus-visible {
+    box-shadow: 0 0 0 3px rgba(var(--color-accent-rgb), var(--alpha-ring));
   }
 
   .modal-close span {
@@ -574,7 +631,16 @@ const t = collectorForm;
     }
   });
 
-  // 提交成功后自动收起弹窗（成功 toast 由 wireForm 展示）
-  wireForm(document.getElementById('individualForm') as HTMLFormElement, { onSuccess: closeModal });
-  wireForm(document.getElementById('teamForm') as HTMLFormElement, { onSuccess: closeModal });
+  // 提交成功：收起弹窗 + 对应选项卡留下持久确认（CTA 让位）
+  const confirmSuccess = (type: string) => () => {
+    closeModal();
+    const panelBtn = document.querySelector<HTMLElement>(`.js-apply[data-application-type="${type}"]`);
+    const note = document.querySelector<HTMLElement>(`.apply-confirmation[data-confirm="${type}"]`);
+    if (panelBtn && note) {
+      panelBtn.hidden = true;
+      note.hidden = false;
+    }
+  };
+  wireForm(document.getElementById('individualForm') as HTMLFormElement, { onSuccess: confirmSuccess('individual') });
+  wireForm(document.getElementById('teamForm') as HTMLFormElement, { onSuccess: confirmSuccess('team') });
 </script>

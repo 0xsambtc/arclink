@@ -24,7 +24,8 @@ const isCurrent = (href: string) => (href.replace(/\/$/, '') || '/') === path;
     <nav class="main-nav" id="mainNav" aria-label="Primary navigation">
       <div class="nav-dropdown" id="navDropdown">
         <button class="drop-trigger" type="button" aria-expanded="false" aria-haspopup="true">
-          {nav.solutions.label} <span class="caret" aria-hidden="true">▾</span>
+          {nav.solutions.label}
+          <svg class="caret" viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5 6 6.5 11 1.5" /></svg>
         </button>
         <div class="solution-menu">
           {nav.solutions.items.map((item) => <a href={item.href}>{item.label}</a>)}
@@ -96,7 +97,8 @@ const isCurrent = (href: string) => (href.replace(/\/$/, '') || '/') === path;
     margin-left: auto;
   }
 
-  .main-nav a,
+  .main-nav > a,
+  .solution-menu a,
   .drop-trigger {
     color: var(--color-text-muted-on-dark);
     text-decoration: none;
@@ -129,7 +131,8 @@ const isCurrent = (href: string) => (href.replace(/\/$/, '') || '/') === path;
   .main-nav > a[aria-current='page'],
   .drop-trigger.active,
   .nav-dropdown:hover .drop-trigger,
-  .nav-dropdown:focus-within .drop-trigger {
+  .nav-dropdown:focus-within .drop-trigger,
+  .nav-dropdown.open .drop-trigger {
     color: var(--color-text-on-dark);
   }
 
@@ -140,8 +143,13 @@ const isCurrent = (href: string) => (href.replace(/\/$/, '') || '/') === path;
   }
 
   .caret {
-    font-size: 10px;
-    display: inline-block;
+    width: 10px;
+    height: 7px;
+    margin-left: 2px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
     transition: transform var(--duration-fast) var(--ease-out);
   }
 
@@ -149,14 +157,16 @@ const isCurrent = (href: string) => (href.replace(/\/$/, '') || '/') === path;
     position: relative;
   }
 
+  /* 展开 = 旋转 180°（hover / 键盘 / 点击开三条路径同态） */
   .nav-dropdown:hover .caret,
-  .nav-dropdown:focus-within .caret {
-    transform: translateY(2px);
+  .nav-dropdown:focus-within .caret,
+  .nav-dropdown.open .caret {
+    transform: rotate(180deg);
   }
 
   .solution-menu {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%) translateY(6px);
     min-width: 218px;
@@ -166,10 +176,22 @@ const isCurrent = (href: string) => (href.replace(/\/$/, '') || '/') === path;
     border-radius: var(--radius-md);
     background: rgba(var(--color-bg-rgb), 0.97);
     border: 1px solid var(--color-border-on-dark);
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+    box-shadow:
+      inset 0 1px 0 rgba(var(--color-accent-bright-rgb), 0.25),
+      0 18px 45px rgba(0, 0, 0, 0.45);
     opacity: 0;
     visibility: hidden;
     transition: opacity var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
+  }
+
+  /* hover 桥：面板与触发器之间的 8px 间隙不脱手 */
+  .solution-menu::before {
+    content: '';
+    position: absolute;
+    top: -9px;
+    left: 0;
+    right: 0;
+    height: 9px;
   }
 
   .nav-dropdown:hover .solution-menu,
@@ -186,14 +208,16 @@ const isCurrent = (href: string) => (href.replace(/\/$/, '') || '/') === path;
     font-size: 14px;
   }
 
-  .solution-menu a:hover {
+  .solution-menu a:hover,
+  .solution-menu a.active {
     color: var(--color-text-on-dark);
-    background: rgba(37, 99, 235, 0.14);
+    background: rgba(var(--color-accent-rgb), 0.14);
   }
 
   .nav-actions {
     display: flex;
     gap: var(--space-4);
+    margin-left: var(--space-4); /* 链接组与 CTA 组的组间距 > 组内距 */
   }
 
   .menu-toggle {
@@ -255,9 +279,10 @@ const isCurrent = (href: string) => (href.replace(/\/$/, '') || '/') === path;
     }
     .main-nav.open {
       display: flex;
-      animation: menu-in 0.28s var(--ease-out);
+      animation: menu-in var(--duration-panel) var(--ease-out);
     }
-    .main-nav a,
+    .main-nav > a,
+    .solution-menu a,
     .drop-trigger {
       padding: var(--space-4);
       text-align: left;
@@ -352,6 +377,9 @@ const isCurrent = (href: string) => (href.replace(/\/$/, '') || '/') === path;
         const key = (entry.target as HTMLElement).dataset.section ?? '';
         navLinks.forEach((link) => link.classList.toggle('active', link.dataset.nav === key));
         dropTrigger.classList.toggle('active', SOLUTION_SECTIONS.includes(key));
+        dropdown.querySelectorAll<HTMLAnchorElement>('.solution-menu a').forEach((item) => {
+          item.classList.toggle('active', item.getAttribute('href') === `/#${key}`);
+        });
       }),
     { rootMargin: '-35% 0px -55% 0px' }
   );

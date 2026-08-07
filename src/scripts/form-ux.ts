@@ -21,13 +21,38 @@ export function showToast(message: string, kind: 'success' | 'error') {
   }
   const toast = document.createElement('div');
   toast.className = `toast toast-${kind}`;
-  toast.textContent = message;
-  region.append(toast);
-  requestAnimationFrame(() => toast.classList.add('visible'));
-  window.setTimeout(() => {
+  const body = document.createElement('span');
+  // 备用邮箱要可点可抄：文案中的邮箱渲染为 mailto（字符串本体不变）
+  const EMAIL_IN_TEXT = /([\w.+-]+@[\w-]+\.[\w.]+)/;
+  const match = message.match(EMAIL_IN_TEXT);
+  if (match) {
+    const [before, after] = message.split(match[1]);
+    body.append(before);
+    const link = document.createElement('a');
+    link.href = `mailto:${match[1]}`;
+    link.textContent = match[1];
+    body.append(link, after ?? '');
+  } else {
+    body.textContent = message;
+  }
+  toast.append(body);
+
+  const dismiss = () => {
     toast.classList.remove('visible');
-    window.setTimeout(() => toast.remove(), 250); // 与退场过渡 0.2s 咬合
-  }, 6500);
+    window.setTimeout(() => toast.remove(), 250);
+  };
+  if (kind === 'error') {
+    // 失败提示常驻（唯一自救出口，不限时阅读），手动关闭
+    const close = document.createElement('button');
+    close.className = 'toast-close';
+    close.setAttribute('aria-label', 'Dismiss');
+    close.innerHTML = '<span aria-hidden="true">+</span>';
+    close.addEventListener('click', dismiss);
+    toast.append(close);
+  } else {
+    window.setTimeout(dismiss, 6500);
+  }
+  requestAnimationFrame(() => toast.classList.add('visible'));
 }
 
 function fieldWrap(control: Control): HTMLElement | null {
@@ -87,7 +112,7 @@ function validateGroup(group: HTMLElement): string {
   return checked > 0 ? '' : formMessages.errors.required;
 }
 
-export function wireForm(form: HTMLFormElement, options?: { onSuccess?: () => void }) {
+export function wireForm(form: HTMLFormElement, options?: { onSuccess?: () => void; successPanel?: HTMLElement | null }) {
   const controls = [...form.querySelectorAll<Control>('input, select, textarea')].filter(
     (control) => !(control instanceof HTMLInputElement && ['checkbox', 'hidden'].includes(control.type))
   );
@@ -216,6 +241,7 @@ export function wireForm(form: HTMLFormElement, options?: { onSuccess?: () => vo
 
     submitting = true;
     syncSubmitState();
+    submit.setAttribute('data-loading', '');
     submitLabel.textContent = formMessages.submitting;
 
     try {
@@ -231,6 +257,10 @@ export function wireForm(form: HTMLFormElement, options?: { onSuccess?: () => vo
         area.dispatchEvent(new Event('input'))
       );
       syncConditionals();
+      if (options?.successPanel) {
+        form.hidden = true;
+        options.successPanel.hidden = false;
+      }
       if (options?.onSuccess) {
         // reduced-motion：立即执行，不做展示性等待
         const wait = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 450;
@@ -241,6 +271,7 @@ export function wireForm(form: HTMLFormElement, options?: { onSuccess?: () => vo
       showToast(formMessages.toasts.failure, 'error');
     } finally {
       submitting = false;
+      submit.removeAttribute('data-loading');
       submitLabel.textContent = idleLabel;
       syncSubmitState();
     }

@@ -4,6 +4,7 @@ import Base from './Base.astro';
 import SiteHeader from '../components/sections/SiteHeader.astro';
 import Footer from '../components/sections/Footer.astro';
 import { site } from '../data/site';
+import '../styles/subpage.css';
 
 interface Props {
   frontmatter: { title: string; description?: string };
@@ -15,6 +16,9 @@ const { frontmatter } = Astro.props;
 <Base title={`${frontmatter.title} — ${site.name}`} description={frontmatter.description ?? site.description} bg="light">
   <SiteHeader solid />
   <main id="main" class="legal-main">
+    <div class="shell">
+      <a class="journey-back" href="/"><span class="back-arrow" aria-hidden="true">←</span> Back to home</a>
+    </div>
     <article class="shell legal-article">
       <slot />
     </article>
@@ -39,6 +43,14 @@ const { frontmatter } = Astro.props;
     line-height: 1.15;
     letter-spacing: var(--tracking-tight);
     margin: 0 0 var(--space-3);
+  }
+
+  /* 题区：主体名 + Last updated 行降为 meta 并以 hairline 收束（文档感骨架） */
+  .legal-article :global(h1 + p) {
+    padding-bottom: var(--space-5);
+    border-bottom: 1px solid var(--hairline-on-light);
+    color: var(--color-text-muted-on-light) !important;
+    font-size: var(--text-body-s) !important;
   }
 
   .legal-article :global(h2) {
@@ -72,18 +84,20 @@ const { frontmatter } = Astro.props;
     font-size: 14px;
   }
 
+  /* 表格横线制：去 Excel 网格感 */
   .legal-article :global(th),
   .legal-article :global(td) {
     text-align: left;
     min-width: 140px;
     padding: 10px 14px;
-    border: 1px solid var(--color-border-on-light);
+    border: 0;
+    border-bottom: 1px solid var(--color-border-on-light);
     color: var(--color-text-muted-on-light);
     line-height: 1.6;
   }
 
   .legal-article :global(th) {
-    background: var(--color-surface-tint);
+    border-bottom-width: 2px;
     color: var(--color-text-on-light);
   }
 </style>

@@ -50,7 +50,7 @@ import '../styles/subpage.css';
                       <h3>{role.title}</h3>
                       <span>{role.location}</span>
                     </span>
-                    <span class="job-toggle" aria-hidden="true">+</span>
+                    <span class="job-toggle" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M8 2.5v11M2.5 8h11" /></svg></span>
                   </button>
                   <div class="job-body" id={`job-body-${index}`}>
                     <div class="job-body-inner">
@@ -198,10 +198,31 @@ import '../styles/subpage.css';
     color: var(--color-text-muted-on-light);
   }
 
+  /* SVG plus 于 32px 圆容器光学居中；开态旋转 45° 成关闭语义（与弹窗关闭钮同语言） */
   .job-toggle {
-    font-size: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
     color: var(--color-accent);
-    transition: transform var(--duration-fast) var(--ease-out);
+    transition:
+      transform var(--duration-fast) var(--ease-out),
+      background-color var(--duration-fast) var(--ease-out);
+  }
+
+  .job-toggle svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+  }
+
+  .job-head:hover .job-toggle {
+    background: rgba(var(--color-accent-rgb), 0.08);
   }
 
   .job-card.open .job-toggle {
@@ -212,17 +233,29 @@ import '../styles/subpage.css';
   .job-body {
     display: grid;
     grid-template-rows: 0fr;
-    transition: grid-template-rows 0.4s var(--ease-out);
+    transition: grid-template-rows var(--duration-panel) var(--ease-out);
   }
 
   .job-card.open .job-body {
     grid-template-rows: 1fr;
   }
 
+  /* 闭合真正归零：padding-bottom 会成为 0fr 行的最小高度（漏出裁切正文），
+     底部空间改由内容自身 margin 承担（margin 可被裁掉） */
   .job-body-inner {
     min-height: 0;
     overflow: hidden;
-    padding: 0 var(--space-6) var(--space-6);
+    padding: 0 var(--space-6);
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-out) 0.1s;
+  }
+
+  .job-card.open .job-body-inner {
+    opacity: 1;
+  }
+
+  .job-cols {
+    margin-bottom: var(--space-6);
   }
 
   .job-overview {
@@ -237,6 +270,7 @@ import '../styles/subpage.css';
     grid-template-columns: 1fr 1fr;
     gap: var(--space-6);
   }
+
 
   .job-cols h4 {
     font-size: 12px;
@@ -277,7 +311,7 @@ import '../styles/subpage.css';
       padding: var(--space-4) var(--space-5);
     }
     .job-body-inner {
-      padding: 0 var(--space-5) var(--space-5);
+      padding: 0 var(--space-5);
     }
   }
 </style>
@@ -290,6 +324,16 @@ import '../styles/subpage.css';
     body.inert = !card.classList.contains('open');
     head.addEventListener('click', () => {
       const open = card.classList.toggle('open');
+      // 单开：比较岗位时上下文不散
+      if (open) {
+        document.querySelectorAll<HTMLElement>('.job-card.open').forEach((other) => {
+          if (other === card) return;
+          other.classList.remove('open');
+          other.querySelector('.job-head')?.setAttribute('aria-expanded', 'false');
+          const otherBody = other.querySelector<HTMLElement>('.job-body');
+          if (otherBody) otherBody.inert = true;
+        });
+      }
       head.setAttribute('aria-expanded', String(open));
       body.inert = !open;
     });

@@ -7,11 +7,12 @@ import { belief } from '../../data/home';
   <div class="shell belief-grid">
     <div class="reveal">
       <p class="eyebrow">{belief.eyebrow}</p>
-      <p class="belief-label">{belief.label}</p>
       <h2>{belief.heading}</h2>
     </div>
     <div class="belief-rule reveal" aria-hidden="true"></div>
     <div class="belief-copy reveal reveal-delay">
+      {/* v0.2 的第二行标签作右栏文段题注：与左栏 eyebrow 分居竖线两侧，各任其职 */}
+      <p class="belief-label">{belief.label}</p>
       {belief.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
     </div>
   </div>
@@ -30,8 +31,8 @@ import { belief } from '../../data/home';
   .belief::after {
     content: '';
     position: absolute;
-    right: -280px;
-    bottom: -360px;
+    right: -220px;
+    bottom: -300px;
     width: 490px;
     height: 490px;
     border: 1px solid var(--color-border-on-light);
@@ -41,8 +42,8 @@ import { belief } from '../../data/home';
       0 0 0 36px var(--color-border-on-light),
       0 0 0 70px var(--color-surface-tint),
       0 0 0 71px var(--color-border-on-light);
-    -webkit-mask-image: linear-gradient(225deg, #000 40%, transparent 75%);
-    mask-image: linear-gradient(225deg, #000 40%, transparent 75%);
+    -webkit-mask-image: linear-gradient(225deg, #000 40%, transparent 85%);
+    mask-image: linear-gradient(225deg, #000 40%, transparent 85%);
     pointer-events: none;
   }
 
@@ -56,10 +57,14 @@ import { belief } from '../../data/home';
   }
 
   .belief-label {
-    margin: calc(var(--space-5) * -1 + var(--space-2)) 0 var(--space-3);
-    font-size: 15px;
+    margin: 0 0 var(--space-5);
+    font-size: var(--text-caption);
     font-weight: 650;
     color: var(--color-text-muted-on-light);
+  }
+
+  .belief-copy .belief-label + p {
+    margin-top: 0;
   }
 
   h2 {

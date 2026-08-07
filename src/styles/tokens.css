@@ -9,9 +9,16 @@
   --color-glow: #082454;
 
   --color-accent: #2563eb;
+  --color-accent-rgb: 37, 99, 235;
   --color-accent-bright: #3478ff;
   --color-accent-bright-rgb: 52, 120, 255;
+  /* deep 仅存在于 primary 渐变起点与发光滤镜；禁止单独作文字/描边色 */
   --color-accent-deep: #1767ff;
+
+  /* 蓝的浓度档（描边/底色/焦点环统一取档，禁止散写 alpha） */
+  --alpha-bg-hover: 0.1;
+  --alpha-ring: 0.18;
+  --alpha-line: 0.28;
 
   /* 品牌 logo 原色（2026-08-04 自 logo 源文件采样；与 UI accent 同族，logo/favicon 专用） */
   --color-brand-ink: #0a1d33;
@@ -23,9 +30,12 @@
   --text-h2: clamp(2.25rem, 3.2vw, 2.75rem); /* 36–44px：功能区（Process/Platform/Industries/Network） */
   --text-heading-card: 1.5rem; /* 24px：表单卡/弹窗/选项卡/referral 等卡级标题 */
   --text-body-l: 17px; /* 区块引导正文统一档 */
+  --text-body-s: 14px; /* 卡片正文/表单 label */
+  --text-caption: 13px; /* consent/chip/form-intro/岗位地点 */
+  --text-meta: 12px; /* error/optional/char-count/地址 */
   --text-mono-caption: 0.8125rem;
 
-  /* 细线（分隔/图框） */
+  /* 细线分工：hairline=内容内分隔线（页脚分组/文档题区）；border-on-* = 组件外轮廓（卡/header/下拉） */
   --hairline: rgba(255, 255, 255, 0.1);
   --hairline-on-light: rgba(10, 29, 51, 0.15);
 
@@ -42,10 +52,12 @@
 
   /* 功能色（表单错误/成功——仅状态反馈，不进品牌层） */
   --color-danger: #d92d20;
+  --color-danger-deep: #b42318;
   --ring-danger: rgba(217, 45, 32, 0.14);
 
   /* 边线（深色下描边+内发光代替阴影 — Linear 模式） */
   --color-border-on-light: #d8e2f2;
+  --color-border-hover: #b9c9e4; /* 控件 hover 预聚焦档（border 与 accent 之间） */
   --color-border-on-dark: rgba(255, 255, 255, 0.08);
 
   /* 字体 */
@@ -75,9 +87,12 @@
   --radius-md: 14px;
 
   /* 动效 */
+  /* 时长五档：fast=颜色/小位移；base=卡 hover/header；panel=弹窗/tab/手风琴/toast；reveal=滚动入场；ambient=首屏叙事 */
   --duration-fast: 0.22s;
   --duration-base: 0.3s;
+  --duration-panel: 0.32s;
   --duration-reveal: 0.7s;
+  --duration-ambient: 0.9s;
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
 
   /* 层级 */

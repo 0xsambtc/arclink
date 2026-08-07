@@ -4,7 +4,7 @@ import Base from '../layouts/Base.astro';
 import SiteHeader from '../components/sections/SiteHeader.astro';
 import Footer from '../components/sections/Footer.astro';
 import { site } from '../data/site';
-import { clientForm, consentCopy } from '../data/forms';
+import { clientForm, consentCopy, formMessages } from '../data/forms';
 import { countries } from '../data/countries';
 import '../styles/forms.css';
 import '../styles/subpage.css';
@@ -25,20 +25,27 @@ import '../styles/subpage.css';
           <h1>{clientForm.aside.heading}</h1>
           <div class="contact-details">
             <div>
-              <span class="eyebrow detail-label">{clientForm.aside.emailLabel}</span>
+              <span class="micro-label">{clientForm.aside.emailLabel}</span>
               <a href={`mailto:${site.email}`}>{site.email}</a>
             </div>
             <div>
-              <span class="eyebrow detail-label">{clientForm.aside.addressLabel}</span>
+              <span class="micro-label">{clientForm.aside.addressLabel}</span>
               <strong>{site.addressLines[0]}<br />{site.addressLines[1]}</strong>
             </div>
           </div>
+          {/* 提交预期前置（措辞源自规格成功句，待 PM 复核） */}
+          <p class="response-note">We'll get back to you within 1–2 business days.</p>
         </aside>
 
         <div class="journey-form">
           <p class="eyebrow">{clientForm.intro.eyebrow}</p>
           <h2>{clientForm.intro.heading}</h2>
           <p class="form-intro">Fields marked <em>*</em> are required.</p>
+          {/* 持久成功态：toast 会自毁，高价值动作需要留得住的凭证 */}
+          <div class="form-success" id="clientSuccess" hidden>
+            <p>{formMessages.toasts.success}</p>
+            <a href={`mailto:${site.email}`}>{site.email}</a>
+          </div>
           <form class="enhanced-form" id="clientForm" data-endpoint={clientForm.endpoint} novalidate>
             <div class="hp-field" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off" /></div>
             <div class="two-up">
@@ -130,6 +137,7 @@ import '../styles/subpage.css';
   }
 
   .journey-aside h1 {
+    text-wrap: balance;
     font-size: var(--text-h1-sub);
     line-height: 1.12;
     letter-spacing: var(--tracking-tight);
@@ -148,9 +156,8 @@ import '../styles/subpage.css';
     gap: var(--space-2);
   }
 
-  .contact-details .detail-label {
+  .contact-details .micro-label {
     margin: 0 0 var(--space-1);
-    font-size: 12px;
   }
 
   .contact-details a {
@@ -163,9 +170,19 @@ import '../styles/subpage.css';
     text-decoration: underline;
   }
 
+  /* 层次收敛：地址降权，邮箱是左栏唯一 accent 焦点 */
   .contact-details strong {
     font-size: 15px;
+    font-weight: 500;
     line-height: 1.6;
+    color: var(--color-text-muted-on-light);
+  }
+
+  .response-note {
+    margin: var(--space-2) 0 0;
+    font-size: var(--text-body-s);
+    line-height: 1.7;
+    color: var(--color-text-muted-on-light);
   }
 
   .journey-form {
@@ -173,6 +190,23 @@ import '../styles/subpage.css';
     border: 1px solid var(--color-border-on-light);
     border-radius: var(--radius-md);
     padding: var(--space-7);
+    /* 双层 ambient 影：卡片与页面底建立图层关系 */
+    box-shadow:
+      0 1px 2px rgba(10, 29, 51, 0.04),
+      0 12px 32px rgba(10, 29, 51, 0.05);
+  }
+
+  .form-success {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-5) 0;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .form-success a {
+    color: var(--color-accent);
   }
 
   .journey-form h2 {
@@ -209,5 +243,7 @@ import '../styles/subpage.css';
 <script>
   import { wireForm } from '../scripts/form-ux';
 
-  wireForm(document.getElementById('clientForm') as HTMLFormElement);
+  wireForm(document.getElementById('clientForm') as HTMLFormElement, {
+    successPanel: document.getElementById('clientSuccess'),
+  });
 </script>

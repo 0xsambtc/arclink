@@ -24,7 +24,14 @@ const links = [
   ['sin', 'jkt'], ['sin', 'bkk'], ['sin', 'tyo'], ['sin', 'syd'], ['sin', 'bom'], ['sin', 'dxb'],
   ['dxb', 'lon'], ['dxb', 'nbo'], ['lon', 'nyc'], ['nyc', 'sf'], ['nyc', 'sao'], ['tyo', 'sf'],
 ] as const;
-const RADII = [5, 3.5, 2.2];
+const RADII = [7, 5, 3];
+// 与 hero 同语言：连线为上拱弧（二次贝塞尔，弧高 ∝ 距离）
+const arc = (a: (typeof nodes)[number], b: (typeof nodes)[number]) => {
+  const dist = Math.hypot(b.x - a.x, b.y - a.y);
+  const mx = (a.x + b.x) / 2;
+  const my = Math.min(a.y, b.y) - dist * 0.18;
+  return `M ${a.x} ${a.y} Q ${mx} ${my} ${b.x} ${b.y}`;
+};
 ---
 
 <section class="network" id={network.id} data-section="network">
@@ -43,8 +50,9 @@ const RADII = [5, 3.5, 2.2];
     <div class="network-map reveal reveal-delay" aria-hidden="true">
       <svg viewBox="0 0 560 300">
         <g class="net-links">
-          {links.map(([a, b]) => <line x1={byKey[a].x} y1={byKey[a].y} x2={byKey[b].x} y2={byKey[b].y} />)}
+          {links.map(([a, b]) => <path d={arc(byKey[a], byKey[b])} />)}
         </g>
+        <circle class="hub-ripple" cx={byKey.sin.x} cy={byKey.sin.y} r={RADII[0] + 4} />
         <g class="net-rings">
           {nodes.map((n) => <circle cx={n.x} cy={n.y} r={RADII[n.tier] + 3.5} data-tier={n.tier} />)}
         </g>
@@ -90,27 +98,54 @@ const RADII = [5, 3.5, 2.2];
     flex-wrap: wrap;
   }
 
+  /* 给图群一个"场"：极淡径向底光把点群从背景托出 */
+  .network-map {
+    background: radial-gradient(closest-side, rgba(var(--color-accent-rgb), 0.07), transparent 75%);
+  }
+
   .network-map svg {
     width: 100%;
     height: auto;
+    overflow: visible;
   }
 
-  /* 浅底细节：hairline 虚线干线 + 实色描边环代替 box-shadow 光晕 */
-  .net-links line {
-    stroke: rgba(37, 99, 235, 0.28);
+  /* 浅底细节：hairline 虚线弧 + 实色描边环代替 box-shadow 光晕 */
+  .net-links path {
+    fill: none;
+    stroke: rgba(var(--color-accent-rgb), 0.4);
     stroke-width: 1;
     stroke-dasharray: 5 6;
   }
 
   .net-rings circle {
     fill: none;
-    stroke: rgba(var(--color-accent-bright-rgb), 0.35);
+    stroke: rgba(var(--color-accent-bright-rgb), 0.45);
     stroke-width: 2;
   }
 
   .net-rings circle[data-tier='0'] {
     stroke-width: 2.5;
-    stroke: rgba(var(--color-accent-bright-rgb), 0.5);
+    stroke: rgba(var(--color-accent-bright-rgb), 0.55);
+  }
+
+  /* 新加坡枢纽扩散环（真实数据锚点做视觉锚） */
+  .hub-ripple {
+    fill: none;
+    stroke: var(--color-accent-bright);
+    animation: hub-ripple 3s ease-out infinite;
+    transform-origin: center;
+    transform-box: fill-box;
+  }
+
+  @keyframes hub-ripple {
+    0% {
+      opacity: 0.6;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(2.4);
+    }
   }
 
   .net-nodes circle {

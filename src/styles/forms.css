@@ -80,12 +80,27 @@
   color: var(--color-text-muted-on-light);
 }
 
+/* 自绘下拉指示符：替换浏览器默认角标（全站唯一系统件） */
+.enhanced-form select {
+  appearance: none;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' stroke='%235a6a86' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+
+.enhanced-form input:not([type='checkbox']):hover:not(:focus-visible),
+.enhanced-form select:hover:not(:focus-visible),
+.enhanced-form textarea:hover:not(:focus-visible) {
+  border-color: var(--color-border-hover);
+}
+
 .enhanced-form input:focus-visible,
 .enhanced-form select:focus-visible,
 .enhanced-form textarea:focus-visible {
   outline: none;
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+  box-shadow: 0 0 0 3px rgba(var(--color-accent-rgb), var(--alpha-ring));
 }
 
 .enhanced-form .invalid input:not([type='checkbox']),
@@ -114,6 +129,7 @@
 /* 提交按钮：左对齐定宽（B2B 表单惯例），禁用态去悬浮/发光 */
 .enhanced-form .submit-wrap {
   align-self: flex-start;
+  margin-top: calc(var(--space-3) * -1); /* 收拢 consent 后的收尾空白 */
 }
 
 .enhanced-form .submit-wrap .button {
@@ -121,12 +137,44 @@
 }
 
 .enhanced-form .button[disabled] {
-  opacity: 0.55;
+  background: var(--color-surface-tint);
+  border: 1px solid var(--color-border-on-light);
+  color: var(--color-text-muted-on-light);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
   /* 事件穿透到 .submit-wrap：点击禁用钮时可给出 consent 指引 */
   pointer-events: none;
+}
+
+/* 提交中：保持品牌渐变（区别于禁用），藏箭头、上 spinner */
+.enhanced-form .button[data-loading] {
+  background: linear-gradient(135deg, var(--color-accent-deep), var(--color-accent));
+  border: 0;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.enhanced-form .button[data-loading] [aria-hidden] {
+  display: none;
+}
+
+.enhanced-form .button[data-loading] .submit-label::before {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: var(--space-2);
+  vertical-align: -2px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .enhanced-form .submit-wrap:has(.button[disabled]) {
@@ -145,7 +193,7 @@
   }
   30% {
     background: rgba(37, 99, 235, 0.1);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+    box-shadow: 0 0 0 3px rgba(var(--color-accent-rgb), var(--alpha-ring));
   }
 }
 
@@ -196,7 +244,13 @@
 }
 
 .choice-chip input:focus-visible + span {
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(var(--color-accent-rgb), 0.25);
+}
+
+/* 组级错误落到控件本体 */
+.enhanced-form .invalid .choice-chip span {
+  border-color: var(--color-danger);
 }
 
 /* —— textarea 计数：落在 error 预留行右端，不遮输入区与 resize 手柄 —— */
@@ -208,7 +262,7 @@
   position: absolute;
   right: 0;
   bottom: 0;
-  font-size: 11px;
+  font-size: var(--text-meta);
   line-height: 16px;
   font-weight: 400;
   color: var(--color-text-muted-on-light);
@@ -222,6 +276,9 @@
   flex-wrap: wrap;
   align-items: flex-start;
   gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-tint);
   font-weight: 400 !important;
 }
 
@@ -279,15 +336,44 @@
 }
 
 .toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
   padding: 14px 20px;
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: var(--text-body-s);
   line-height: 1.55;
   color: var(--color-text-on-dark);
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
   opacity: 0;
   transform: translateY(16px);
-  transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out);
+  transition: opacity var(--duration-panel) var(--ease-out), transform var(--duration-panel) var(--ease-out);
+  pointer-events: auto; /* region 不拦截，toast 本体可点（复制邮箱/关闭） */
+}
+
+.toast a {
+  color: var(--color-accent-bright);
+}
+
+.toast-close {
+  margin-left: auto;
+  flex-shrink: 0;
+  border: 0;
+  background: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.toast-close:hover {
+  color: #fff;
+}
+
+.toast-close span {
+  display: inline-block;
+  transform: rotate(45deg);
 }
 
 .toast:not(.visible) {
@@ -307,13 +393,29 @@
 }
 
 .toast-success::before {
-  content: '✓ ';
+  content: '✓';
   color: var(--color-accent-bright);
   font-weight: 700;
+  flex-shrink: 0;
 }
 
 .toast-error {
-  background: linear-gradient(135deg, #7a271a, #b42318);
+  background: linear-gradient(135deg, #7a271a, var(--color-danger-deep));
+}
+
+.toast-error::before {
+  content: '!';
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* 弹窗上下文：更紧的密度（error 槽按需占位，弹窗内位移可接受） */
+.application-modal .enhanced-form {
+  gap: var(--space-4);
+}
+
+.application-modal .field-error {
+  min-height: 0;
 }
 
 @media (max-width: 760px) {

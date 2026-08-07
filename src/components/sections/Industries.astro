@@ -90,21 +90,27 @@ import { industries } from '../../data/home';
 
   .industry-item strong {
     font-weight: 650;
+    color: var(--color-text-muted-on-light);
+    transition: color var(--duration-fast) var(--ease-out);
   }
 
-  /* hover：瞬时反馈（轻位移）；active：持久状态（底色+边线+变色，不位移） */
+  /* 三态分层：默认（muted）→ hover（半档预示）→ active（accent + 底色 + 边线 + 下缘线） */
   .industry-item:hover {
-    background: var(--color-surface-tint);
-    transform: translateY(-2px);
+    background: rgba(var(--color-accent-rgb), 0.04);
+    border-left-color: rgba(var(--color-accent-rgb), 0.45);
+  }
+
+  .industry-item:hover strong {
+    color: var(--color-text-on-light);
   }
 
   .industry-item.active {
     background: var(--color-surface-tint);
-    color: var(--color-accent);
     border-left-color: var(--color-accent);
+    box-shadow: inset 0 -2px 0 var(--color-accent); /* 与 /join tab 的下缘线同语言 */
   }
 
-  .industry-item:hover .industry-index,
+  .industry-item.active strong,
   .industry-item.active .industry-index {
     color: var(--color-accent);
   }
@@ -112,6 +118,7 @@ import { industries } from '../../data/home';
   /* 描述紧贴 tab 行下方，与激活项同栏；切换时 JS 淡出淡入 */
   .industry-description {
     min-height: 60px;
+    max-width: 62ch;
     margin: var(--space-5) 0 0;
     font-size: 19px;
     line-height: 1.7;

@@ -71,3 +71,51 @@
 - 翻译单元 = 数据文件（`src/data/home.ts` 等），组件零硬编码文案
 - **加中文 = 新增 `src/pages/zh/` 页面 + `home.zh.ts`**，覆盖 fallback，无需动任何组件/配置
 - 负担分界：配置层零负担（已付）；内容层（zh 文案与 en 同步维护）是真实成本，待英文定稿且确需中文时再付
+
+---
+
+# 使用规范（2026-08-07 · 设计系统治理评审定稿）
+
+> 回答"什么情况用什么颜色/交互/组件"。新增代码必须先对表；改表须经 samuel 拍板。
+> （注：本文之上的 i18n/双语段落属 v0.2 之前的历史方案，现行站点为英文单语。）
+
+## A. 颜色
+
+| # | 场景 | 规则 |
+|---|---|---|
+| 1 | `--color-accent` #2563eb | 浅底的一切功能蓝：文字链、eyebrow、选中态（chip/tab/industry）、控件焦点边、primary 渐变终点 |
+| 2 | `--color-accent-bright` #3478ff | 深底的一切功能蓝：深底 eyebrow、h1 强调行、导航下划线、深底描边/辉光、深底焦点环；浅底 UI 层禁止（图形光效豁免见 #6） |
+| 3 | eyebrow（品牌蓝大写） | 仅作区块标题前导，**每区最多一个、必须紧邻 h1/h2**；字段/信息组标签一律用灰 `.micro-label` |
+| 4 | `--color-accent-deep` | 仅存在于 primary 渐变起点与发光滤镜；禁止单独作文字/描边 |
+| 5 | `--color-danger` 族 | 仅错误反馈（边框/文字/焦点环/toast-error）；永不用于品牌表达 |
+| 6 | 图形豁免 | hero canvas / 网络图的光效色带与浅底 bright 填充属"光源隐喻"层，允许；UI 层（文字/描边/控件）无豁免 |
+| 7 | 灰阶（深底） | 区块引导文 = muted-on-dark；卡内正文/页脚/次要 = soft-on-dark |
+| 8 | 灰阶（浅底） | 辅助文字只有 muted-on-light 一档；正文用 text-on-light（法律页示范） |
+| 9 | 线 | `--hairline*` = 内容内分隔线（页脚分组/文档题区）；`--color-border-on-*` = 组件外轮廓；蓝线一律 `rgba(var(--color-accent-rgb), var(--alpha-line))` |
+| 10 | 蓝浓度档 | 底色反馈 `--alpha-bg-hover`(.1)；焦点环 `--alpha-ring`(.18)；图形线 `--alpha-line`(.28)。禁止散写 alpha |
+
+## B. 交互
+
+| # | 场景 | 规则 |
+|---|---|---|
+| 1 | hover 位移 | 仅 0 / -2px：0 = 持久选中态与纯展示卡（不承诺可点就不做位移）；-2 = 按钮、行级条目、返回链接。（-4 档已随"展示卡去位移"废止） |
+| 2 | hover 颜色反馈 | 浅底：底色 → tint 或 rgba(accent, bg-hover)；深底：描边 → bright 系 + 底色渐变提亮 |
+| 3 | 辉光 | 仅 primary 按钮（glow-accent→strong）与深底发光图形；outline 系与浅底卡禁止辉光 |
+| 4 | 时长五档 | fast .22 = 颜色/小位移；base .3 = 卡 hover/header 变底；panel .32 = 弹窗/tab/手风琴/toast 进出场；reveal .7 = 滚动入场；ambient .9 = 首屏叙事。禁止新增字面量 |
+| 5 | 焦点 | 浅底 accent、深底 bright 的 2px outline；primary 按钮上用白环+底色隔离圈；表单控件豁免为"边框变色+3px 光环" |
+| 6 | active 按压 | 按钮统一 translateY(0) + 0.08s |
+| 7 | 箭头微动 | primary 的 → hover 右移 3px；journey-back 的 ← hover 左移 2px |
+
+## C. 组件
+
+| # | 组件 | 使用边界 |
+|---|---|---|
+| 1 | button-primary | 每屏幕区域最多一个的转化动作；唯一允许带 `→` |
+| 2 | button-outline / outline-dark | 深底 / 浅底的次级动作，不带箭头 |
+| 3 | button-large | 仅 hero 与页尾收口 CTA |
+| 4 | 卡片 | 容器卡 = radius-md + 1px 描边（深底另加顶缘高光+上亮下暗表层）；控件 = radius-sm；chip = 999px 胶囊 |
+| 5 | eyebrow / micro-label / mono-caption | 区块前导（蓝）/ 信息组标签（灰）/ 事实数据（mono：编号、坐标、计数、404 码） |
+| 6 | 选择器语言 | 选中态 = accent 变色 + 下缘 2px 线（Industries 与 /join tab 同语言）；不再发明第三种 |
+| 7 | icon | 全站 icon 集 = 线性 SVG（16 网格 / stroke 1.5 / currentColor）：chevron（导航）、plus 旋 45°=关闭（弹窗/手风琴）、平台 5 卡语义 icon；流程数字、行业编号、联系信息保持纯排版；→/← 保留 Inter 字符 |
+| 8 | 禁用态 | 中性化（tint 底 + muted 字），禁止半透明品牌色；"提交中"独立态（保持品牌渐变 + spinner） |
+| 9 | toast | 成功 = 品牌深蓝 + accent 边 + ✓，6.5s 自动退场；失败 = danger 渐变 + ! + 常驻可关，文内邮箱必须 mailto 可点 |
