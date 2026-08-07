@@ -49,9 +49,11 @@ import { hero } from '../../data/home';
           <stop offset="1" stop-color="var(--color-accent-bright)" stop-opacity="0"></stop>
         </linearGradient>
       </defs>
-      <path class="ht-line" d="M0 50 H636 C678 50 694 71 720 71 C746 71 762 50 804 50 H1440" vector-effect="non-scaling-stroke"></path>
+      <path class="ht-line" d="M0 49 H548 C610 49 618 29 656 29 C684 29 702 47 720 51 C738 47 756 29 784 29 C822 29 830 49 892 49 H1440" vector-effect="non-scaling-stroke"></path>
     </svg>
-    <span class="ht-dot"></span>
+    <span class="ht-orb"></span>
+    <span class="ht-tail"></span>
+    <span class="ht-tip"></span>
   </div>
 </section>
 
@@ -226,36 +228,61 @@ import { hero } from '../../data/home';
     stroke-width: 1.5;
   }
 
-  /* 凹口尖端的光点：实心白核 + 紧凑蓝辉光（效果图形态：清晰的点，不是弥散光斑） */
-  .ht-dot {
+  /* 中心亮珠：实心白核 + 蓝辉光（效果图：两肩俯冲汇聚处） */
+  .ht-orb {
     position: absolute;
     left: 50%;
-    bottom: 23px;
-    width: 11px;
-    height: 11px;
-    margin-left: -5.5px;
+    bottom: 44px;
+    width: 10px;
+    height: 10px;
+    margin-left: -5px;
     border-radius: 50%;
     background: #fff;
     box-shadow:
-      0 0 6px rgba(255, 255, 255, 0.9),
-      0 0 16px var(--color-accent-bright),
-      0 0 36px rgba(var(--color-accent-bright-rgb), 0.45);
-    animation: dot-breathe 3.6s ease-in-out infinite;
+      0 0 6px rgba(255, 255, 255, 0.95),
+      0 0 14px var(--color-accent-bright),
+      0 0 30px rgba(var(--color-accent-bright-rgb), 0.5);
+    animation: orb-breathe 3.6s ease-in-out infinite;
   }
 
-  @keyframes dot-breathe {
+  /* 亮珠下的垂线（铅垂结构）：向下渐弱 */
+  .ht-tail {
+    position: absolute;
+    left: 50%;
+    bottom: 19px;
+    width: 1.5px;
+    height: 26px;
+    margin-left: -0.75px;
+    background: linear-gradient(180deg, rgba(190, 216, 255, 0.9), rgba(var(--color-accent-bright-rgb), 0.3));
+  }
+
+  /* 垂线末端小尾点 */
+  .ht-tip {
+    position: absolute;
+    left: 50%;
+    bottom: 15px;
+    width: 4px;
+    height: 4px;
+    margin-left: -2px;
+    border-radius: 50%;
+    background: #fff;
+    opacity: 0.9;
+    box-shadow: 0 0 6px var(--color-accent-bright);
+  }
+
+  @keyframes orb-breathe {
     0%,
     100% {
       box-shadow:
-        0 0 6px rgba(255, 255, 255, 0.9),
-        0 0 14px var(--color-accent-bright),
-        0 0 30px rgba(var(--color-accent-bright-rgb), 0.35);
+        0 0 5px rgba(255, 255, 255, 0.9),
+        0 0 12px var(--color-accent-bright),
+        0 0 26px rgba(var(--color-accent-bright-rgb), 0.4);
     }
     50% {
       box-shadow:
-        0 0 8px rgba(255, 255, 255, 1),
-        0 0 20px var(--color-accent-bright),
-        0 0 44px rgba(var(--color-accent-bright-rgb), 0.55);
+        0 0 7px rgba(255, 255, 255, 1),
+        0 0 18px var(--color-accent-bright),
+        0 0 38px rgba(var(--color-accent-bright-rgb), 0.6);
     }
   }
 
