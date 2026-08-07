@@ -18,6 +18,7 @@ export const nav = {
 } as const;
 
 export const hero = {
+  eyebrow: 'Execution Infrastructure',
   headline: { pre: 'Building the', accent: 'Execution Infrastructure', post: 'for the Real World.' },
   description:
     'Arclink helps enterprises plan, deploy, and verify on-the-ground operations—from data collection to field verification and outreach—at scale through a trusted network of operators.',
