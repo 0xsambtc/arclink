@@ -1,27 +1,4 @@
-/* 表单与子页流程（/contact、/join）共享样式 — 亮底子页，控件视觉对齐站点 token 体系 */
-
-/* —— 子页骨架 —— */
-.journey-main {
-  background: var(--color-surface-alt);
-  color: var(--color-text-on-light);
-  padding: calc(88px + var(--space-7)) 0 var(--space-9);
-  min-height: 100vh;
-}
-
-.journey-back {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-6);
-  color: var(--color-text-muted-on-light);
-  text-decoration: none;
-  font-size: 14px;
-  transition: color var(--duration-fast) var(--ease-out);
-}
-
-.journey-back:hover {
-  color: var(--color-accent);
-}
+/* 表单控件层（/contact、/join 共用）：控件/chip/consent/toast；子页骨架见 subpage.css */
 
 /* —— 表单控件 —— */
 .enhanced-form {
@@ -93,6 +70,16 @@
   resize: vertical;
 }
 
+/* 占位语言统一：input placeholder 与 select 空值同为 muted 灰 */
+.enhanced-form ::placeholder {
+  color: var(--color-text-muted-on-light);
+  opacity: 1;
+}
+
+.enhanced-form select.is-empty {
+  color: var(--color-text-muted-on-light);
+}
+
 .enhanced-form input:focus-visible,
 .enhanced-form select:focus-visible,
 .enhanced-form textarea:focus-visible {
@@ -104,7 +91,15 @@
 .enhanced-form .invalid input:not([type='checkbox']),
 .enhanced-form .invalid select,
 .enhanced-form .invalid textarea {
-  border-color: #d92d20;
+  border-color: var(--color-danger);
+}
+
+/* 错误态下 focus 环同为红系，不与蓝色聚焦环冲突 */
+.enhanced-form .invalid input:focus-visible,
+.enhanced-form .invalid select:focus-visible,
+.enhanced-form .invalid textarea:focus-visible {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px var(--ring-danger);
 }
 
 .field-error {
@@ -113,7 +108,20 @@
   margin-top: 4px;
   font-size: 12px;
   font-weight: 400;
-  color: #d92d20;
+  color: var(--color-danger);
+}
+
+/* 提交按钮：左对齐定宽（B2B 表单惯例），禁用态去悬浮/发光 */
+.enhanced-form > .button {
+  align-self: flex-start;
+  min-width: 200px;
+}
+
+.enhanced-form .button[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* —— 多选 chip 组 —— */
@@ -146,7 +154,14 @@
   font-size: 13px;
   font-weight: 500;
   color: var(--color-text-muted-on-light);
-  transition: all var(--duration-fast) var(--ease-out);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.choice-chip:hover span {
+  border-color: var(--color-accent);
 }
 
 .choice-chip input:checked + span {
@@ -159,16 +174,17 @@
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
 }
 
-/* —— textarea 计数 —— */
+/* —— textarea 计数：落在 error 预留行右端，不遮输入区与 resize 手柄 —— */
 .textarea-wrap {
   position: relative;
 }
 
 .char-count {
   position: absolute;
-  right: 10px;
-  bottom: 26px;
+  right: 0;
+  bottom: 0;
   font-size: 11px;
+  line-height: 16px;
   font-weight: 400;
   color: var(--color-text-muted-on-light);
   pointer-events: none;
@@ -213,13 +229,13 @@
   display: none !important;
 }
 
-/* —— toast —— */
+/* —— toast：入场减速上浮，退场加速离开 —— */
 .toast-region {
   position: fixed;
   bottom: var(--space-6);
   left: 50%;
   transform: translateX(-50%);
-  z-index: 2000;
+  z-index: var(--z-toast);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -236,8 +252,13 @@
   color: var(--color-text-on-dark);
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
   opacity: 0;
-  transform: translateY(8px);
-  transition: opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
+  transform: translateY(16px);
+  transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out);
+}
+
+.toast:not(.visible) {
+  transition-duration: 0.2s;
+  transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
 }
 
 .toast.visible {
@@ -245,8 +266,16 @@
   transform: translateY(0);
 }
 
+/* 成功走品牌深蓝 + accent 边（三色纪律内）；失败保留功能红 */
 .toast-success {
-  background: linear-gradient(135deg, #0c4a2f, #14733f);
+  background: linear-gradient(135deg, var(--color-bg-navy), var(--color-bg-navy-alt));
+  border: 1px solid var(--color-accent);
+}
+
+.toast-success::before {
+  content: '✓ ';
+  color: var(--color-accent-bright);
+  font-weight: 700;
 }
 
 .toast-error {

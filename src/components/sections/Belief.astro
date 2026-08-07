@@ -25,12 +25,12 @@ import { belief } from '../../data/home';
     background: var(--color-surface);
   }
 
-  /* 右下角装饰同心圆 — surface-tint 系叠圈，白底上仅作微弱纹理 */
+  /* 右下角装饰同心圆 — 外推出正文盒并向左上渐隐，弧线不切文字 */
   .belief::after {
     content: '';
     position: absolute;
-    right: -140px;
-    bottom: -230px;
+    right: -280px;
+    bottom: -360px;
     width: 490px;
     height: 490px;
     border: 1px solid var(--color-border-on-light);
@@ -40,6 +40,8 @@ import { belief } from '../../data/home';
       0 0 0 36px var(--color-border-on-light),
       0 0 0 70px var(--color-surface-tint),
       0 0 0 71px var(--color-border-on-light);
+    -webkit-mask-image: linear-gradient(225deg, #000 40%, transparent 75%);
+    mask-image: linear-gradient(225deg, #000 40%, transparent 75%);
     pointer-events: none;
   }
 
@@ -47,26 +49,27 @@ import { belief } from '../../data/home';
     display: grid;
     grid-template-columns: 1fr 1px 1.1fr;
     gap: 70px;
-    align-items: center;
+    align-items: start;
     position: relative;
     z-index: 2;
   }
 
   h2 {
-    font-size: clamp(42px, 4vw, 54px);
+    font-size: var(--text-h2-hero);
     line-height: 1.12;
     letter-spacing: var(--tracking-tight);
     margin: 0;
   }
 
-  /* 中缝竖线 */
+  /* 中缝竖线：随内容拉通，成为真正的分栏缝 */
   .belief-rule {
-    height: 110px;
+    align-self: stretch;
+    margin-block: 6px;
     background: var(--color-border-on-light);
   }
 
   .belief-copy p {
-    font-size: 18px;
+    font-size: var(--text-body-l);
     line-height: 1.8;
     color: var(--color-text-muted-on-light);
     margin: 0;
@@ -92,12 +95,6 @@ import { belief } from '../../data/home';
     }
     .belief-rule {
       display: none;
-    }
-    h2 {
-      font-size: 38px;
-    }
-    .belief-copy p {
-      font-size: 17px;
     }
   }
 </style>

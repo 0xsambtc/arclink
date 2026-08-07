@@ -20,8 +20,9 @@ body {
   margin-inline: auto;
 }
 
+/* 浅底默认主蓝（AA）；深色区（[data-on-dark] 容器）用亮蓝 */
 .eyebrow {
-  color: var(--color-accent-bright);
+  color: var(--color-accent);
   font-size: 13px;
   letter-spacing: var(--tracking-eyebrow);
   font-weight: 800;
@@ -29,13 +30,86 @@ body {
   margin: 0 0 var(--space-5);
 }
 
-/* Scroll reveal（原型机制保留，观察器在 Base.astro；后续 GSAP 编排叠加其上） */
+[data-on-dark] .eyebrow {
+  color: var(--color-accent-bright);
+}
+
+/* —— 按钮体系（设计系统级，全局类；Button.astro 仅输出结构） ——
+   规则：`→` 箭头仅用于 primary CTA */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-weight: 650;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out);
+}
+
+.button:hover {
+  transform: translateY(-2px);
+}
+
+/* 按压落键：从悬浮位快速落回，制造"按下"反馈 */
+.button:active {
+  transform: translateY(0);
+  transition-duration: 0.08s;
+}
+
+.button-primary {
+  color: var(--color-text-on-dark);
+  background: linear-gradient(135deg, var(--color-accent-deep), var(--color-accent));
+  box-shadow: var(--glow-accent);
+}
+
+.button-primary:hover {
+  box-shadow: var(--glow-accent-strong);
+}
+
+.button-outline {
+  color: var(--color-text-on-dark);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.button-outline:hover {
+  border-color: var(--color-accent-bright);
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.button-outline-dark {
+  color: var(--color-text-on-light);
+  background: transparent;
+  border: 1px solid var(--color-border-on-light);
+}
+
+.button-outline-dark:hover {
+  border-color: var(--color-accent);
+  background: var(--color-surface-tint);
+}
+
+.button-large {
+  min-height: 58px;
+  padding: 0 28px;
+}
+
+/* Scroll reveal（观察器在 Base.astro）：--reveal-delay/--reveal-distance 供群组 stagger 与距离分档 */
 .reveal {
   opacity: 0;
-  transform: translateY(22px);
+  transform: translateY(var(--reveal-distance, 22px));
   transition:
-    opacity var(--duration-reveal) var(--ease-out),
-    transform var(--duration-reveal) var(--ease-out);
+    opacity var(--duration-reveal) var(--ease-out) var(--reveal-delay, 0s),
+    transform var(--duration-reveal) var(--ease-out) var(--reveal-delay, 0s);
 }
 
 .reveal.visible {
@@ -44,10 +118,10 @@ body {
 }
 
 .reveal-delay {
-  transition-delay: 0.15s;
+  --reveal-delay: 0.15s;
 }
 
-/* 字体宪法（docs/10）：凡是"事实"（数字/坐标/时间戳/编号）必须 mono */
+/* 字体宪法：凡是"事实"（数字/坐标/时间戳/编号）必须 mono */
 .mono-caption {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
@@ -61,7 +135,7 @@ body {
   position: absolute;
   left: -9999px;
   top: var(--space-3);
-  z-index: 2000;
+  z-index: var(--z-toast);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-sm);
   background: var(--color-accent);
@@ -89,7 +163,19 @@ body {
   cursor: pointer;
 }
 
-/* 无障碍：系统减弱动效时全局关闭（docs/02 约定；GSAP 侧另有 matchMedia 条件） */
+/* 跨页导航 250ms 交叉淡化（支持的浏览器渐进增强，其余静默回退） */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.25s;
+  }
+}
+
+/* 无障碍：系统减弱动效时全局关闭（JS 定时器另有 matchMedia 条件） */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

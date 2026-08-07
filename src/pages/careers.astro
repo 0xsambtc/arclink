@@ -5,14 +5,14 @@ import SiteHeader from '../components/sections/SiteHeader.astro';
 import Footer from '../components/sections/Footer.astro';
 import { site } from '../data/site';
 import { careers } from '../data/careers';
-import '../styles/forms.css';
+import '../styles/subpage.css';
 ---
 
-<Base title={`Careers — ${site.name}`} description={careers.head.description} bg="#f3f7ff">
+<Base title={`Careers — ${site.name}`} description={careers.head.description} bg="light">
   <SiteHeader solid />
   <main id="main" class="journey-main">
     <div class="shell">
-      <a class="journey-back" href="/">← Back to home</a>
+      <a class="journey-back" href="/"><span class="back-arrow" aria-hidden="true">←</span> Back to home</a>
       <div class="career-head">
         <p class="eyebrow">{careers.head.eyebrow}</p>
         <h1>{careers.head.heading}</h1>
@@ -79,7 +79,7 @@ import '../styles/forms.css';
   }
 
   .career-head h1 {
-    font-size: clamp(36px, 3.8vw, 52px);
+    font-size: var(--text-h1-sub);
     line-height: 1.1;
     letter-spacing: var(--tracking-tight);
     margin: 0 0 var(--space-4);
@@ -101,7 +101,7 @@ import '../styles/forms.css';
   }
 
   .career-intro h2 {
-    font-size: 24px;
+    font-size: var(--text-heading-card);
     letter-spacing: var(--tracking-tight);
     margin: 0 0 var(--space-5);
   }
@@ -145,8 +145,16 @@ import '../styles/forms.css';
     transition: border-color var(--duration-fast) var(--ease-out);
   }
 
+  .job-card:not(.open):hover {
+    border-color: rgba(37, 99, 235, 0.45);
+  }
+
   .job-card.open {
     border-color: var(--color-accent);
+  }
+
+  .job-head:focus-visible {
+    outline-offset: -2px;
   }
 
   .job-head {
@@ -193,7 +201,7 @@ import '../styles/forms.css';
   .job-body {
     display: grid;
     grid-template-rows: 0fr;
-    transition: grid-template-rows var(--duration-base) var(--ease-out);
+    transition: grid-template-rows 0.4s var(--ease-out);
   }
 
   .job-card.open .job-body {
@@ -203,11 +211,7 @@ import '../styles/forms.css';
   .job-body-inner {
     min-height: 0;
     overflow: hidden;
-    padding: 0 var(--space-6);
-  }
-
-  .job-card.open .job-body-inner {
-    padding-bottom: var(--space-6);
+    padding: 0 var(--space-6) var(--space-6);
   }
 
   .job-overview {
@@ -224,7 +228,11 @@ import '../styles/forms.css';
   }
 
   .job-cols h3 {
-    font-size: 14px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted-on-light);
     margin: 0 0 var(--space-3);
   }
 
@@ -258,7 +266,7 @@ import '../styles/forms.css';
       padding: var(--space-4) var(--space-5);
     }
     .job-body-inner {
-      padding: 0 var(--space-5);
+      padding: 0 var(--space-5) var(--space-5);
     }
   }
 </style>

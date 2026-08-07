@@ -1,6 +1,6 @@
 ---
-// Process — 五步执行流程横排（浅色渐变底）
-// 升级点：去掉原型杂项 glyph，圆形图标内直接放 mono 步骤号（Anduril 式机构感）；颜色全部映射 tokens
+// Process — 四步执行流程横排（浅色渐变底）
+// 圆形图标内放 mono 步骤号；步与步之间用可伸缩虚线连接；滚动进入按 90ms 级差依次点亮（线性叙事）
 import { process } from '../../data/home';
 ---
 
@@ -10,16 +10,12 @@ import { process } from '../../data/home';
       <p class="eyebrow">{process.eyebrow}</p>
       <h2>{process.heading}</h2>
     </div>
-    <div class="process-track reveal reveal-delay">
+    <div class="process-track">
       {
         process.steps.map((step, index) => (
           <>
-            {index > 0 && (
-              <span class="process-arrow" aria-hidden="true">
-                →
-              </span>
-            )}
-            <article class:list={['process-step', index === 0 && 'active']} data-process-step>
+            {index > 0 && <span class="process-line reveal" style={`--reveal-delay: ${index * 90}ms`} aria-hidden="true" />}
+            <article class="process-step reveal" style={`--reveal-delay: ${index * 90}ms; --reveal-distance: 14px`}>
               <span class="step-icon">{step.number}</span>
               <h3>{step.title}</h3>
               <p>{step.description}</p>
@@ -33,7 +29,7 @@ import { process } from '../../data/home';
 
 <style>
   .process {
-    padding: 76px 0 90px;
+    padding: var(--space-9) 0;
     background: linear-gradient(180deg, var(--color-surface), var(--color-surface-alt));
   }
 
@@ -43,27 +39,26 @@ import { process } from '../../data/home';
   }
 
   .section-heading h2 {
-    font-size: 38px;
-    line-height: 1.15;
+    font-size: var(--text-h2);
+    line-height: 1.12;
     letter-spacing: var(--tracking-tight);
     margin: 0;
   }
 
   .process-track {
+    max-width: 1160px;
+    margin-inline: auto;
     display: flex;
     align-items: flex-start;
-    justify-content: space-between;
     gap: var(--space-3);
   }
 
   .process-step {
-    width: 175px;
-    flex-shrink: 0;
+    flex: 0 1 236px;
     text-align: center;
-    cursor: pointer;
   }
 
-  /* 圆形图标：mono 步骤号（升级：替代原型 glyph，圆下不再重复数字） */
+  /* 圆形图标：mono 步骤号 */
   .step-icon {
     display: inline-flex;
     align-items: center;
@@ -76,23 +71,15 @@ import { process } from '../../data/home';
     color: var(--color-accent);
     font-family: var(--font-mono);
     font-size: 20px;
-    font-weight: 800;
+    font-weight: 700;
     transition:
-      background-color var(--duration-base) var(--ease-out),
-      color var(--duration-base) var(--ease-out),
       border-color var(--duration-base) var(--ease-out),
       box-shadow var(--duration-base) var(--ease-out);
   }
 
-  /* hover/active：图标反白 + 环形光晕（rgba 仅作主色透明度叠加） */
-  .process-step:hover .step-icon,
-  .process-step.active .step-icon {
-    background: var(--color-accent);
+  .process-step:hover .step-icon {
     border-color: var(--color-accent);
-    color: var(--color-text-on-dark);
-    box-shadow:
-      0 0 0 13px rgba(37, 99, 235, 0.1),
-      0 0 28px rgba(37, 99, 235, 0.35);
+    box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.08);
   }
 
   .process-step h3 {
@@ -102,32 +89,24 @@ import { process } from '../../data/home';
   }
 
   .process-step p {
-    font-size: 13px;
-    line-height: 1.6;
+    font-size: 14px;
+    line-height: 1.65;
     color: var(--color-text-muted-on-light);
     margin: 0;
   }
 
-  .process-arrow {
-    align-self: flex-start;
-    margin-top: 26px; /* 与 74px 圆心对齐 */
-    color: var(--color-accent);
-    font-size: 18px;
-    flex-shrink: 0;
-  }
-
-  @media (max-width: 1120px) {
-    .process-step {
-      width: 156px;
-    }
+  /* 步间连接线：可伸缩虚线，与 74px 圆心对齐 */
+  .process-line {
+    flex: 1;
+    height: 1px;
+    margin-top: 37px;
+    background: repeating-linear-gradient(90deg, var(--color-accent) 0 6px, transparent 6px 12px);
+    opacity: 0.55;
   }
 
   @media (max-width: 760px) {
     .process {
       padding: var(--space-8) 0;
-    }
-    .section-heading h2 {
-      font-size: 30px;
     }
     /* 横向滚动，保持流程的线性叙事 */
     .process-track {
@@ -138,18 +117,10 @@ import { process } from '../../data/home';
       -webkit-overflow-scrolling: touch;
     }
     .process-step {
-      width: 168px;
+      flex: 0 0 168px;
+    }
+    .process-line {
+      flex: 0 0 30px;
     }
   }
 </style>
-
-<script>
-  // 点击某步 → 独占 active（首个默认 active，服务端已渲染）
-  const steps = document.querySelectorAll<HTMLElement>('[data-process-step]');
-  steps.forEach((step) => {
-    step.addEventListener('click', () => {
-      steps.forEach((other) => other.classList.remove('active'));
-      step.classList.add('active');
-    });
-  });
-</script>

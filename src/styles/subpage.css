@@ -1,0 +1,33 @@
+/* 子页骨架（/contact、/join、/careers 共用）：journey 布局层，与表单控件层（forms.css）分离 */
+
+.journey-main {
+  background: var(--color-surface-alt);
+  color: var(--color-text-on-light);
+  padding: calc(var(--header-h) + var(--space-7)) 0 var(--space-9);
+  min-height: 100vh;
+}
+
+.journey-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  padding: var(--space-1) 0;
+  color: var(--color-text-muted-on-light);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.journey-back:hover {
+  color: var(--color-accent);
+}
+
+/* 返回箭头与站内 CTA 的 → 同语言：hover 回拉 */
+.journey-back .back-arrow {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.journey-back:hover .back-arrow {
+  transform: translateX(-3px);
+}

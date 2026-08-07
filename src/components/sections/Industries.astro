@@ -1,6 +1,6 @@
 ---
 // Industries — 行业切换器（白底）；首项默认激活
-// 原型 glyph 图标改为 mono 序号；描述切换加 opacity 过渡；颜色全部映射 tokens
+// 描述紧贴 tab 行正下方（视线不跨屏）；激活态用底色+左边线+变色表达，不做持久位移
 import { industries } from '../../data/home';
 ---
 
@@ -10,25 +10,28 @@ import { industries } from '../../data/home';
       <p class="eyebrow">{industries.eyebrow}</p>
       <h2>{industries.heading}</h2>
     </div>
-    <div class="industry-list reveal reveal-delay">
-      {
-        industries.items.map((item, index) => (
-          <button
-            type="button"
-            class:list={['industry-item', index === 0 && 'active']}
-            data-industry={item.key}
-            data-description={item.description}
-            aria-pressed={index === 0 ? 'true' : 'false'}
-          >
-            <span class="industry-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-            <strong>{item.label}</strong>
-          </button>
-        ))
-      }
+    <div class="industries-panel">
+      <div class="industry-list">
+        {
+          industries.items.map((item, index) => (
+            <button
+              type="button"
+              class:list={['industry-item', 'reveal', index === 0 && 'active']}
+              style={`--reveal-delay: ${index * 70}ms; --reveal-distance: 14px`}
+              data-industry={item.key}
+              data-description={item.description}
+              aria-pressed={index === 0 ? 'true' : 'false'}
+            >
+              <span class="industry-index mono-caption" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+              <strong>{item.label}</strong>
+            </button>
+          ))
+        }
+      </div>
+      <p class="industry-description reveal reveal-delay" id="industryDescription" aria-live="polite">
+        {industries.items[0].description}
+      </p>
     </div>
-  </div>
-  <div class="shell industry-description reveal" id="industryDescription" aria-live="polite">
-    {industries.items[0].description}
   </div>
 </section>
 
@@ -47,7 +50,7 @@ import { industries } from '../../data/home';
   }
 
   h2 {
-    font-size: 40px;
+    font-size: var(--text-h2);
     line-height: 1.15;
     letter-spacing: var(--tracking-tight);
     margin: 0;
@@ -81,8 +84,6 @@ import { industries } from '../../data/home';
   }
 
   .industry-index {
-    font-family: var(--font-mono);
-    font-size: 12px;
     color: var(--color-text-muted-on-light);
     transition: color var(--duration-fast) var(--ease-out);
   }
@@ -91,12 +92,16 @@ import { industries } from '../../data/home';
     font-weight: 650;
   }
 
-  .industry-item:hover,
+  /* hover：瞬时反馈（轻位移）；active：持久状态（底色+边线+变色，不位移） */
+  .industry-item:hover {
+    background: var(--color-surface-tint);
+    transform: translateY(-2px);
+  }
+
   .industry-item.active {
     background: var(--color-surface-tint);
     color: var(--color-accent);
     border-left-color: var(--color-accent);
-    transform: translateY(-4px);
   }
 
   .industry-item:hover .industry-index,
@@ -104,12 +109,13 @@ import { industries } from '../../data/home';
     color: var(--color-accent);
   }
 
+  /* 描述紧贴 tab 行下方，与激活项同栏；切换时 JS 淡出淡入 */
   .industry-description {
-    min-height: 65px;
-    margin-top: var(--space-6);
-    text-align: right;
-    color: var(--color-text-muted-on-light);
-    /* 切换时 JS 先加 .is-fading 淡出，替换文案后移除淡入 */
+    min-height: 60px;
+    margin: var(--space-5) 0 0;
+    font-size: 19px;
+    line-height: 1.7;
+    color: var(--color-text-on-light);
     transition: opacity var(--duration-fast) var(--ease-out);
   }
 
@@ -131,25 +137,22 @@ import { industries } from '../../data/home';
       grid-template-columns: 1fr;
       gap: var(--space-6);
     }
-    h2 {
-      font-size: 32px;
-    }
     .industry-list {
       grid-template-columns: repeat(2, 1fr);
     }
     .industry-description {
-      text-align: left;
+      font-size: 17px;
     }
   }
 </style>
 
 <script>
-  // 行业切换：active 状态 + 描述淡出/替换/淡入；文案来自按钮 data-description，脚本内零硬编码文案
+  // 行业切换：active 状态 + 描述淡出/替换/淡入（挂 transitionend，200ms 兜底；reduced-motion 直接替换）
   const section = document.querySelector('[data-section="industries"]');
   if (section) {
     const buttons = Array.from(section.querySelectorAll<HTMLButtonElement>('.industry-item'));
     const description = section.querySelector<HTMLElement>('#industryDescription');
-    const FADE_MS = 180; // 与 --duration-fast(0.22s) 量级一致，先于过渡结束替换文案
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     buttons.forEach((button) => {
       button.addEventListener('click', () => {
@@ -159,11 +162,23 @@ import { industries } from '../../data/home';
           other.setAttribute('aria-pressed', other === button ? 'true' : 'false');
         });
         if (!description) return;
-        description.classList.add('is-fading');
-        window.setTimeout(() => {
+        const swap = () => {
           description.textContent = button.dataset.description ?? '';
           description.classList.remove('is-fading');
-        }, FADE_MS);
+        };
+        if (reduced) {
+          swap();
+          return;
+        }
+        let done = false;
+        const once = () => {
+          if (done) return;
+          done = true;
+          swap();
+        };
+        description.addEventListener('transitionend', once, { once: true });
+        window.setTimeout(once, 200);
+        description.classList.add('is-fading');
       });
     });
   }

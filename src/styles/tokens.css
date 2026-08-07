@@ -1,27 +1,31 @@
 /* Arclink design tokens — 唯一的样式变量来源；组件只引用变量、禁止硬编码值（docs/02 工程约定） */
 :root {
-  /* 品牌三色体系（深海军蓝 + 电光蓝 + 白；获奖站配色纪律：不加第四色） */
+  /* 品牌三色体系（深海军蓝 + 电光蓝 + 白；配色纪律：不加第四色，状态色见下方功能色段） */
   --color-bg-deep: #01050d;
   --color-bg: #030b1d;
+  --color-bg-rgb: 3, 11, 29; /* rgba() 玻璃/遮罩用，保证与 --color-bg 同源 */
   --color-bg-navy: #06152e;
   --color-bg-navy-alt: #081e43;
   --color-glow: #082454;
 
   --color-accent: #2563eb;
   --color-accent-bright: #3478ff;
+  --color-accent-bright-rgb: 52, 120, 255;
   --color-accent-deep: #1767ff;
 
   /* 品牌 logo 原色（2026-08-04 自 logo 源文件采样；与 UI accent 同族，logo/favicon 专用） */
   --color-brand-ink: #0a1d33;
   --color-brand-blue: #147dfd;
 
-  /* 调性字阶（勘测年鉴融合版，docs/10：两极字阶，中间字号原则上不存在） */
-  --text-display-xl: clamp(4.5rem, 12vw, 11rem);
-  --text-display-l: clamp(3rem, 6.5vw, 6rem); /* 数据主角档（spec-value/idx-label/manifesto 用） */
-  --text-display-m: clamp(2rem, 4.5vw, 3.5rem);
+  /* 字阶（全站唯一来源：子页 h1 / 区块 h2 两档 / 卡级标题 / 大号正文） */
+  --text-h1-sub: clamp(2.25rem, 3.8vw, 3.25rem); /* 36–52px：contact/join/careers 页头 */
+  --text-h2-hero: clamp(2.625rem, 4vw, 3.375rem); /* 42–54px：叙事区（Belief） */
+  --text-h2: clamp(2.25rem, 3.2vw, 2.75rem); /* 36–44px：功能区（Process/Platform/Industries/Network） */
+  --text-heading-card: 1.5rem; /* 24px：表单卡/弹窗/选项卡/referral 等卡级标题 */
+  --text-body-l: 17px; /* 区块引导正文统一档 */
   --text-mono-caption: 0.8125rem;
 
-  /* 细线（年鉴图框/分隔） */
+  /* 细线（分隔/图框） */
   --hairline: rgba(255, 255, 255, 0.1);
   --hairline-on-light: rgba(10, 29, 51, 0.15);
 
@@ -32,9 +36,13 @@
   /* 文本 */
   --color-text-on-light: #07152f;
   --color-text-on-dark: #ffffff;
-  --color-text-muted-on-light: #61708b;
+  --color-text-muted-on-light: #5a6a86; /* 对 #f3f7ff ≥5.0:1（AA 留余量） */
   --color-text-muted-on-dark: #b9c3d5;
   --color-text-soft-on-dark: #aab8cf;
+
+  /* 功能色（表单错误/成功——仅状态反馈，不进品牌层） */
+  --color-danger: #d92d20;
+  --ring-danger: rgba(217, 45, 32, 0.14);
 
   /* 边线（深色下描边+内发光代替阴影 — Linear 模式） */
   --color-border-on-light: #d8e2f2;
@@ -49,6 +57,7 @@
   /* 布局 */
   --shell-max: 1380px;
   --shell-gutter: 36px;
+  --header-h: 88px;
 
   /* 间距（4px 基） */
   --space-1: 4px;
@@ -64,7 +73,6 @@
   /* 圆角 */
   --radius-sm: 8px;
   --radius-md: 14px;
-  --radius-lg: 20px;
 
   /* 动效 */
   --duration-fast: 0.22s;
@@ -72,7 +80,19 @@
   --duration-reveal: 0.7s;
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
 
+  /* 层级 */
+  --z-header: 1000;
+  --z-modal-backdrop: 1500;
+  --z-modal: 1600;
+  --z-toast: 2000;
+
   /* 发光 */
   --glow-accent: 0 10px 25px rgba(37, 99, 235, 0.25);
   --glow-accent-strong: 0 15px 34px rgba(37, 99, 235, 0.4);
+}
+
+@media (max-width: 760px) {
+  :root {
+    --header-h: 72px;
+  }
 }

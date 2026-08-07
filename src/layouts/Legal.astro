@@ -12,7 +12,7 @@ interface Props {
 const { frontmatter } = Astro.props;
 ---
 
-<Base title={`${frontmatter.title} — ${site.name}`} description={frontmatter.description ?? site.description} bg="#f3f7ff">
+<Base title={`${frontmatter.title} — ${site.name}`} description={frontmatter.description ?? site.description} bg="light">
   <SiteHeader solid />
   <main id="main" class="legal-main">
     <article class="shell legal-article">
@@ -26,11 +26,12 @@ const { frontmatter } = Astro.props;
   .legal-main {
     background: var(--color-surface-alt);
     color: var(--color-text-on-light);
-    padding: calc(88px + var(--space-7)) 0 var(--space-9);
+    padding: calc(var(--header-h) + var(--space-7)) 0 var(--space-9);
   }
 
+  /* 行长约束在 68ch（≈80 字符/行），长文阅读舒适区 */
   .legal-article {
-    max-width: 780px;
+    max-width: 68ch;
   }
 
   .legal-article :global(h1) {
@@ -46,11 +47,12 @@ const { frontmatter } = Astro.props;
     margin: var(--space-7) 0 var(--space-3);
   }
 
+  /* 法律正文是尽调必读内容：用正文主色，muted 留给表格与 meta 行 */
   .legal-article :global(p),
   .legal-article :global(li) {
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.8;
-    color: var(--color-text-muted-on-light);
+    color: var(--color-text-on-light);
   }
 
   .legal-article :global(ul) {
@@ -62,6 +64,8 @@ const { frontmatter } = Astro.props;
   }
 
   .legal-article :global(table) {
+    display: block;
+    overflow-x: auto;
     width: 100%;
     border-collapse: collapse;
     margin: var(--space-4) 0;
@@ -71,6 +75,7 @@ const { frontmatter } = Astro.props;
   .legal-article :global(th),
   .legal-article :global(td) {
     text-align: left;
+    min-width: 140px;
     padding: 10px 14px;
     border: 1px solid var(--color-border-on-light);
     color: var(--color-text-muted-on-light);

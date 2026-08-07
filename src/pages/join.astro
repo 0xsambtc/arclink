@@ -8,15 +8,16 @@ import { site } from '../data/site';
 import { collectorForm, consentCopy } from '../data/forms';
 import { countries } from '../data/countries';
 import '../styles/forms.css';
+import '../styles/subpage.css';
 
 const t = collectorForm;
 ---
 
-<Base title={`Join Our Network — ${site.name}`} description={site.description} bg="#f3f7ff">
+<Base title={`Join Our Network — ${site.name}`} description={site.description} bg="light">
   <SiteHeader solid />
   <main id="main" class="journey-main">
     <div class="shell">
-      <a class="journey-back" href="/">← Back to home</a>
+      <a class="journey-back" href="/"><span class="back-arrow" aria-hidden="true">←</span> Back to home</a>
       <div class="network-head">
         <p class="eyebrow">{t.page.eyebrow}</p>
         <h1>{t.page.heading}</h1>
@@ -62,7 +63,8 @@ const t = collectorForm;
 
   <div class="modal-backdrop" id="modalBackdrop"></div>
   <section class="application-modal" id="applicationModal" role="dialog" aria-modal="true" aria-labelledby="modalHeading" hidden>
-    <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+    <button class="modal-close" id="modalClose" aria-label="Close"><span aria-hidden="true">+</span></button>
+    <div class="modal-scroll">
 
     <!-- Individual 申请 -->
     <div class="modal-body" data-application-form="individual">
@@ -243,6 +245,7 @@ const t = collectorForm;
         </button>
       </form>
     </div>
+    </div>
   </section>
 </Base>
 
@@ -252,7 +255,7 @@ const t = collectorForm;
   }
 
   .network-head h1 {
-    font-size: clamp(36px, 3.8vw, 52px);
+    font-size: var(--text-h1-sub);
     line-height: 1.1;
     letter-spacing: var(--tracking-tight);
     margin: 0 0 var(--space-4);
@@ -281,7 +284,7 @@ const t = collectorForm;
   }
 
   .referral-panel h2 {
-    font-size: 24px;
+    font-size: var(--text-heading-card);
     letter-spacing: var(--tracking-tight);
     margin: 0 0 var(--space-4);
   }
@@ -335,15 +338,24 @@ const t = collectorForm;
 
   .tab-panel.active {
     display: block;
+    animation: panel-in 0.28s var(--ease-out);
+  }
+
+  @keyframes panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
   }
 
   .tab-panel h3 {
-    font-size: 24px;
+    font-size: var(--text-heading-card);
     letter-spacing: var(--tracking-tight);
     margin: var(--space-2) 0 var(--space-3);
   }
 
-  .tab-panel p {
+  /* 描述段专属：不吞并同容器内的 .eyebrow */
+  .tab-panel p:not(.eyebrow) {
     font-size: 15px;
     line-height: 1.7;
     color: var(--color-text-muted-on-light);
@@ -351,67 +363,93 @@ const t = collectorForm;
   }
 
   /* —— 申请弹窗 —— */
+  /* 遮罩与面板共用时序：淡完再藏（visibility 延迟切换） */
   .modal-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 1500;
-    background: rgba(3, 8, 20, 0.6);
+    z-index: var(--z-modal-backdrop);
+    background: rgba(var(--color-bg-rgb), 0.6);
     backdrop-filter: blur(4px);
     opacity: 0;
     visibility: hidden;
-    transition: opacity var(--duration-base) var(--ease-out);
+    transition:
+      opacity var(--duration-base) var(--ease-out),
+      visibility 0s linear var(--duration-base);
   }
 
   .modal-backdrop.open {
     opacity: 1;
     visibility: visible;
+    transition-delay: 0s;
   }
 
+  /* 外壳只管定位/圆角裁切；滚动在内壳——关闭钮不随内容滚走 */
   .application-modal {
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1600;
+    z-index: var(--z-modal);
     width: min(94vw, 660px);
-    max-height: 88vh;
-    overflow-y: auto;
+    overflow: hidden;
     background: var(--color-surface);
     color: var(--color-text-on-light);
     border-radius: var(--radius-md);
-    padding: var(--space-7);
     box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translate(-50%, calc(-50% + 16px)) scale(0.98);
+    transition:
+      opacity 0.32s var(--ease-out),
+      transform 0.32s var(--ease-out),
+      visibility 0s linear 0.32s;
+  }
+
+  .application-modal.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+    transition-delay: 0s;
+  }
+
+  .modal-scroll {
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: var(--space-7);
   }
 
   .application-modal h2 {
-    font-size: 26px;
+    font-size: var(--text-heading-card);
     letter-spacing: var(--tracking-tight);
     margin: var(--space-1) 0 var(--space-6);
   }
 
+  /* 关闭钮：与岗位卡同 glyph 语言（+ 旋 45°） */
   .modal-close {
     position: absolute;
     top: var(--space-4);
     right: var(--space-4);
+    z-index: 1;
     width: 36px;
     height: 36px;
     border: 0;
     border-radius: 50%;
     background: var(--color-surface-tint);
     color: var(--color-text-on-light);
-    font-size: 20px;
+    font-size: 22px;
+    line-height: 1;
     cursor: pointer;
     transition: background var(--duration-fast) var(--ease-out);
   }
 
-  .modal-close:hover {
-    background: var(--color-border-on-light);
+  .modal-close span {
+    display: inline-block;
+    transform: rotate(45deg);
   }
 
-  .enhanced-form button[disabled] {
-    opacity: 0.55;
-    cursor: not-allowed;
-    transform: none;
+  .modal-close:hover {
+    background: var(--color-border-on-light);
   }
 
   @media (max-width: 1120px) {
@@ -423,7 +461,7 @@ const t = collectorForm;
   @media (max-width: 760px) {
     .apply-panel,
     .referral-panel,
-    .application-modal {
+    .modal-scroll {
       padding: var(--space-5);
     }
   }
@@ -453,27 +491,65 @@ const t = collectorForm;
   const hash = location.hash.replace('#', '');
   if (hash === 'team' || hash === 'individual') selectTab(hash);
 
-  function openModal(type: string) {
+  // 开合走 class 过渡（遮罩/面板同时序）；hidden 属性在过渡结束后再切，保住无障碍树语义
+  let lastTrigger: HTMLElement | null = null;
+
+  function openModal(type: string, trigger?: HTMLElement) {
+    lastTrigger = trigger ?? (document.activeElement as HTMLElement | null);
     modalBodies.forEach((body) => (body.hidden = body.dataset.applicationForm !== type));
     modal.hidden = false;
-    backdrop.classList.add('open');
+    requestAnimationFrame(() => {
+      modal.classList.add('open');
+      backdrop.classList.add('open');
+      modal.querySelector<HTMLElement>('input:not([type="hidden"]), select')?.focus({ preventScroll: true });
+    });
     document.body.style.overflow = 'hidden';
-    modal.querySelector<HTMLElement>('input:not([type="hidden"]), select')?.focus();
   }
 
   function closeModal() {
-    modal.hidden = true;
+    modal.classList.remove('open');
     backdrop.classList.remove('open');
     document.body.style.overflow = '';
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      modal.hidden = true;
+      lastTrigger?.focus?.();
+    };
+    modal.addEventListener('transitionend', finish, { once: true });
+    window.setTimeout(finish, 400); // 过渡 0.32s 的兜底
   }
 
   document.querySelectorAll<HTMLButtonElement>('.js-apply').forEach((button) =>
-    button.addEventListener('click', () => openModal(button.dataset.applicationType!))
+    button.addEventListener('click', () => openModal(button.dataset.applicationType!, button))
   );
   modalClose.addEventListener('click', closeModal);
   backdrop.addEventListener('click', closeModal);
+  // Esc 关闭 + Tab 焦点圈禁（aria-modal 的硬性配套）
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && !modal.hidden) closeModal();
+    if (modal.hidden) return;
+    if (event.key === 'Escape') {
+      closeModal();
+      return;
+    }
+    if (event.key === 'Tab') {
+      const focusables = [
+        ...modal.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled])'
+        ),
+      ].filter((el) => el.offsetParent !== null);
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
   });
 
   // 提交成功后自动收起弹窗（成功 toast 由 wireForm 展示）

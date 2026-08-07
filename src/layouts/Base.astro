@@ -8,8 +8,8 @@ interface Props {
   description?: string;
   lang?: string;
   noindex?: boolean;
-  /** 防白闪底色（首帧即着色）；亮底子页传浅色 */
-  bg?: string;
+  /** 防白闪底色（首帧即着色）：dark=首页深底，light=子页浅底 */
+  bg?: 'dark' | 'light';
 }
 
 const {
@@ -17,8 +17,11 @@ const {
   description = 'Arclink helps enterprises plan, deploy, and verify on-the-ground operations—from data collection to field verification and outreach—at scale through a trusted network of operators.',
   lang = 'en',
   noindex = false,
-  bg = '#030b1d',
+  bg = 'dark',
 } = Astro.props;
+
+// 与 tokens.css 的 --color-bg / --color-surface-alt 同值（CSS 未加载前的首帧读不到变量，此处为唯一允许的字面量）
+const BG_HEX = { dark: '#030b1d', light: '#f3f7ff' } as const;
 ---
 
 <!doctype html>
@@ -27,12 +30,21 @@ const {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    <meta name="theme-color" content={bg} />
+    <meta name="theme-color" content={BG_HEX[bg]} />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
     {/* 防白/防黑闪：CSS 加载前首帧即着页面底色（docs/02 性能要点） */}
-    <style is:inline set:html={`html{background:${bg}}`}></style>
+    <style is:inline set:html={`html{background:${BG_HEX[bg]}}`}></style>
+    {/* 无 JS（含多数爬虫）时 reveal 内容直出，不永久隐藏 */}
+    <noscript>
+      <style>
+        .reveal {
+          opacity: 1;
+          transform: none;
+        }
+      </style>
+    </noscript>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>

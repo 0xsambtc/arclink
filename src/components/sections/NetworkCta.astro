@@ -1,19 +1,30 @@
 ---
-// NetworkCta — 加入网络 CTA 区（浅蓝底）；文案全部来自 data/home.ts 的 network 导出
+// NetworkCta — 加入网络 CTA 区（浅蓝底）；文案来自 data/home.ts 的 network 导出
+// 右侧图形：与 hero 同语言的浅底 mini 网络（真实城市近似投影：新加坡枢纽放射 + 跨区干线），非随机装饰点
 import Button from '../ui/Button.astro';
 import { network } from '../../data/home';
 
-// 圆点位置（left/top 百分比）— 与原型一致；delay 制造错落脉冲
-const dots = [
-  { left: '12%', top: '40%', delay: '0s' },
-  { left: '28%', top: '27%', delay: '0.35s' },
-  { left: '40%', top: '52%', delay: '0.7s' },
-  { left: '55%', top: '30%', delay: '1.05s' },
-  { left: '63%', top: '58%', delay: '1.4s' },
-  { left: '75%', top: '41%', delay: '1.75s' },
-  { left: '85%', top: '64%', delay: '2.1s' },
-  { left: '47%', top: '73%', delay: '2.45s' },
+// 城市节点（等距圆柱近似投影到 560×300 视箱；tier: 0=枢纽 1=干线 2=节点）
+const nodes = [
+  { key: 'sf', x: 16, y: 67, tier: 2 },
+  { key: 'nyc', x: 110, y: 58, tier: 1 },
+  { key: 'sao', x: 164, y: 250, tier: 2 },
+  { key: 'lon', x: 255, y: 26, tier: 1 },
+  { key: 'nbo', x: 328, y: 184, tier: 2 },
+  { key: 'dxb', x: 364, y: 104, tier: 1 },
+  { key: 'bom', x: 399, y: 123, tier: 2 },
+  { key: 'bkk', x: 453, y: 139, tier: 2 },
+  { key: 'sin', x: 459, y: 176, tier: 0 },
+  { key: 'jkt', x: 465, y: 199, tier: 2 },
+  { key: 'tyo', x: 530, y: 73, tier: 1 },
+  { key: 'syd', x: 553, y: 282, tier: 2 },
 ];
+const byKey = Object.fromEntries(nodes.map((n) => [n.key, n]));
+const links = [
+  ['sin', 'jkt'], ['sin', 'bkk'], ['sin', 'tyo'], ['sin', 'syd'], ['sin', 'bom'], ['sin', 'dxb'],
+  ['dxb', 'lon'], ['dxb', 'nbo'], ['lon', 'nyc'], ['nyc', 'sf'], ['nyc', 'sao'], ['tyo', 'sf'],
+] as const;
+const RADII = [5, 3.5, 2.2];
 ---
 
 <section class="network" id={network.id} data-section="network">
@@ -26,15 +37,21 @@ const dots = [
         <Button variant="primary" href={network.ctaPrimary.href}>
           {network.ctaPrimary.label} <span aria-hidden="true">→</span>
         </Button>
-        <Button variant="outline-dark" href={network.ctaSecondary.href}>
-          {network.ctaSecondary.label} <span aria-hidden="true">→</span>
-        </Button>
+        <Button variant="outline-dark" href={network.ctaSecondary.href}>{network.ctaSecondary.label}</Button>
       </div>
     </div>
-    <div class="network-dots reveal reveal-delay" aria-hidden="true">
-      {dots.map((dot) => (
-        <span class="dot" style={`left:${dot.left};top:${dot.top};animation-delay:${dot.delay};`}></span>
-      ))}
+    <div class="network-map reveal reveal-delay" aria-hidden="true">
+      <svg viewBox="0 0 560 300">
+        <g class="net-links">
+          {links.map(([a, b]) => <line x1={byKey[a].x} y1={byKey[a].y} x2={byKey[b].x} y2={byKey[b].y} />)}
+        </g>
+        <g class="net-rings">
+          {nodes.map((n) => <circle cx={n.x} cy={n.y} r={RADII[n.tier] + 3.5} data-tier={n.tier} />)}
+        </g>
+        <g class="net-nodes">
+          {nodes.map((n) => <circle cx={n.x} cy={n.y} r={RADII[n.tier]} data-tier={n.tier} />)}
+        </g>
+      </svg>
     </div>
   </div>
 </section>
@@ -53,14 +70,14 @@ const dots = [
   }
 
   h2 {
-    font-size: 46px;
+    font-size: var(--text-h2);
     line-height: 1.12;
     letter-spacing: var(--tracking-tight);
     margin: 0 0 var(--space-5);
   }
 
   .network-description {
-    font-size: 17px;
+    font-size: var(--text-body-l);
     line-height: 1.8;
     color: var(--color-text-muted-on-light);
     margin: 0;
@@ -73,41 +90,60 @@ const dots = [
     flex-wrap: wrap;
   }
 
-  /* 脉冲网络示意 — 径向光晕上的 8 个错落脉冲圆点（rgba 仅作透明度叠加，基于 accent 系） */
-  .network-dots {
-    position: relative;
-    height: 300px;
-    background: radial-gradient(ellipse, rgba(52, 120, 255, 0.18), transparent 68%);
+  .network-map svg {
+    width: 100%;
+    height: auto;
   }
 
-  .dot {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--color-accent-bright);
-    box-shadow: 0 0 14px rgba(52, 120, 255, 0.75);
-    animation: pulse 2.6s var(--ease-out) infinite;
+  /* 浅底细节：hairline 虚线干线 + 实色描边环代替 box-shadow 光晕 */
+  .net-links line {
+    stroke: rgba(37, 99, 235, 0.28);
+    stroke-width: 1;
+    stroke-dasharray: 5 6;
   }
 
-  @keyframes pulse {
+  .net-rings circle {
+    fill: none;
+    stroke: rgba(var(--color-accent-bright-rgb), 0.35);
+    stroke-width: 2;
+  }
+
+  .net-rings circle[data-tier='0'] {
+    stroke-width: 2.5;
+    stroke: rgba(var(--color-accent-bright-rgb), 0.5);
+  }
+
+  .net-nodes circle {
+    fill: var(--color-accent-bright);
+    animation: node-pulse 2.8s ease-in-out infinite;
+  }
+
+  .net-nodes circle[data-tier='0'] {
+    fill: var(--color-accent);
+  }
+
+  /* 错相位呼吸（避免机械齐闪） */
+  .net-nodes circle:nth-child(2n) {
+    animation-delay: 0.9s;
+  }
+
+  .net-nodes circle:nth-child(3n) {
+    animation-delay: 1.8s;
+  }
+
+  @keyframes node-pulse {
     0%,
     100% {
-      opacity: 0.65;
-      transform: scale(0.9);
+      opacity: 0.6;
     }
     50% {
       opacity: 1;
-      transform: scale(1.25);
     }
   }
 
   @media (max-width: 1120px) {
     .network-grid {
       gap: var(--space-7);
-    }
-    h2 {
-      font-size: 40px;
     }
   }
 
@@ -119,15 +155,9 @@ const dots = [
       grid-template-columns: 1fr;
       gap: var(--space-6);
     }
-    h2 {
-      font-size: 33px;
-    }
     .network-actions {
       flex-direction: column;
       align-items: stretch;
-    }
-    .network-dots {
-      height: 220px;
     }
   }
 </style>

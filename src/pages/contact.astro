@@ -7,24 +7,25 @@ import { site } from '../data/site';
 import { clientForm, consentCopy } from '../data/forms';
 import { countries } from '../data/countries';
 import '../styles/forms.css';
+import '../styles/subpage.css';
 ---
 
-<Base title={`Talk to Sales — ${site.name}`} description={site.description} bg="#f3f7ff">
+<Base title={`Talk to Sales — ${site.name}`} description={site.description} bg="light">
   <SiteHeader solid />
   <main id="main" class="journey-main">
     <div class="shell">
-      <a class="journey-back" href="/">← Back to home</a>
+      <a class="journey-back" href="/"><span class="back-arrow" aria-hidden="true">←</span> Back to home</a>
       <div class="journey-grid">
         <aside class="journey-aside">
           <p class="eyebrow">{clientForm.aside.eyebrow}</p>
           <h1>{clientForm.aside.heading}</h1>
           <div class="contact-details">
             <div>
-              <span>{clientForm.aside.emailLabel}</span>
+              <span class="eyebrow detail-label">{clientForm.aside.emailLabel}</span>
               <a href={`mailto:${site.email}`}>{site.email}</a>
             </div>
             <div>
-              <span>{clientForm.aside.addressLabel}</span>
+              <span class="eyebrow detail-label">{clientForm.aside.addressLabel}</span>
               <strong>{site.addressLines[0]}<br />{site.addressLines[1]}</strong>
             </div>
           </div>
@@ -109,13 +110,19 @@ import '../styles/forms.css';
 <style>
   .journey-grid {
     display: grid;
-    grid-template-columns: 0.8fr 1.2fr;
+    grid-template-columns: 0.66fr 1.34fr;
     gap: var(--space-9);
     align-items: start;
   }
 
+  /* 左栏随滚动跟随，长表单滚动时联系信息常驻 */
+  .journey-aside {
+    position: sticky;
+    top: calc(var(--header-h) + var(--space-6));
+  }
+
   .journey-aside h1 {
-    font-size: clamp(34px, 3.4vw, 46px);
+    font-size: var(--text-h1-sub);
     line-height: 1.12;
     letter-spacing: var(--tracking-tight);
     margin: 0 0 var(--space-6);
@@ -133,12 +140,9 @@ import '../styles/forms.css';
     gap: var(--space-2);
   }
 
-  .contact-details span {
+  .contact-details .detail-label {
+    margin: 0 0 var(--space-1);
     font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--color-text-muted-on-light);
   }
 
   .contact-details a {
@@ -164,7 +168,7 @@ import '../styles/forms.css';
   }
 
   .journey-form h2 {
-    font-size: 27px;
+    font-size: var(--text-heading-card);
     letter-spacing: var(--tracking-tight);
     margin: 0 0 var(--space-2);
   }
@@ -178,13 +182,6 @@ import '../styles/forms.css';
   .form-intro em {
     color: var(--color-accent);
     font-style: normal;
-  }
-
-  /* 提交按钮禁用态（consent 门禁 / 提交中） */
-  .enhanced-form button[disabled] {
-    opacity: 0.55;
-    cursor: not-allowed;
-    transform: none;
   }
 
   @media (max-width: 1120px) {

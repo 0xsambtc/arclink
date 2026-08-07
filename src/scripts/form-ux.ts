@@ -26,7 +26,7 @@ export function showToast(message: string, kind: 'success' | 'error') {
   requestAnimationFrame(() => toast.classList.add('visible'));
   window.setTimeout(() => {
     toast.classList.remove('visible');
-    window.setTimeout(() => toast.remove(), 400);
+    window.setTimeout(() => toast.remove(), 250); // 与退场过渡 0.2s 咬合
   }, 6500);
 }
 
@@ -105,6 +105,13 @@ export function wireForm(form: HTMLFormElement, options?: { onSuccess?: () => vo
       const wrap = fieldWrap(control);
       if (wrap?.classList.contains('invalid')) setError(wrap, validateControl(control));
     });
+  });
+
+  // select 空值态：与 input placeholder 同为 muted 灰
+  form.querySelectorAll<HTMLSelectElement>('select').forEach((select) => {
+    const sync = () => select.classList.toggle('is-empty', !select.value);
+    select.addEventListener('change', sync);
+    sync();
   });
   groups.forEach((group) => {
     group.addEventListener('change', () => setError(group, validateGroup(group)));
@@ -202,7 +209,11 @@ export function wireForm(form: HTMLFormElement, options?: { onSuccess?: () => vo
         area.dispatchEvent(new Event('input'))
       );
       syncConditionals();
-      if (options?.onSuccess) window.setTimeout(options.onSuccess, 450);
+      if (options?.onSuccess) {
+        // reduced-motion：立即执行，不做展示性等待
+        const wait = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 450;
+        window.setTimeout(options.onSuccess, wait);
+      }
     } catch {
       // 失败保留表单内容，toast 附带用户可自救的备用邮箱
       showToast(formMessages.toasts.failure, 'error');

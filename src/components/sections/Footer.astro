@@ -38,7 +38,14 @@ import { footerData } from '../../data/home';
   .footer-links a {
     color: var(--color-text-soft-on-dark);
     text-decoration: none;
+    padding: var(--space-2) 0;
     transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  /* 邮箱（联系通道）与法律链接用 hairline 分组 */
+  .footer-links a:first-child {
+    padding-right: var(--space-5);
+    border-right: 1px solid var(--hairline);
   }
 
   .footer-links a:hover {
