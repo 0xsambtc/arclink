@@ -52,6 +52,7 @@
 
 .enhanced-form input:not([type='checkbox']),
 .enhanced-form select,
+.enhanced-form .select-trigger,
 .enhanced-form textarea {
   width: 100%;
   min-height: 48px;
@@ -80,8 +81,9 @@
   color: var(--color-text-muted-on-light);
 }
 
-/* 自绘下拉指示符：替换浏览器默认角标（全站唯一系统件） */
-.enhanced-form select {
+/* 自绘下拉指示符（无 JS 回退时原生 select 也保持同观感） */
+.enhanced-form select,
+.enhanced-form .select-trigger {
   appearance: none;
   padding-right: 40px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' stroke='%235a6a86' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");
@@ -89,14 +91,100 @@
   background-position: right 14px center;
 }
 
+/* —— 自绘 combobox：增强后原生转数据载体，展开选单与全站控件同语言 —— */
+.select-shell {
+  position: relative;
+}
+
+.select-shell .select-native {
+  display: none;
+}
+
+.enhanced-form .select-trigger {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  cursor: pointer;
+  font-weight: 400;
+}
+
+.enhanced-form .select-trigger.is-empty .select-value {
+  color: var(--color-text-muted-on-light);
+}
+
+.select-shell.open .select-trigger {
+  border-color: var(--color-accent);
+}
+
+.select-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  max-height: 280px;
+  overflow-y: auto;
+  margin: 0;
+  padding: var(--space-2);
+  list-style: none;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-on-light);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 8px rgba(10, 29, 51, 0.06), 0 16px 40px rgba(10, 29, 51, 0.12);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out),
+    visibility 0s linear var(--duration-fast);
+}
+
+.select-shell.open .select-list {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+.select-shell.up .select-list {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+
+.select-list [role='option'] {
+  padding: 10px 12px;
+  border-radius: calc(var(--radius-sm) - 2px);
+  font-size: var(--text-body-s);
+  color: var(--color-text-on-light);
+  cursor: pointer;
+}
+
+.select-list [role='option'].is-placeholder {
+  color: var(--color-text-muted-on-light);
+}
+
+.select-list [role='option']:hover,
+.select-list [role='option'].is-active {
+  background: rgba(var(--color-accent-rgb), 0.08);
+}
+
+.select-list [role='option'][aria-selected='true'] {
+  color: var(--color-accent);
+  font-weight: 600;
+  background: var(--color-surface-tint);
+}
+
 .enhanced-form input:not([type='checkbox']):hover:not(:focus-visible),
 .enhanced-form select:hover:not(:focus-visible),
+.enhanced-form .select-trigger:hover:not(:focus-visible),
 .enhanced-form textarea:hover:not(:focus-visible) {
   border-color: var(--color-border-hover);
 }
 
 .enhanced-form input:focus-visible,
 .enhanced-form select:focus-visible,
+.enhanced-form .select-trigger:focus-visible,
 .enhanced-form textarea:focus-visible {
   outline: none;
   border-color: var(--color-accent);
@@ -105,6 +193,7 @@
 
 .enhanced-form .invalid input:not([type='checkbox']),
 .enhanced-form .invalid select,
+.enhanced-form .invalid .select-trigger,
 .enhanced-form .invalid textarea {
   border-color: var(--color-danger);
 }
@@ -112,6 +201,7 @@
 /* 错误态下 focus 环同为红系，不与蓝色聚焦环冲突 */
 .enhanced-form .invalid input:focus-visible,
 .enhanced-form .invalid select:focus-visible,
+.enhanced-form .invalid .select-trigger:focus-visible,
 .enhanced-form .invalid textarea:focus-visible {
   border-color: var(--color-danger);
   box-shadow: 0 0 0 3px var(--ring-danger);
@@ -320,6 +410,18 @@
   display: none !important;
 }
 
+/* 条件字段出现时轻入场（display 切换会重放动画），从属于触发它的字段 */
+.enhanced-form [data-visible-if] {
+  animation: field-in var(--duration-base) var(--ease-out);
+}
+
+@keyframes field-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
 /* —— toast：入场减速上浮，退场加速离开 —— */
 .toast-region {
   position: fixed;
@@ -416,6 +518,10 @@
 
 .application-modal .field-error {
   min-height: 0;
+}
+
+.application-modal .textarea-wrap .field-error {
+  min-height: 16px; /* 计数落位行：不与 textarea 内容/resize 手柄重叠 */
 }
 
 @media (max-width: 760px) {

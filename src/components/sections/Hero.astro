@@ -37,20 +37,22 @@ import { hero } from '../../data/home';
       </svg>
     </div>
   </div>
-  <!-- 底缘过渡线：中心凹陷 + 光点（效果图形态） -->
-  <svg class="hero-transition" viewBox="0 0 1440 70" preserveAspectRatio="none" aria-hidden="true">
-    <defs>
-      <linearGradient id="htLine" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="var(--color-accent-bright)" stop-opacity="0"></stop>
-        <stop offset="0.35" stop-color="var(--color-accent-bright)" stop-opacity="0.75"></stop>
-        <stop offset="0.5" stop-color="var(--color-accent-bright)"></stop>
-        <stop offset="0.65" stop-color="var(--color-accent-bright)" stop-opacity="0.75"></stop>
-        <stop offset="1" stop-color="var(--color-accent-bright)" stop-opacity="0"></stop>
-      </linearGradient>
-    </defs>
-    <path class="ht-line" d="M0 34 H600 C660 34 672 56 720 56 C768 56 780 34 840 34 H1440" vector-effect="non-scaling-stroke"></path>
-    <circle class="ht-dot" cx="720" cy="56" r="4.5"></circle>
-  </svg>
+  <!-- 底缘过渡线：中心凹陷（SVG 承担线），光点为 HTML 分层辉光（不受横向拉伸影响，永远正圆） -->
+  <div class="hero-transition" aria-hidden="true">
+    <svg class="ht-svg" viewBox="0 0 1440 100" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="htLine" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="var(--color-accent-bright)" stop-opacity="0"></stop>
+          <stop offset="0.35" stop-color="var(--color-accent-bright)" stop-opacity="0.75"></stop>
+          <stop offset="0.5" stop-color="var(--color-accent-bright)"></stop>
+          <stop offset="0.65" stop-color="var(--color-accent-bright)" stop-opacity="0.75"></stop>
+          <stop offset="1" stop-color="var(--color-accent-bright)" stop-opacity="0"></stop>
+        </linearGradient>
+      </defs>
+      <path class="ht-line" d="M0 50 H636 C678 50 694 71 720 71 C746 71 762 50 804 50 H1440" vector-effect="non-scaling-stroke"></path>
+    </svg>
+    <span class="ht-dot"></span>
+  </div>
 </section>
 
 <style>
@@ -206,9 +208,16 @@ import { hero } from '../../data/home';
     left: 0;
     right: 0;
     bottom: 0;
-    width: 100%;
-    height: 70px;
+    height: 100px;
     z-index: 2;
+    pointer-events: none;
+  }
+
+  .ht-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
   }
 
   .ht-line {
@@ -217,20 +226,56 @@ import { hero } from '../../data/home';
     stroke-width: 1.5;
   }
 
+  /* 悬在凹口尖端的光点：白亮核 → 冷白内晕 → 蓝辉光大软晕（效果图的"坠饰"形态） */
   .ht-dot {
-    fill: var(--color-text-on-dark);
-    filter: drop-shadow(0 0 10px var(--color-accent-bright)) drop-shadow(0 0 22px var(--color-accent-bright))
-      drop-shadow(0 0 40px var(--color-accent-bright));
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 56px;
+    height: 56px;
+    margin-left: -28px;
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.95) 0 2.5px,
+      rgba(190, 216, 255, 0.8) 5px,
+      rgba(var(--color-accent-bright-rgb), 0.45) 10px,
+      rgba(var(--color-accent-bright-rgb), 0.12) 21px,
+      transparent 28px
+    );
     animation: dot-breathe 3.6s ease-in-out infinite;
+  }
+
+  /* 纵向光芒（主）与横向光芒（弱）：镜头光斑语言，与地图枢纽同源 */
+  .ht-dot::before,
+  .ht-dot::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .ht-dot::before {
+    width: 2px;
+    height: 48px;
+    background: linear-gradient(180deg, transparent, rgba(190, 216, 255, 0.8), transparent);
+  }
+
+  .ht-dot::after {
+    width: 34px;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, rgba(190, 216, 255, 0.55), transparent);
   }
 
   @keyframes dot-breathe {
     0%,
     100% {
-      opacity: 0.72;
+      opacity: 0.75;
+      transform: scale(0.96);
     }
     50% {
       opacity: 1;
+      transform: scale(1);
     }
   }
 

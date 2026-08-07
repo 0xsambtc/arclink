@@ -85,7 +85,11 @@ function validateControl(control: Control): string {
   if (wrap && isHidden(wrap)) return '';
   const value = control.value.trim();
 
-  if (control.hasAttribute('required') && !value) return formMessages.errors.required;
+  if (control.hasAttribute('required') && !value) {
+    // 开窗即红是惩罚性反馈：必填空缺只在"动过这个字段"或"尝试过提交"后呈现（格式错误仍失焦即报）
+    const touched = control.dataset.dirty === '1' || control.form?.dataset.submitAttempted === '1';
+    return touched ? formMessages.errors.required : '';
+  }
   if (!value) return '';
 
   if (control instanceof HTMLInputElement && control.type === 'email' && !EMAIL_RE.test(value)) {
@@ -149,16 +153,18 @@ export function wireForm(form: HTMLFormElement, options?: { onSuccess?: () => vo
     if (slot && !slot.id) slot.id = `${form.id}-err-${control.name || index}`;
     control.addEventListener('blur', () => setError(fieldWrap(control), validateControl(control), control));
     control.addEventListener('input', () => {
+      control.dataset.dirty = '1';
       const wrap = fieldWrap(control);
       if (wrap?.classList.contains('invalid')) setError(wrap, validateControl(control), control);
     });
   });
 
-  // select 空值态：与 input placeholder 同为 muted 灰
+  // select：空值态同步 + 自绘 combobox 增强（原生保留做数据载体/无 JS 回退）
   form.querySelectorAll<HTMLSelectElement>('select').forEach((select) => {
     const sync = () => select.classList.toggle('is-empty', !select.value);
     select.addEventListener('change', sync);
     sync();
+    enhanceSelect(select);
   });
   groups.forEach((group) => {
     group.addEventListener('change', () => setError(group, validateGroup(group)));
@@ -237,6 +243,7 @@ export function wireForm(form: HTMLFormElement, options?: { onSuccess?: () => vo
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    form.dataset.submitAttempted = '1';
     if (submitting || !validateAll()) return;
 
     submitting = true;
@@ -276,4 +283,147 @@ export function wireForm(form: HTMLFormElement, options?: { onSuccess?: () => vo
       syncSubmitState();
     }
   });
+}
+
+
+// —— 自绘下拉（ARIA combobox + listbox）：展开选单脱离系统菜单，与全站控件同语言 ——
+// 原生 <select> 保留在 DOM（display:none）：表单序列化、无 JS 回退、既有校验/条件显隐全部照常
+function enhanceSelect(select: HTMLSelectElement) {
+  if (select.dataset.enhanced === '1') return;
+  select.dataset.enhanced = '1';
+
+  const wrap = select.closest<HTMLElement>('[data-field]');
+  const labelText = wrap ? (wrap.childNodes[0]?.textContent ?? '').trim() : select.name;
+
+  const shell = document.createElement('div');
+  shell.className = 'select-shell';
+  select.parentNode?.insertBefore(shell, select);
+  shell.append(select);
+  select.classList.add('select-native');
+
+  const trigger = document.createElement('button');
+  trigger.type = 'button';
+  trigger.className = 'select-trigger';
+  trigger.setAttribute('role', 'combobox');
+  trigger.setAttribute('aria-haspopup', 'listbox');
+  trigger.setAttribute('aria-expanded', 'false');
+  trigger.setAttribute('aria-label', labelText);
+  const valueSpan = document.createElement('span');
+  valueSpan.className = 'select-value';
+  trigger.append(valueSpan);
+  shell.append(trigger);
+
+  const list = document.createElement('ul');
+  list.className = 'select-list';
+  list.setAttribute('role', 'listbox');
+  list.id = `${select.form?.id ?? 'f'}-${select.name}-listbox`;
+  trigger.setAttribute('aria-controls', list.id);
+  shell.append(list);
+
+  const options = [...select.options].map((opt, index) => {
+    const li = document.createElement('li');
+    li.setAttribute('role', 'option');
+    li.id = `${list.id}-${index}`;
+    li.dataset.value = opt.value;
+    li.textContent = opt.text;
+    if (!opt.value) li.classList.add('is-placeholder');
+    list.append(li);
+    return li;
+  });
+
+  let activeIndex = Math.max(0, select.selectedIndex);
+  let typeahead = '';
+  let typeaheadTimer = 0;
+
+  const render = () => {
+    const current = select.options[select.selectedIndex];
+    valueSpan.textContent = current ? current.text : '';
+    trigger.classList.toggle('is-empty', !select.value);
+    options.forEach((li, index) => {
+      li.setAttribute('aria-selected', String(index === select.selectedIndex));
+    });
+  };
+
+  const setActive = (index: number) => {
+    activeIndex = Math.min(options.length - 1, Math.max(0, index));
+    options.forEach((li, k) => li.classList.toggle('is-active', k === activeIndex));
+    trigger.setAttribute('aria-activedescendant', options[activeIndex].id);
+    options[activeIndex].scrollIntoView({ block: 'nearest' });
+  };
+
+  const open = () => {
+    if (shell.classList.contains('open')) return;
+    shell.classList.add('open');
+    trigger.setAttribute('aria-expanded', 'true');
+    // 视口下缘空间不足时向上展开
+    const rect = trigger.getBoundingClientRect();
+    shell.classList.toggle('up', window.innerHeight - rect.bottom < 300 && rect.top > 300);
+    setActive(Math.max(0, select.selectedIndex));
+  };
+
+  const close = (refocus = false) => {
+    if (!shell.classList.contains('open')) return;
+    shell.classList.remove('open');
+    trigger.setAttribute('aria-expanded', 'false');
+    trigger.removeAttribute('aria-activedescendant');
+    if (refocus) trigger.focus();
+  };
+
+  const commit = (index: number) => {
+    select.selectedIndex = index;
+    select.dataset.dirty = '1';
+    render();
+    close(true);
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    select.dispatchEvent(new Event('blur'));
+  };
+
+  trigger.addEventListener('click', () => (shell.classList.contains('open') ? close() : open()));
+  trigger.addEventListener('keydown', (event) => {
+    const isOpen = shell.classList.contains('open');
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      if (!isOpen) open();
+      else setActive(activeIndex + (event.key === 'ArrowDown' ? 1 : -1));
+    } else if (event.key === 'Home' && isOpen) {
+      event.preventDefault();
+      setActive(0);
+    } else if (event.key === 'End' && isOpen) {
+      event.preventDefault();
+      setActive(options.length - 1);
+    } else if ((event.key === 'Enter' || event.key === ' ') && !isOpen) {
+      event.preventDefault();
+      open();
+    } else if (event.key === 'Enter' && isOpen) {
+      event.preventDefault();
+      commit(activeIndex);
+    } else if (event.key === 'Escape' && isOpen) {
+      event.preventDefault();
+      event.stopPropagation();
+      close(true);
+    } else if (event.key.length === 1 && /\S/.test(event.key)) {
+      // 类型检索（对 199 国列表尤其重要）
+      if (!isOpen) open();
+      window.clearTimeout(typeaheadTimer);
+      typeahead += event.key.toLowerCase();
+      typeaheadTimer = window.setTimeout(() => (typeahead = ''), 500);
+      const hit = options.findIndex((li) => li.textContent!.toLowerCase().startsWith(typeahead));
+      if (hit >= 0) setActive(hit);
+    } else if (event.key === 'Tab') {
+      close();
+    }
+  });
+  list.addEventListener('mousedown', (event) => event.preventDefault()); // 防 trigger 失焦闪烁
+  options.forEach((li, index) => li.addEventListener('click', () => commit(index)));
+  document.addEventListener('click', (event) => {
+    if (!shell.contains(event.target as Node)) close();
+  });
+  trigger.addEventListener('blur', () => {
+    // 焦点离开触发器时延迟收起（点击选项经 mousedown 阻断，不受影响）
+    window.setTimeout(() => {
+      if (!shell.contains(document.activeElement)) close();
+    }, 0);
+  });
+
+  render();
 }
