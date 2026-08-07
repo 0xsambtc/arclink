@@ -1,0 +1,274 @@
+---
+// Careers — 页头 + How we work 三原则 + Open Roles 手风琴岗位卡（内容：src/data/careers.ts）
+import Base from '../layouts/Base.astro';
+import SiteHeader from '../components/sections/SiteHeader.astro';
+import Footer from '../components/sections/Footer.astro';
+import { site } from '../data/site';
+import { careers } from '../data/careers';
+import '../styles/forms.css';
+---
+
+<Base title={`Careers — ${site.name}`} description={careers.head.description} bg="#f3f7ff">
+  <SiteHeader solid />
+  <main id="main" class="journey-main">
+    <div class="shell">
+      <a class="journey-back" href="/">← Back to home</a>
+      <div class="career-head">
+        <p class="eyebrow">{careers.head.eyebrow}</p>
+        <h1>{careers.head.heading}</h1>
+        <p class="career-description">{careers.head.description}</p>
+      </div>
+
+      <div class="career-content">
+        <section class="career-intro">
+          <h2>{careers.howWeWork.heading}</h2>
+          <div class="career-principles">
+            {
+              careers.howWeWork.principles.map((principle) => (
+                <article>
+                  <strong>{principle.title}</strong>
+                  <span>{principle.description}</span>
+                </article>
+              ))
+            }
+          </div>
+        </section>
+
+        <section class="career-roles">
+          <p class="eyebrow">{careers.openRoles.eyebrow}</p>
+          <div class="roles-list">
+            {
+              careers.openRoles.roles.map((role, index) => (
+                <article class:list={['job-card', index === 0 && 'open']}>
+                  <button class="job-head" type="button" aria-expanded={index === 0 ? 'true' : 'false'}>
+                    <span class="job-title">
+                      <strong>{role.title}</strong>
+                      <span>{role.location}</span>
+                    </span>
+                    <span class="job-toggle" aria-hidden="true">+</span>
+                  </button>
+                  <div class="job-body">
+                    <div class="job-body-inner">
+                      <p class="job-overview">{role.overview}</p>
+                      <div class="job-cols">
+                        <div>
+                          <h3>{careers.openRoles.doHeading}</h3>
+                          <ul>{role.youWillDo.map((item) => <li>{item}</li>)}</ul>
+                        </div>
+                        <div>
+                          <h3>{careers.openRoles.lookForHeading}</h3>
+                          <ul>{role.weLookFor.map((item) => <li>{item}</li>)}</ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              ))
+            }
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  .career-head {
+    max-width: 760px;
+  }
+
+  .career-head h1 {
+    font-size: clamp(36px, 3.8vw, 52px);
+    line-height: 1.1;
+    letter-spacing: var(--tracking-tight);
+    margin: 0 0 var(--space-4);
+  }
+
+  .career-description {
+    font-size: 17px;
+    line-height: 1.75;
+    color: var(--color-text-muted-on-light);
+    margin: 0;
+  }
+
+  .career-content {
+    display: grid;
+    grid-template-columns: 0.72fr 1.28fr;
+    gap: var(--space-8);
+    margin-top: var(--space-8);
+    align-items: start;
+  }
+
+  .career-intro h2 {
+    font-size: 24px;
+    letter-spacing: var(--tracking-tight);
+    margin: 0 0 var(--space-5);
+  }
+
+  .career-principles {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .career-principles article {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-left: var(--space-4);
+    border-left: 2px solid var(--color-accent);
+  }
+
+  .career-principles strong {
+    font-size: 16px;
+  }
+
+  .career-principles span {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--color-text-muted-on-light);
+  }
+
+  .roles-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+  }
+
+  .job-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-on-light);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: border-color var(--duration-fast) var(--ease-out);
+  }
+
+  .job-card.open {
+    border-color: var(--color-accent);
+  }
+
+  .job-head {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-5) var(--space-6);
+    background: none;
+    border: 0;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .job-title {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .job-title strong {
+    font-size: 17px;
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .job-title > span {
+    font-size: 13px;
+    color: var(--color-text-muted-on-light);
+  }
+
+  .job-toggle {
+    font-size: 22px;
+    color: var(--color-accent);
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+
+  .job-card.open .job-toggle {
+    transform: rotate(45deg);
+  }
+
+  /* 展开：grid-template-rows 0fr→1fr 平滑高度过渡 */
+  .job-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--duration-base) var(--ease-out);
+  }
+
+  .job-card.open .job-body {
+    grid-template-rows: 1fr;
+  }
+
+  .job-body-inner {
+    min-height: 0;
+    overflow: hidden;
+    padding: 0 var(--space-6);
+  }
+
+  .job-card.open .job-body-inner {
+    padding-bottom: var(--space-6);
+  }
+
+  .job-overview {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--color-text-muted-on-light);
+    margin: 0 0 var(--space-5);
+  }
+
+  .job-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+  }
+
+  .job-cols h3 {
+    font-size: 14px;
+    margin: 0 0 var(--space-3);
+  }
+
+  .job-cols ul {
+    margin: 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .job-cols li {
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--color-text-muted-on-light);
+  }
+
+  @media (max-width: 1120px) {
+    .career-content {
+      grid-template-columns: 1fr;
+      gap: var(--space-7);
+    }
+  }
+
+  @media (max-width: 760px) {
+    .job-cols {
+      grid-template-columns: 1fr;
+      gap: var(--space-5);
+    }
+    .job-head {
+      padding: var(--space-4) var(--space-5);
+    }
+    .job-body-inner {
+      padding: 0 var(--space-5);
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.job-card').forEach((card) => {
+    const head = card.querySelector<HTMLButtonElement>('.job-head')!;
+    head.addEventListener('click', () => {
+      const open = card.classList.toggle('open');
+      head.setAttribute('aria-expanded', String(open));
+    });
+  });
+</script>

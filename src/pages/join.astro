@@ -1,0 +1,481 @@
+---
+// Join Our Network — 推荐奖励 + Individual/Team 选项卡 + 申请弹窗（字段规格：docs/content/requirements-v0.2.md「采集方 (Collector) 表单」）
+// URL hash #individual / #team 直达对应选项卡（首页 Network 区两个 CTA 的落点）
+import Base from '../layouts/Base.astro';
+import SiteHeader from '../components/sections/SiteHeader.astro';
+import Footer from '../components/sections/Footer.astro';
+import { site } from '../data/site';
+import { collectorForm, consentCopy } from '../data/forms';
+import { countries } from '../data/countries';
+import '../styles/forms.css';
+
+const t = collectorForm;
+---
+
+<Base title={`Join Our Network — ${site.name}`} description={site.description} bg="#f3f7ff">
+  <SiteHeader solid />
+  <main id="main" class="journey-main">
+    <div class="shell">
+      <a class="journey-back" href="/">← Back to home</a>
+      <div class="network-head">
+        <p class="eyebrow">{t.page.eyebrow}</p>
+        <h1>{t.page.heading}</h1>
+        <p class="network-description">{t.page.description}</p>
+      </div>
+
+      <div class="network-lower">
+        <section class="referral-panel">
+          <h2>{t.referral.heading}</h2>
+          {t.referral.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+        </section>
+
+        <section class="apply-panel">
+          <div class="network-tabs" role="tablist" aria-label="Application type">
+            <button role="tab" id="tabIndividual" aria-selected="true" aria-controls="individualPanel" data-network-tab="individual">
+              {t.tabs.individual.tabLabel}
+            </button>
+            <button role="tab" id="tabTeam" aria-selected="false" aria-controls="teamPanel" data-network-tab="team">
+              {t.tabs.team.tabLabel}
+            </button>
+          </div>
+          <div class="tab-panel active" id="individualPanel" role="tabpanel" aria-labelledby="tabIndividual">
+            <p class="eyebrow">{t.tabs.individual.eyebrow}</p>
+            <h3>{t.tabs.individual.heading}</h3>
+            <p>{t.tabs.individual.description}</p>
+            <button class="button button-primary js-apply" data-application-type="individual" type="button">
+              {t.tabs.individual.cta} <span aria-hidden="true">→</span>
+            </button>
+          </div>
+          <div class="tab-panel" id="teamPanel" role="tabpanel" aria-labelledby="tabTeam">
+            <p class="eyebrow">{t.tabs.team.eyebrow}</p>
+            <h3>{t.tabs.team.heading}</h3>
+            <p>{t.tabs.team.description}</p>
+            <button class="button button-primary js-apply" data-application-type="team" type="button">
+              {t.tabs.team.cta} <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+  <Footer />
+
+  <div class="modal-backdrop" id="modalBackdrop"></div>
+  <section class="application-modal" id="applicationModal" role="dialog" aria-modal="true" aria-labelledby="modalHeading" hidden>
+    <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+
+    <!-- Individual 申请 -->
+    <div class="modal-body" data-application-form="individual">
+      <p class="eyebrow">{t.modal.individual.eyebrow}</p>
+      <h2 id="modalHeading">{t.modal.individual.heading}</h2>
+      <form class="enhanced-form" id="individualForm" data-endpoint={t.endpoint} novalidate>
+        <input type="hidden" name="type" value="individual" />
+        <div class="two-up">
+          <label data-field>
+            {t.fields.firstName} <em>*</em>
+            <input name="first_name" required autocomplete="given-name" />
+            <small class="field-error"></small>
+          </label>
+          <label data-field>
+            {t.fields.lastName} <em>*</em>
+            <input name="last_name" required autocomplete="family-name" />
+            <small class="field-error"></small>
+          </label>
+        </div>
+        <label data-field>
+          {t.fields.email} <em>*</em>
+          <input name="email" type="email" required autocomplete="email" />
+          <small class="field-error"></small>
+        </label>
+        <div class="two-up">
+          <label data-field>
+            {t.fields.preferredChannel} <em>*</em>
+            <select name="preferred_channel" required>
+              <option value="">Select a channel</option>
+              {t.channelOptions.map((option) => <option value={option}>{option}</option>)}
+            </select>
+            <small class="field-error"></small>
+          </label>
+          <label data-field>
+            {t.fields.country} <em>*</em>
+            <select name="country" required autocomplete="country-name">
+              <option value="">Select a country</option>
+              {countries.map((country) => <option value={country}>{country}</option>)}
+            </select>
+            <small class="field-error"></small>
+          </label>
+        </div>
+        <label data-field data-visible-if="preferred_channel" class="field-hidden">
+          {t.fields.contactHandle} <span class="optional">Optional</span>
+          <input name="contact_handle" />
+          <small class="field-error"></small>
+        </label>
+        <label data-field class="textarea-wrap">
+          {t.fields.regions} <span class="optional">Optional</span>
+          <textarea name="regions" data-maxlength="500" data-count></textarea>
+          <span class="char-count"></span>
+          <small class="field-error"></small>
+        </label>
+        <fieldset data-field data-name="task_types">
+          <legend>{t.fields.taskTypes} <span class="optional">Optional</span></legend>
+          <div class="choice-grid">
+            {
+              t.taskTypeOptions.map((option) => (
+                <label class="choice-chip">
+                  <input type="checkbox" name="task_types" value={option} />
+                  <span>{option}</span>
+                </label>
+              ))
+            }
+          </div>
+          <small class="field-error"></small>
+        </fieldset>
+        <div class="two-up">
+          <label data-field>
+            {t.fields.availability} <span class="optional">Optional</span>
+            <select name="availability">
+              <option value="">Select availability</option>
+              {t.availabilityOptions.map((option) => <option value={option}>{option}</option>)}
+            </select>
+            <small class="field-error"></small>
+          </label>
+          <label data-field>
+            {t.fields.phone} <span class="optional">Optional</span>
+            <input name="phone" type="tel" data-validate="phone" autocomplete="tel" placeholder="+65 8123 4567" />
+            <small class="field-error"></small>
+          </label>
+        </div>
+        <label data-field>
+          {t.fields.referralEmail} <span class="optional">Optional</span>
+          <input name="referral_email" data-validate="email" autocomplete="off" />
+          <small class="field-error"></small>
+        </label>
+        <label data-field class="consent-row">
+          <input name="consent" type="checkbox" data-consent />
+          <span>
+            {consentCopy.label}{' '}
+            <a href={consentCopy.privacyLink.href} target="_blank" rel="noopener">{consentCopy.privacyLink.label}</a>. <em>*</em>
+          </span>
+          <small class="field-error"></small>
+        </label>
+        <button class="button button-primary" type="submit">
+          <span class="submit-label">{t.submit}</span> <span aria-hidden="true">→</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Team 申请 -->
+    <div class="modal-body" data-application-form="team" hidden>
+      <p class="eyebrow">{t.modal.team.eyebrow}</p>
+      <h2>{t.modal.team.heading}</h2>
+      <form class="enhanced-form" id="teamForm" data-endpoint={t.endpoint} novalidate>
+        <input type="hidden" name="type" value="team" />
+        <div class="two-up">
+          <label data-field>
+            {t.fields.firstName} <em>*</em>
+            <input name="first_name" required autocomplete="given-name" />
+            <small class="field-error"></small>
+          </label>
+          <label data-field>
+            {t.fields.lastName} <em>*</em>
+            <input name="last_name" required autocomplete="family-name" />
+            <small class="field-error"></small>
+          </label>
+        </div>
+        <label data-field>
+          {t.fields.companyEmail} <em>*</em>
+          <input name="email" type="email" required autocomplete="email" />
+          <small class="field-error"></small>
+        </label>
+        <div class="two-up">
+          <label data-field>
+            {t.fields.company} <em>*</em>
+            <input name="company" required autocomplete="organization" />
+            <small class="field-error"></small>
+          </label>
+          <label data-field>
+            {t.fields.teamSize} <em>*</em>
+            <select name="team_size" required>
+              <option value="">Select team size</option>
+              {t.teamSizeOptions.map((option) => <option value={option}>{option}</option>)}
+            </select>
+            <small class="field-error"></small>
+          </label>
+        </div>
+        <label data-field>
+          {t.fields.country} <em>*</em>
+          <select name="country" required autocomplete="country-name">
+            <option value="">Select a country</option>
+            {countries.map((country) => <option value={country}>{country}</option>)}
+          </select>
+          <small class="field-error"></small>
+        </label>
+        <label data-field class="textarea-wrap">
+          {t.fields.regions} <span class="optional">Optional</span>
+          <textarea name="regions" data-maxlength="500" data-count></textarea>
+          <span class="char-count"></span>
+          <small class="field-error"></small>
+        </label>
+        <fieldset data-field data-name="task_types">
+          <legend>{t.fields.taskTypes} <span class="optional">Optional</span></legend>
+          <div class="choice-grid">
+            {
+              t.taskTypeOptions.map((option) => (
+                <label class="choice-chip">
+                  <input type="checkbox" name="task_types" value={option} />
+                  <span>{option}</span>
+                </label>
+              ))
+            }
+          </div>
+          <small class="field-error"></small>
+        </fieldset>
+        <label data-field class="consent-row">
+          <input name="consent" type="checkbox" data-consent />
+          <span>
+            {consentCopy.label}{' '}
+            <a href={consentCopy.privacyLink.href} target="_blank" rel="noopener">{consentCopy.privacyLink.label}</a>. <em>*</em>
+          </span>
+          <small class="field-error"></small>
+        </label>
+        <button class="button button-primary" type="submit">
+          <span class="submit-label">{t.submit}</span> <span aria-hidden="true">→</span>
+        </button>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .network-head {
+    max-width: 720px;
+  }
+
+  .network-head h1 {
+    font-size: clamp(36px, 3.8vw, 52px);
+    line-height: 1.1;
+    letter-spacing: var(--tracking-tight);
+    margin: 0 0 var(--space-4);
+  }
+
+  .network-description {
+    font-size: 17px;
+    line-height: 1.75;
+    color: var(--color-text-muted-on-light);
+    margin: 0;
+  }
+
+  .network-lower {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: var(--space-7);
+    margin-top: var(--space-8);
+    align-items: start;
+  }
+
+  .referral-panel {
+    background: linear-gradient(135deg, var(--color-bg-navy), var(--color-bg-navy-alt));
+    color: var(--color-text-on-dark);
+    border-radius: var(--radius-md);
+    padding: var(--space-7);
+  }
+
+  .referral-panel h2 {
+    font-size: 24px;
+    letter-spacing: var(--tracking-tight);
+    margin: 0 0 var(--space-4);
+  }
+
+  .referral-panel p {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--color-text-muted-on-dark);
+    margin: 0;
+  }
+
+  .referral-panel p + p {
+    margin-top: var(--space-4);
+  }
+
+  .apply-panel {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-on-light);
+    border-radius: var(--radius-md);
+    padding: var(--space-6) var(--space-7) var(--space-7);
+  }
+
+  .network-tabs {
+    display: flex;
+    gap: var(--space-2);
+    border-bottom: 1px solid var(--color-border-on-light);
+    margin-bottom: var(--space-6);
+  }
+
+  .network-tabs [role='tab'] {
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    padding: var(--space-3) var(--space-4);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-muted-on-light);
+    cursor: pointer;
+    transition: color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+  }
+
+  .network-tabs [role='tab'][aria-selected='true'] {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+  }
+
+  .tab-panel {
+    display: none;
+  }
+
+  .tab-panel.active {
+    display: block;
+  }
+
+  .tab-panel h3 {
+    font-size: 24px;
+    letter-spacing: var(--tracking-tight);
+    margin: var(--space-2) 0 var(--space-3);
+  }
+
+  .tab-panel p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--color-text-muted-on-light);
+    margin: 0 0 var(--space-5);
+  }
+
+  /* —— 申请弹窗 —— */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1500;
+    background: rgba(3, 8, 20, 0.6);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--duration-base) var(--ease-out);
+  }
+
+  .modal-backdrop.open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .application-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1600;
+    width: min(94vw, 660px);
+    max-height: 88vh;
+    overflow-y: auto;
+    background: var(--color-surface);
+    color: var(--color-text-on-light);
+    border-radius: var(--radius-md);
+    padding: var(--space-7);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+  }
+
+  .application-modal h2 {
+    font-size: 26px;
+    letter-spacing: var(--tracking-tight);
+    margin: var(--space-1) 0 var(--space-6);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--color-surface-tint);
+    color: var(--color-text-on-light);
+    font-size: 20px;
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out);
+  }
+
+  .modal-close:hover {
+    background: var(--color-border-on-light);
+  }
+
+  .enhanced-form button[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  @media (max-width: 1120px) {
+    .network-lower {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .apply-panel,
+    .referral-panel,
+    .application-modal {
+      padding: var(--space-5);
+    }
+  }
+</style>
+
+<script>
+  import { wireForm } from '../scripts/form-ux';
+
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>('[data-network-tab]')];
+  const panels: Record<string, HTMLElement> = {
+    individual: document.getElementById('individualPanel')!,
+    team: document.getElementById('teamPanel')!,
+  };
+  const backdrop = document.getElementById('modalBackdrop')!;
+  const modal = document.getElementById('applicationModal')!;
+  const modalClose = document.getElementById('modalClose')!;
+  const modalBodies = [...modal.querySelectorAll<HTMLElement>('[data-application-form]')];
+
+  function selectTab(key: string) {
+    tabs.forEach((tab) => tab.setAttribute('aria-selected', String(tab.dataset.networkTab === key)));
+    Object.entries(panels).forEach(([panelKey, panel]) => panel.classList.toggle('active', panelKey === key));
+  }
+
+  tabs.forEach((tab) => tab.addEventListener('click', () => selectTab(tab.dataset.networkTab!)));
+
+  // 首页 CTA 经 hash 直达对应选项卡
+  const hash = location.hash.replace('#', '');
+  if (hash === 'team' || hash === 'individual') selectTab(hash);
+
+  function openModal(type: string) {
+    modalBodies.forEach((body) => (body.hidden = body.dataset.applicationForm !== type));
+    modal.hidden = false;
+    backdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    modal.querySelector<HTMLElement>('input:not([type="hidden"]), select')?.focus();
+  }
+
+  function closeModal() {
+    modal.hidden = true;
+    backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('.js-apply').forEach((button) =>
+    button.addEventListener('click', () => openModal(button.dataset.applicationType!))
+  );
+  modalClose.addEventListener('click', closeModal);
+  backdrop.addEventListener('click', closeModal);
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !modal.hidden) closeModal();
+  });
+
+  wireForm(document.getElementById('individualForm') as HTMLFormElement);
+  wireForm(document.getElementById('teamForm') as HTMLFormElement);
+</script>

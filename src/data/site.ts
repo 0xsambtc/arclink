@@ -1,10 +1,11 @@
-// 文案槽位 — 占位英文文案，正式内容由 PM 提供后在此替换（docs/00 约定：内容与代码分离）
+// 站点级事实 — 唯一来源 docs/content/requirements-v0.2.md 与隐私政策/服务条款
 export const site = {
   name: 'ARCLINK',
-  eyebrow: 'Execution Infrastructure',
-  headline: 'Building the Execution Infrastructure for the Physical World.',
+  legalName: 'Arclink Solutions Pte. Ltd.',
+  email: 'support@arclink-solution.com',
+  addressLines: ['60 PAYA LEBAR ROAD, #04-06 PAYA LEBAR SQUARE,', 'SINGAPORE 409051'],
+  title: 'ARCLINK — Execution Infrastructure for the Real World',
   description:
-    'Arclink enables enterprises to plan, deploy and verify real-world operations through technology, standardized workflows and trusted local execution.',
-  ctaPrimary: 'Start a Project',
-  ctaSecondary: 'Join Our Network',
+    'Arclink helps enterprises plan, deploy, and verify on-the-ground operations—from data collection to field verification and outreach—at scale through a trusted network of operators.',
+  copyright: '© 2026 Arclink Solutions Pte. Ltd.',
 } as const;

@@ -1,0 +1,260 @@
+/* 表单与子页流程（/contact、/join）共享样式 — 亮底子页，控件视觉对齐站点 token 体系 */
+
+/* —— 子页骨架 —— */
+.journey-main {
+  background: var(--color-surface-alt);
+  color: var(--color-text-on-light);
+  padding: calc(88px + var(--space-7)) 0 var(--space-9);
+  min-height: 100vh;
+}
+
+.journey-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  color: var(--color-text-muted-on-light);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.journey-back:hover {
+  color: var(--color-accent);
+}
+
+/* —— 表单控件 —— */
+.enhanced-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.enhanced-form .two-up {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+}
+
+/* label 用块级排版：标签文字与 *（em）/Optional 同行，控件换行铺满 */
+.enhanced-form label[data-field],
+.enhanced-form fieldset[data-field] {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-on-light);
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+.enhanced-form label[data-field] > input:not([type='checkbox']),
+.enhanced-form label[data-field] > select,
+.enhanced-form label[data-field] > textarea,
+.enhanced-form fieldset[data-field] .choice-grid {
+  margin-top: var(--space-2);
+}
+
+.enhanced-form legend {
+  padding: 0;
+  margin-bottom: var(--space-2);
+}
+
+.enhanced-form label[data-field] em,
+.enhanced-form legend em {
+  color: var(--color-accent);
+  font-style: normal;
+}
+
+.enhanced-form .optional {
+  font-weight: 400;
+  color: var(--color-text-muted-on-light);
+  font-size: 12px;
+}
+
+.enhanced-form input:not([type='checkbox']),
+.enhanced-form select,
+.enhanced-form textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border-on-light);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-on-light);
+  font: inherit;
+  font-weight: 400;
+  transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.enhanced-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.enhanced-form input:focus-visible,
+.enhanced-form select:focus-visible,
+.enhanced-form textarea:focus-visible {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+
+.enhanced-form .invalid input:not([type='checkbox']),
+.enhanced-form .invalid select,
+.enhanced-form .invalid textarea {
+  border-color: #d92d20;
+}
+
+.field-error {
+  display: block;
+  min-height: 16px;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #d92d20;
+}
+
+/* —— 多选 chip 组 —— */
+.choice-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.choice-chip {
+  position: relative;
+  display: inline-flex;
+}
+
+.choice-chip input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.choice-chip span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--color-border-on-light);
+  border-radius: 999px;
+  background: var(--color-surface);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted-on-light);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.choice-chip input:checked + span {
+  border-color: var(--color-accent);
+  background: var(--color-surface-tint);
+  color: var(--color-accent);
+}
+
+.choice-chip input:focus-visible + span {
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+
+/* —— textarea 计数 —— */
+.textarea-wrap {
+  position: relative;
+}
+
+.char-count {
+  position: absolute;
+  right: 10px;
+  bottom: 26px;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--color-text-muted-on-light);
+  pointer-events: none;
+}
+
+/* —— consent —— */
+.consent-row {
+  display: flex !important;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-weight: 400 !important;
+}
+
+.consent-row input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.consent-row span {
+  flex: 1;
+  min-width: 200px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-muted-on-light);
+}
+
+.consent-row a {
+  color: var(--color-accent);
+}
+
+.consent-row .field-error {
+  flex-basis: 100%;
+}
+
+/* —— 条件显隐 —— */
+.field-hidden {
+  display: none !important;
+}
+
+/* —— toast —— */
+.toast-region {
+  position: fixed;
+  bottom: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  width: min(92vw, 560px);
+  pointer-events: none;
+}
+
+.toast {
+  padding: 14px 20px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-text-on-dark);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast-success {
+  background: linear-gradient(135deg, #0c4a2f, #14733f);
+}
+
+.toast-error {
+  background: linear-gradient(135deg, #7a271a, #b42318);
+}
+
+@media (max-width: 760px) {
+  .enhanced-form .two-up {
+    grid-template-columns: 1fr;
+  }
+}

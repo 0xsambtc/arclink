@@ -23,10 +23,10 @@ const dots = [
       <h2>{network.heading}</h2>
       <p class="network-description">{network.description}</p>
       <div class="network-actions">
-        <Button variant="primary" data-open-modal={network.ctaPrimary.modal}>
+        <Button variant="primary" href={network.ctaPrimary.href}>
           {network.ctaPrimary.label} <span aria-hidden="true">→</span>
         </Button>
-        <Button variant="outline-dark" data-open-modal={network.ctaSecondary.modal}>
+        <Button variant="outline-dark" href={network.ctaSecondary.href}>
           {network.ctaSecondary.label} <span aria-hidden="true">→</span>
         </Button>
       </div>

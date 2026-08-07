@@ -1,5 +1,5 @@
 ---
-// Hero — M1 基线版（沿用原型 SVG 网络图；M2 用 cobe globe 双变体替换此视觉区）
+// Hero — 深色首屏（左文案 + 右 SVG 网络图，结构与 guanwangv2 原型一致）
 import Button from '../ui/Button.astro';
 import { hero } from '../../data/home';
 ---
@@ -8,7 +8,6 @@ import { hero } from '../../data/home';
   <div class="hero-stars" aria-hidden="true"></div>
   <div class="shell hero-grid">
     <div class="hero-copy reveal">
-      <p class="eyebrow">{hero.eyebrow}</p>
       <h1>
         {hero.headline.pre}<br />
         <span>{hero.headline.accent}</span><br />
@@ -16,8 +15,8 @@ import { hero } from '../../data/home';
       </h1>
       <p class="hero-description">{hero.description}</p>
       <div class="hero-actions">
-        <Button variant="primary" size="large" data-open-modal="project">Start a Project <span aria-hidden="true">→</span></Button>
-        <Button variant="outline" size="large" data-open-modal="network">Join Our Network <span aria-hidden="true">→</span></Button>
+        <Button variant="primary" size="large" href={hero.ctaPrimary.href}>{hero.ctaPrimary.label} <span aria-hidden="true">→</span></Button>
+        <Button variant="outline" size="large" href={hero.ctaSecondary.href}>{hero.ctaSecondary.label}</Button>
       </div>
     </div>
     <div class="network-graphic reveal reveal-delay" aria-label="Global execution network">

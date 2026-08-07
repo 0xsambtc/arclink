@@ -1,12 +1,19 @@
 ---
-// 固定导航 — 透明起步，滚动后毛玻璃深色底；移动端汉堡菜单；当前 section 高亮
+// 固定导航 — 透明起步，滚动后毛玻璃深色底；Solutions 悬停下拉；移动端汉堡菜单
+// solid：子页（无深色 hero）常驻深色底
 import Button from '../ui/Button.astro';
 import { nav } from '../../data/home';
+
+interface Props {
+  solid?: boolean;
+}
+
+const { solid = false } = Astro.props;
 ---
 
-<header class="site-header" id="siteHeader">
+<header class:list={['site-header', solid && 'solid']} id="siteHeader">
   <div class="shell nav-shell">
-    <a class="logo" href="#home" aria-label="ARCLINK Home">
+    <a class="logo" href="/" aria-label="ARCLINK Home">
       <span class="logo-symbol" aria-hidden="true">
         <span class="node node-left"></span>
         <span class="arc"></span>
@@ -18,11 +25,19 @@ import { nav } from '../../data/home';
       <span></span><span></span><span></span>
     </button>
     <nav class="main-nav" id="mainNav" aria-label="Primary navigation">
+      <div class="nav-dropdown" id="navDropdown">
+        <button class="drop-trigger" type="button" aria-expanded="false" aria-haspopup="true">
+          {nav.solutions.label} <span class="caret" aria-hidden="true">▾</span>
+        </button>
+        <div class="solution-menu">
+          {nav.solutions.items.map((item) => <a href={item.href}>{item.label}</a>)}
+        </div>
+      </div>
       {nav.links.map((link) => <a href={link.href} data-nav={link.key}>{link.label}</a>)}
     </nav>
     <div class="nav-actions">
-      <Button variant="primary" data-open-modal={nav.ctaPrimary.modal}>{nav.ctaPrimary.label} <span aria-hidden="true">→</span></Button>
-      <Button variant="outline" data-open-modal={nav.ctaSecondary.modal}>{nav.ctaSecondary.label} <span aria-hidden="true">→</span></Button>
+      <Button variant="outline" href={nav.ctaSales.href}>{nav.ctaSales.label}</Button>
+      <Button variant="primary" href={nav.ctaNetwork.href}>{nav.ctaNetwork.label} <span aria-hidden="true">→</span></Button>
     </div>
   </div>
 </header>
@@ -39,7 +54,8 @@ import { nav } from '../../data/home';
     border-bottom: 1px solid transparent;
   }
 
-  .site-header.scrolled {
+  .site-header.scrolled,
+  .site-header.solid {
     background: rgba(3, 10, 25, 0.88);
     backdrop-filter: blur(18px);
     border-bottom-color: var(--color-border-on-dark);
@@ -103,20 +119,26 @@ import { nav } from '../../data/home';
 
   .main-nav {
     display: flex;
+    align-items: center;
     gap: 42px;
     margin-left: auto;
   }
 
-  .main-nav a {
+  .main-nav a,
+  .drop-trigger {
     color: var(--color-text-muted-on-dark);
     text-decoration: none;
+    font: inherit;
     font-size: 14px;
+    background: none;
+    border: 0;
+    cursor: pointer;
     position: relative;
     padding: 34px 0;
     transition: color var(--duration-fast) var(--ease-out);
   }
 
-  .main-nav a::after {
+  .main-nav > a::after {
     content: '';
     position: absolute;
     left: 50%;
@@ -127,15 +149,69 @@ import { nav } from '../../data/home';
     transition: left var(--duration-fast) var(--ease-out), right var(--duration-fast) var(--ease-out);
   }
 
-  .main-nav a:hover,
-  .main-nav a.active {
+  .main-nav > a:hover,
+  .main-nav > a.active,
+  .nav-dropdown:hover .drop-trigger,
+  .nav-dropdown:focus-within .drop-trigger {
     color: var(--color-text-on-dark);
   }
 
-  .main-nav a:hover::after,
-  .main-nav a.active::after {
+  .main-nav > a:hover::after,
+  .main-nav > a.active::after {
     left: 0;
     right: 0;
+  }
+
+  .caret {
+    font-size: 10px;
+    display: inline-block;
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+
+  .nav-dropdown {
+    position: relative;
+  }
+
+  .nav-dropdown:hover .caret,
+  .nav-dropdown:focus-within .caret {
+    transform: translateY(2px);
+  }
+
+  .solution-menu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    min-width: 218px;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    background: rgba(5, 14, 32, 0.97);
+    border: 1px solid var(--color-border-on-dark);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
+  }
+
+  .nav-dropdown:hover .solution-menu,
+  .nav-dropdown:focus-within .solution-menu,
+  .nav-dropdown.open .solution-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .solution-menu a {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+  }
+
+  .solution-menu a:hover {
+    color: var(--color-text-on-dark);
+    background: rgba(37, 99, 235, 0.14);
   }
 
   .nav-actions {
@@ -183,6 +259,7 @@ import { nav } from '../../data/home';
       right: 15px;
       display: none;
       flex-direction: column;
+      align-items: stretch;
       gap: 0;
       padding: var(--space-4);
       border-radius: var(--radius-md);
@@ -191,11 +268,29 @@ import { nav } from '../../data/home';
     .main-nav.open {
       display: flex;
     }
-    .main-nav a {
+    .main-nav a,
+    .drop-trigger {
       padding: var(--space-4);
+      text-align: left;
     }
-    .main-nav a::after {
+    .main-nav > a::after {
       display: none;
+    }
+    /* 移动端下拉改为内联展开列表 */
+    .solution-menu {
+      position: static;
+      transform: none;
+      min-width: 0;
+      display: none;
+      opacity: 1;
+      visibility: visible;
+      border: 0;
+      box-shadow: none;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .nav-dropdown.open .solution-menu {
+      display: flex;
+      transform: none;
     }
   }
 </style>
@@ -204,6 +299,8 @@ import { nav } from '../../data/home';
   const header = document.getElementById('siteHeader')!;
   const menuToggle = document.getElementById('menuToggle')!;
   const mainNav = document.getElementById('mainNav')!;
+  const dropdown = document.getElementById('navDropdown')!;
+  const dropTrigger = dropdown.querySelector<HTMLButtonElement>('.drop-trigger')!;
   const navLinks = [...document.querySelectorAll<HTMLAnchorElement>('[data-nav]')];
 
   window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 20), {
@@ -215,14 +312,27 @@ import { nav } from '../../data/home';
     menuToggle.setAttribute('aria-expanded', String(open));
   });
 
-  navLinks.forEach((link) =>
+  // 点击切换下拉（触屏/键盘）；桌面 hover 由 CSS 负责
+  dropTrigger.addEventListener('click', () => {
+    const open = dropdown.classList.toggle('open');
+    dropTrigger.setAttribute('aria-expanded', String(open));
+  });
+  document.addEventListener('click', (event) => {
+    if (!dropdown.contains(event.target as Node)) {
+      dropdown.classList.remove('open');
+      dropTrigger.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  mainNav.querySelectorAll('a').forEach((link) =>
     link.addEventListener('click', () => {
       mainNav.classList.remove('open');
+      dropdown.classList.remove('open');
       menuToggle.setAttribute('aria-expanded', 'false');
     })
   );
 
-  // 当前 section 高亮
+  // 当前 section 高亮（仅首页锚点区生效）
   const sectionObserver = new IntersectionObserver(
     (entries) =>
       entries.forEach((entry) => {

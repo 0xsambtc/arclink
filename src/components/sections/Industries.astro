@@ -1,6 +1,6 @@
 ---
-// Industries — 行业切换器（白底）；首项 Mapping 默认激活（geo 旗舰垂类，docs/00 决策）
-// 升级点：原型 glyph 图标改为 mono 序号（01…06）；描述切换加 opacity 过渡；颜色全部映射 tokens
+// Industries — 行业切换器（白底）；首项默认激活
+// 原型 glyph 图标改为 mono 序号；描述切换加 opacity 过渡；颜色全部映射 tokens
 import { industries } from '../../data/home';
 ---
 
@@ -55,7 +55,7 @@ import { industries } from '../../data/home';
 
   .industry-list {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: var(--space-3);
   }
 
@@ -119,7 +119,7 @@ import { industries } from '../../data/home';
 
   @media (max-width: 1120px) {
     .industry-list {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 

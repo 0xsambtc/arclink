@@ -1,0 +1,208 @@
+---
+// Talk to Sales — 左联系信息 / 右需求方表单（字段规格：docs/content/requirements-v0.2.md「需求方 (Client) 表单」）
+import Base from '../layouts/Base.astro';
+import SiteHeader from '../components/sections/SiteHeader.astro';
+import Footer from '../components/sections/Footer.astro';
+import { site } from '../data/site';
+import { clientForm, consentCopy } from '../data/forms';
+import { countries } from '../data/countries';
+import '../styles/forms.css';
+---
+
+<Base title={`Talk to Sales — ${site.name}`} description={site.description} bg="#f3f7ff">
+  <SiteHeader solid />
+  <main id="main" class="journey-main">
+    <div class="shell">
+      <a class="journey-back" href="/">← Back to home</a>
+      <div class="journey-grid">
+        <aside class="journey-aside">
+          <p class="eyebrow">{clientForm.aside.eyebrow}</p>
+          <h1>{clientForm.aside.heading}</h1>
+          <div class="contact-details">
+            <div>
+              <span>{clientForm.aside.emailLabel}</span>
+              <a href={`mailto:${site.email}`}>{site.email}</a>
+            </div>
+            <div>
+              <span>{clientForm.aside.addressLabel}</span>
+              <strong>{site.addressLines[0]}<br />{site.addressLines[1]}</strong>
+            </div>
+          </div>
+        </aside>
+
+        <div class="journey-form">
+          <p class="eyebrow">{clientForm.intro.eyebrow}</p>
+          <h2>{clientForm.intro.heading}</h2>
+          <p class="form-intro">Fields marked <em>*</em> are required.</p>
+          <form class="enhanced-form" id="clientForm" data-endpoint={clientForm.endpoint} novalidate>
+            <div class="two-up">
+              <label data-field>
+                {clientForm.fields.firstName} <em>*</em>
+                <input name="first_name" required autocomplete="given-name" />
+                <small class="field-error"></small>
+              </label>
+              <label data-field>
+                {clientForm.fields.lastName} <em>*</em>
+                <input name="last_name" required autocomplete="family-name" />
+                <small class="field-error"></small>
+              </label>
+            </div>
+            <label data-field>
+              {clientForm.fields.email} <em>*</em>
+              <input name="email" type="email" required autocomplete="email" />
+              <small class="field-error"></small>
+            </label>
+            <label data-field>
+              {clientForm.fields.company} <em>*</em>
+              <input name="name" required autocomplete="organization" />
+              <small class="field-error"></small>
+            </label>
+            <fieldset data-field data-required-group data-name="project_type">
+              <legend>{clientForm.fields.projectType} <em>*</em></legend>
+              <div class="choice-grid">
+                {
+                  clientForm.projectTypeOptions.map((option) => (
+                    <label class="choice-chip">
+                      <input type="checkbox" name="project_type" value={option} />
+                      <span>{option}</span>
+                    </label>
+                  ))
+                }
+              </div>
+              <small class="field-error"></small>
+            </fieldset>
+            <label data-field>
+              {clientForm.fields.country} <span class="optional">Optional</span>
+              <select name="country" autocomplete="country-name">
+                <option value="">Select a country</option>
+                {countries.map((country) => <option value={country}>{country}</option>)}
+              </select>
+              <small class="field-error"></small>
+            </label>
+            <label data-field class="textarea-wrap">
+              {clientForm.fields.message} <span class="optional">Optional</span>
+              <textarea name="message" data-maxlength="500" data-count placeholder={clientForm.messagePlaceholder}
+              ></textarea>
+              <span class="char-count"></span>
+              <small class="field-error"></small>
+            </label>
+            <label data-field class="consent-row">
+              <input name="consent" type="checkbox" data-consent />
+              <span>
+                {consentCopy.label}{' '}
+                <a href={consentCopy.privacyLink.href} target="_blank" rel="noopener">{consentCopy.privacyLink.label}</a>{' '}
+                and consent to being contacted about this enquiry. <em>*</em>
+              </span>
+              <small class="field-error"></small>
+            </label>
+            <button class="button button-primary" type="submit">
+              <span class="submit-label">{clientForm.submit}</span> <span aria-hidden="true">→</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  .journey-grid {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: var(--space-9);
+    align-items: start;
+  }
+
+  .journey-aside h1 {
+    font-size: clamp(34px, 3.4vw, 46px);
+    line-height: 1.12;
+    letter-spacing: var(--tracking-tight);
+    margin: 0 0 var(--space-6);
+  }
+
+  .contact-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .contact-details > div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .contact-details span {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted-on-light);
+  }
+
+  .contact-details a {
+    color: var(--color-accent);
+    text-decoration: none;
+    font-size: 16px;
+  }
+
+  .contact-details a:hover {
+    text-decoration: underline;
+  }
+
+  .contact-details strong {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .journey-form {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-on-light);
+    border-radius: var(--radius-md);
+    padding: var(--space-7);
+  }
+
+  .journey-form h2 {
+    font-size: 27px;
+    letter-spacing: var(--tracking-tight);
+    margin: 0 0 var(--space-2);
+  }
+
+  .form-intro {
+    font-size: 13px;
+    color: var(--color-text-muted-on-light);
+    margin: 0 0 var(--space-6);
+  }
+
+  .form-intro em {
+    color: var(--color-accent);
+    font-style: normal;
+  }
+
+  /* 提交按钮禁用态（consent 门禁 / 提交中） */
+  .enhanced-form button[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  @media (max-width: 1120px) {
+    .journey-grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-7);
+    }
+  }
+
+  @media (max-width: 760px) {
+    .journey-form {
+      padding: var(--space-5);
+    }
+  }
+</style>
+
+<script>
+  import { wireForm } from '../scripts/form-ux';
+
+  wireForm(document.getElementById('clientForm') as HTMLFormElement);
+</script>

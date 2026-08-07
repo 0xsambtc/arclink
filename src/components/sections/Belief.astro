@@ -1,5 +1,5 @@
 ---
-// Belief — "Our Belief" 白底宣言段 + 可展开 Manifesto（原型移植，颜色全部映射 tokens）
+// Belief — "Our Belief" 白底信念区：左标题 / 中缝竖线 / 右三段正文（v0.2 结构，无折叠）
 import { belief } from '../../data/home';
 ---
 
@@ -7,32 +7,11 @@ import { belief } from '../../data/home';
   <div class="shell belief-grid">
     <div class="reveal">
       <p class="eyebrow">{belief.eyebrow}</p>
-      <h2>
-        {belief.heading.pre}<br />
-        <span>{belief.heading.accent}</span>
-      </h2>
+      <h2>{belief.heading}</h2>
     </div>
     <div class="belief-rule reveal" aria-hidden="true"></div>
     <div class="belief-copy reveal reveal-delay">
-      <p>{belief.copy}</p>
-      <button
-        class="text-link"
-        id="manifestoToggle"
-        aria-expanded="false"
-        aria-controls="manifestoPanel"
-        data-label-open={belief.manifestoLabel.open}
-        data-label-close={belief.manifestoLabel.close}
-      >
-        <span class="toggle-label">{belief.manifestoLabel.open}</span>
-        <span class="toggle-arrow" aria-hidden="true">→</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- 展开面板：grid-template-rows 0fr→1fr 过渡实现平滑高度动画 -->
-  <div class="shell manifesto-panel" id="manifestoPanel">
-    <div class="manifesto-inner">
-      {belief.manifesto.map((paragraph) => <p>{paragraph}</p>)}
+      {belief.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
     </div>
   </div>
 </section>
@@ -80,10 +59,6 @@ import { belief } from '../../data/home';
     margin: 0;
   }
 
-  h2 span {
-    color: var(--color-accent);
-  }
-
   /* 中缝竖线 */
   .belief-rule {
     height: 110px;
@@ -91,63 +66,13 @@ import { belief } from '../../data/home';
   }
 
   .belief-copy p {
-    font-size: 20px;
-    line-height: 1.75;
-    color: var(--color-text-muted-on-light);
-    margin: 0 0 var(--space-5);
-  }
-
-  #manifestoToggle {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: 17px;
-    transition: color var(--duration-fast) var(--ease-out);
-  }
-
-  #manifestoToggle:hover {
-    color: var(--color-accent-deep);
-  }
-
-  .toggle-arrow {
-    transition: transform var(--duration-fast) var(--ease-out);
-  }
-
-  #manifestoToggle:hover .toggle-arrow {
-    transform: translateX(3px);
-  }
-
-  /* 展开面板：0fr → 1fr（配合 inner 的 min-height:0 / overflow:hidden） */
-  .manifesto-panel {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows var(--duration-reveal) var(--ease-out);
-    position: relative;
-    z-index: 2;
-  }
-
-  .manifesto-panel.open {
-    grid-template-rows: 1fr;
-  }
-
-  .manifesto-inner {
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .manifesto-inner p {
     font-size: 18px;
     line-height: 1.8;
     color: var(--color-text-muted-on-light);
-    max-width: 780px;
     margin: 0;
   }
 
-  .manifesto-inner p:first-child {
-    margin-top: var(--space-7);
-  }
-
-  .manifesto-inner p + p {
+  .belief-copy p + p {
     margin-top: var(--space-5);
   }
 
@@ -172,25 +97,7 @@ import { belief } from '../../data/home';
       font-size: 38px;
     }
     .belief-copy p {
-      font-size: 18px;
+      font-size: 17px;
     }
   }
 </style>
-
-<script>
-  // Manifesto 展开/收起：切换 open 类 + 按钮文案与箭头（label 来自 data 属性，零硬编码文案）
-  const toggle = document.getElementById('manifestoToggle');
-  const panel = document.getElementById('manifestoPanel');
-
-  if (toggle && panel) {
-    const label = toggle.querySelector('.toggle-label');
-    const arrow = toggle.querySelector('.toggle-arrow');
-
-    toggle.addEventListener('click', () => {
-      const isOpen = panel.classList.toggle('open');
-      toggle.setAttribute('aria-expanded', String(isOpen));
-      if (label) label.textContent = isOpen ? toggle.dataset.labelClose ?? '' : toggle.dataset.labelOpen ?? '';
-      if (arrow) arrow.textContent = isOpen ? '↑' : '→';
-    });
-  }
-</script>

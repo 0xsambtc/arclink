@@ -1,0 +1,84 @@
+---
+// 法律文档布局（隐私政策 / 服务条款）— markdown 页面经 frontmatter layout 使用；正文原文来自 PM，勿改写
+import Base from './Base.astro';
+import SiteHeader from '../components/sections/SiteHeader.astro';
+import Footer from '../components/sections/Footer.astro';
+import { site } from '../data/site';
+
+interface Props {
+  frontmatter: { title: string; description?: string };
+}
+
+const { frontmatter } = Astro.props;
+---
+
+<Base title={`${frontmatter.title} — ${site.name}`} description={frontmatter.description ?? site.description} bg="#f3f7ff">
+  <SiteHeader solid />
+  <main id="main" class="legal-main">
+    <article class="shell legal-article">
+      <slot />
+    </article>
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  .legal-main {
+    background: var(--color-surface-alt);
+    color: var(--color-text-on-light);
+    padding: calc(88px + var(--space-7)) 0 var(--space-9);
+  }
+
+  .legal-article {
+    max-width: 780px;
+  }
+
+  .legal-article :global(h1) {
+    font-size: clamp(32px, 3.2vw, 44px);
+    line-height: 1.15;
+    letter-spacing: var(--tracking-tight);
+    margin: 0 0 var(--space-3);
+  }
+
+  .legal-article :global(h2) {
+    font-size: 22px;
+    letter-spacing: var(--tracking-tight);
+    margin: var(--space-7) 0 var(--space-3);
+  }
+
+  .legal-article :global(p),
+  .legal-article :global(li) {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--color-text-muted-on-light);
+  }
+
+  .legal-article :global(ul) {
+    padding-left: 22px;
+  }
+
+  .legal-article :global(a) {
+    color: var(--color-accent);
+  }
+
+  .legal-article :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--space-4) 0;
+    font-size: 14px;
+  }
+
+  .legal-article :global(th),
+  .legal-article :global(td) {
+    text-align: left;
+    padding: 10px 14px;
+    border: 1px solid var(--color-border-on-light);
+    color: var(--color-text-muted-on-light);
+    line-height: 1.6;
+  }
+
+  .legal-article :global(th) {
+    background: var(--color-surface-tint);
+    color: var(--color-text-on-light);
+  }
+</style>

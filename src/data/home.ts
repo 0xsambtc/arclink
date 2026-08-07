@@ -1,34 +1,36 @@
-// 首页全部文案槽位 — 占位内容（源自原型，Mapping 已按旗舰垂类决策提到行业区首位）
-// 正式文案由 PM 提供后仅改本文件，不动组件（docs/02 工程约定：内容与代码分离）
+// 首页全部文案槽位 — 唯一来源 docs/content/requirements-v0.2.md（改内容只动本文件，不动组件）
 
 export const nav = {
+  solutions: {
+    label: 'Solutions',
+    items: [
+      { label: 'Platform', href: '/#platform' },
+      { label: 'Industries', href: '/#industries' },
+      { label: 'How Arclink Works', href: '/#infrastructure' },
+    ],
+  },
   links: [
-    { label: 'Platform', href: '#platform', key: 'platform' },
-    { label: 'Infrastructure', href: '#infrastructure', key: 'infrastructure' },
-    { label: 'Industries', href: '#industries', key: 'industries' },
-    { label: 'Network', href: '#network', key: 'network' },
-    { label: 'About', href: '#about', key: 'about' },
+    { label: 'Network', href: '/#network', key: 'network' },
+    { label: 'Careers', href: '/careers', key: 'careers' },
   ],
-  ctaPrimary: { label: 'Start a Project', modal: 'project' },
-  ctaSecondary: { label: 'Join Our Network', modal: 'network' },
+  ctaSales: { label: 'Talk to Sales', href: '/contact' },
+  ctaNetwork: { label: 'Join Our Network', href: '/join' },
 } as const;
 
 export const hero = {
-  eyebrow: 'Execution Infrastructure',
-  // 三行标题，中间行为强调色
-  headline: { pre: 'Building the', accent: 'Execution Infrastructure', post: 'for the Physical World.' },
+  headline: { pre: 'Building the', accent: 'Execution Infrastructure', post: 'for the Real World.' },
   description:
-    'Arclink enables enterprises to plan, deploy and verify real-world operations through technology, standardized workflows and trusted local execution.',
+    'Arclink helps enterprises plan, deploy, and verify on-the-ground operations—from data collection to field verification and outreach—at scale through a trusted network of operators.',
+  ctaPrimary: { label: 'Talk to Sales', href: '/contact' },
+  ctaSecondary: { label: 'Join Our Network', href: '/join' },
 } as const;
 
 export const belief = {
   id: 'about',
   eyebrow: 'Our Belief',
-  heading: { pre: 'The Physical World', accent: 'Still Matters.' },
-  copy: 'Every digital decision ultimately depends on execution in the physical world.',
-  manifestoLabel: { open: 'Read Our Manifesto', close: 'Close Manifesto' },
-  manifesto: [
-    'AI can process information. Software can automate workflows. But someone still needs to be there.',
+  heading: 'The real world still needs execution.',
+  paragraphs: [
+    'Digital technology has transformed how organizations make decisions. AI processes information. Software automates workflows. But every digital decision ultimately depends on execution in the real world.',
     'We believe execution should be as scalable as software, as measurable as data and as reliable as infrastructure.',
     'That is why Arclink exists.',
   ],
@@ -36,137 +38,89 @@ export const belief = {
 
 export const process = {
   id: 'infrastructure',
-  eyebrow: 'Execution Infrastructure',
+  eyebrow: 'How Arclink Works',
   heading: 'End-to-end. On the ground. At scale.',
   steps: [
-    { number: '01', title: 'Planning', description: 'Define scope, locations and requirements.' },
-    { number: '02', title: 'Deployment', description: 'Assign the right people to the right work.' },
-    { number: '03', title: 'Execution', description: 'Run operations with standardized workflows.' },
-    { number: '04', title: 'Verification', description: 'Review quality through structured controls.' },
-    { number: '05', title: 'Reporting', description: 'Deliver structured outputs and insights.' },
+    {
+      number: '1',
+      title: 'Scope & Plan',
+      description: 'Tell us what you need, where and by when — we turn it into a clear plan for execution.',
+    },
+    {
+      number: '2',
+      title: 'Activate the Network',
+      description: 'We deploy vetted local operators on-demand, from a single city to global scales.',
+    },
+    {
+      number: '3',
+      title: 'Execute Consistently',
+      description: 'Every operator follows the standardized workflow, ensuring consistent results across markets.',
+    },
+    {
+      number: '4',
+      title: 'Verify & Deliver',
+      description: 'Every result is reviewed and verified before delivery.',
+    },
   ],
 } as const;
 
 export const platform = {
   id: 'platform',
   eyebrow: 'Our Platform',
-  heading: 'The platform powering execution in the physical world.',
-  description:
-    'Arclink brings together technology, standardized workflows and trusted local execution into one enterprise platform.',
+  heading: 'The platform powering field operations at scale.',
+  description: 'Arclink brings technology, standardized workflows and trusted local execution together into one platform.',
   features: [
-    { title: 'Execution Engine', description: 'Coordinate field activities with intelligent task orchestration.' },
-    { title: 'Quality Engine', description: 'Apply structured quality controls and multi-layer review.' },
-    { title: 'Workforce Network', description: 'Activate trusted local operators across multiple markets.' },
-    { title: 'Operations Console', description: 'Track progress, status and operational performance.' },
-    { title: 'Reporting & Insights', description: 'Transform activity into structured reporting and intelligence.' },
-    { title: 'Analytics', description: 'Measure quality, efficiency and continuous improvement.' },
+    {
+      title: 'Task Management',
+      description:
+        'Plan, assign and track every task across cities, regions and countries with progress and coverage visible in real time.',
+    },
+    {
+      title: 'Workforce Management',
+      description: 'Match and deploy local operators and field teams to each task by location, capacity and performance.',
+    },
+    {
+      title: 'Data Collection',
+      description: 'Standardize on-site data collection so every task submission comes back as structured, ready-to-use data.',
+    },
+    {
+      title: 'Quality Assurance',
+      description:
+        'Verify task submissions with GPS and timestamp checks, photo evidence, automated rule checks and multi-layer review.',
+    },
+    {
+      title: 'Analytics & Optimization',
+      description:
+        'Bring task, resource and quality data together to see where work slows down and steadily improve workflows, efficiency and completion quality.',
+    },
   ],
-  statement: { pre: 'Execution is no longer a service. It is ', accent: 'infrastructure.' },
 } as const;
 
 export const industries = {
   id: 'industries',
   eyebrow: 'Industries We Serve',
-  heading: 'Execution infrastructure across industries that move the world.',
-  // Mapping 置于首位（geo 旗舰垂类，docs/00 决策）
+  heading: 'Wherever field data and on-site work matter.',
   items: [
-    { key: 'Mapping', label: 'Mapping', description: 'Location verification and field intelligence for digital mapping platforms.' },
-    { key: 'AI', label: 'AI', description: 'Data and execution support for AI systems operating in the physical world.' },
-    { key: 'Retail', label: 'Retail', description: 'Consistent real-world operational visibility across distributed retail locations.' },
-    { key: 'Mobility', label: 'Mobility', description: 'Physical-world validation for mobility assets, routes and infrastructure.' },
-    { key: 'Logistics', label: 'Logistics', description: 'Distributed operational visibility across supply-chain and delivery environments.' },
-    { key: 'Infrastructure', label: 'Infrastructure', description: 'Local inspection, verification and reporting for physical infrastructure.' },
+    { key: 'ai-training', label: 'AI Training', description: 'Ground-truth data collection and labeling for physical-world AI systems.' },
+    { key: 'retail', label: 'Retail', description: 'Store audits, shelf checks and merchant outreach.' },
+    { key: 'maps', label: 'Maps & Navigation', description: 'POI collection, tagging and verification for maps and LBS platforms.' },
+    { key: 'logistics', label: 'Logistics & Delivery', description: 'Address, hub and last-mile verification.' },
   ],
 } as const;
 
 export const network = {
   id: 'network',
   eyebrow: 'Join Our Network',
-  heading: 'The network behind the infrastructure.',
-  description: 'Whether you are an individual operator or an organization, join our network and grow with us.',
-  ctaPrimary: { label: 'Apply as an Operator', modal: 'network' },
-  ctaSecondary: { label: 'Partner with Us', modal: 'partner' },
+  heading: 'Join the network that gets the real world done.',
+  description:
+    "Whether you're an individual operator or a local team, join our network to take on tasks nearby and get paid for every job you complete.",
+  ctaPrimary: { label: 'Apply as an individual', href: '/join#individual' },
+  ctaSecondary: { label: 'Apply as a team', href: '/join#team' },
 } as const;
 
 export const footerData = {
-  tagline: 'Building the Execution Infrastructure for the Physical World.',
-  columns: [
-    {
-      title: 'Platform',
-      links: [
-        { label: 'Execution Engine', href: '#platform' },
-        { label: 'Quality Engine', href: '#platform' },
-        { label: 'Operations Console', href: '#platform' },
-      ],
-    },
-    {
-      title: 'Infrastructure',
-      links: [
-        { label: 'How It Works', href: '#infrastructure' },
-        { label: 'Quality Standards', href: '#infrastructure' },
-      ],
-    },
-    {
-      title: 'Network',
-      links: [
-        { label: 'Join as Operator', href: '#network' },
-        { label: 'Partner with Us', href: '#network' },
-      ],
-    },
-    {
-      title: 'Company',
-      links: [
-        { label: 'About', href: '#about' },
-        { label: 'Manifesto', href: '#about' },
-        { label: 'Contact', href: '#home' },
-      ],
-    },
+  legalLinks: [
+    { label: 'Privacy Policy', href: '/privacy-policy' },
+    { label: 'Terms of Service', href: '/terms-of-service' },
   ],
-  // TODO: 公司法定名称待 PM 提供后核对
-  legal: '© 2026 Arclink Solutions Pte. Ltd.',
-} as const;
-
-export const modalsData = {
-  project: {
-    eyebrow: 'Start a Project',
-    heading: 'Tell us what needs to happen in the physical world.',
-    fields: {
-      name: 'Name',
-      email: 'Work email',
-      company: 'Company',
-      message: 'Project overview',
-    },
-    submit: 'Submit Enquiry',
-    successMessage: 'Thanks — we received your enquiry and will get back to you shortly.',
-  },
-  network: {
-    eyebrow: 'Join Our Network',
-    heading: 'Create your operator profile.',
-    copy: 'Tell us who you are and where you operate.',
-    choices: [
-      { key: 'individual', title: 'Individual Operator', description: 'Join as a local execution professional.' },
-      { key: 'organization', title: 'Team or Organization', description: 'Register a local team or delivery partner.' },
-    ],
-    fields: {
-      name: 'Name',
-      email: 'Email',
-      location: 'Country / City',
-      message: 'Tell us about your experience',
-    },
-    submit: 'Apply to Join',
-    successMessage: 'Thanks — your application has been received.',
-  },
-  partner: {
-    eyebrow: 'Partner with Us',
-    heading: 'Build local execution capacity together.',
-    copy: 'Partnerships for organizations with local delivery capabilities.',
-    fields: {
-      name: 'Name',
-      email: 'Work email',
-      company: 'Organization',
-      message: 'How would you like to partner?',
-    },
-    submit: 'Start the Conversation',
-    successMessage: 'Thanks — we will reach out to discuss next steps.',
-  },
 } as const;
