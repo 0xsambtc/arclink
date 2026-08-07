@@ -29,6 +29,13 @@
 | 隐私政策 §9 占位邮箱 `[dpo@arclink.com]` 的正确值 | 法律页 | ⏸ 转 PM 确认 |
 | Logo 矢量源文件 | header 真 logo | ⏸ 已有新版 JPG（public/brand/logo-v2.jpg），矢量待提供 |
 
+## 待 samuel 决策的队列（2026-08-07 合规审计产出）
+
+1. **WeChat vs Wechat**：v0.2 规格拼写为 "Wechat"，实现用了官方拼写 "WeChat"。保留官方拼写（推荐）还是逐字跟规格？定了请让 PM 在 v0.2 同步勘误。
+2. **Hero eyebrow "EXECUTION INFRASTRUCTURE"**：v0.2 文字清单与原型均无，但产品效果图上有——按效果图保留（推荐）还是删除？
+3. **转 PM 确认的规格疑似笔误**（实现已按合理值执行，待归档勘误）：① 流程步骤 1 句末双句号 ".."；② 岗位卡 3 Overview 的 "ARCLINK’s" 全大写（已逐字照排，若属笔误请 PM 更正后我再统一为 Arclink）；③ 全站撇号规范（v0.2 弯直混用，实现已逐字跟随，建议 PM 定一个统一规范）。
+4. 既有：隐私政策 §9 占位邮箱 `[dpo@arclink.com]`（开放问题 2）。
+
 ## 已作废（2026-08-07，git 历史保留）
 
 - M2 全部产物：勘测年鉴 /atlas、地面站 /station、STOCK/EDITION 切换、coverage 占位数据、arcfield 图形引擎、双语路由。作废原因：设计依赖真实交付数据，数据不存在；且 v0.2 内容为英文单语。
