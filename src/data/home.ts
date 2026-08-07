@@ -29,6 +29,7 @@ export const hero = {
 export const belief = {
   id: 'about',
   eyebrow: 'Our Belief',
+  label: 'Our Belief', // v0.2 模块1 的第二行标签（eyebrow 大写行下的 Title Case 行，与原型 belief-label 一致）
   heading: 'The real world still needs execution.',
   paragraphs: [
     'Digital technology has transformed how organizations make decisions. AI processes information. Software automates workflows. But every digital decision ultimately depends on execution in the real world.',

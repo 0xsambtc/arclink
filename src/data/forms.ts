@@ -62,7 +62,7 @@ export const collectorForm = {
   referral: {
     heading: 'Invite a friend. Earn a referral reward.',
     paragraphs: [
-      "Know someone who'd be a good fit for the Arclink network? Send them your way. Once they join and finish their first approved tasks, you'll receive a referral bonus.",
+      "Know someone who'd be a good fit for the Arclink network? Send them your way. Once they join and finish their first approved tasks, you’ll receive a referral bonus.",
       "Bonuses are paid after your referral hits that milestone. Spots are limited and the program closes once we reach the cap—so the earlier you refer, the better.",
     ],
   },

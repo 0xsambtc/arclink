@@ -11,8 +11,9 @@ import { hero } from '../../data/home';
     <div class="hero-copy">
       <p class="eyebrow intro-step" style="--d:0s">{hero.eyebrow}</p>
       <h1>
-        <span class="hline intro-step" style="--d:0.08s">{hero.headline.pre}</span>
-        <span class="hline hline-accent intro-step" style="--d:0.16s">{hero.headline.accent}</span>
+        {/* span 间显式空格：hline 为 display:block 不影响视觉，但保证 textContent/复制不粘连 */}
+        <span class="hline intro-step" style="--d:0.08s">{hero.headline.pre}</span>{' '}
+        <span class="hline hline-accent intro-step" style="--d:0.16s">{hero.headline.accent}</span>{' '}
         <span class="hline intro-step" style="--d:0.24s">{hero.headline.post}</span>
       </h1>
       <p class="hero-description intro-step" style="--d:0.34s">{hero.description}</p>

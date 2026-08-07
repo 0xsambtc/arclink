@@ -72,6 +72,7 @@ const t = collectorForm;
       <h2 id="modalHeading">{t.modal.individual.heading}</h2>
       <form class="enhanced-form" id="individualForm" data-endpoint={t.endpoint} novalidate>
         <input type="hidden" name="type" value="individual" />
+        <div class="hp-field" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off" /></div>
         <div class="two-up">
           <label data-field>
             {t.fields.firstName} <em>*</em>
@@ -172,6 +173,7 @@ const t = collectorForm;
       <h2>{t.modal.team.heading}</h2>
       <form class="enhanced-form" id="teamForm" data-endpoint={t.endpoint} novalidate>
         <input type="hidden" name="type" value="team" />
+        <div class="hp-field" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off" /></div>
         <div class="two-up">
           <label data-field>
             {t.fields.firstName} <em>*</em>

@@ -224,6 +224,15 @@
   flex-basis: 100%;
 }
 
+/* —— honeypot（FR-8）：视觉与辅助技术均不可达，真人永不填写；M3 端点见非空即拒 —— */
+.hp-field {
+  position: absolute !important;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 /* —— 条件显隐 —— */
 .field-hidden {
   display: none !important;

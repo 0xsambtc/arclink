@@ -26,7 +26,7 @@ export const careers = {
   },
   openRoles: {
     eyebrow: 'Open Roles',
-    doHeading: "What you'll do",
+    doHeading: 'What you’ll do',
     lookForHeading: 'What we look for',
     roles: [
       {
@@ -53,10 +53,10 @@ export const careers = {
         title: 'Global Workforce & Community Growth Specialist',
         location: 'Singapore / Malaysia',
         overview:
-          "Help identify, engage, and grow communities of trusted field operators across countries, with a focus on SEA. You will support the growth of Arclink's operator network by building sourcing channels, engaging local communities, and helping qualified candidates move from interest to activation.",
+          "Help identify, engage, and grow communities of trusted field operators across countries, with a focus on SEA. You will support the growth of Arclink’s operator network by building sourcing channels, engaging local communities, and helping qualified candidates move from interest to activation.",
         youWillDo: [
           'Source field operators through social, professional, and community channels',
-          "Build and manage Arclink's online and local operator communities",
+          "Build and manage Arclink’s online and local operator communities",
           'Guide candidates through registration, onboarding and activation',
           'Maintain accurate workforce records and operator pipeline updates',
           'Research new sourcing channels and support network growth in SEA',
@@ -73,7 +73,7 @@ export const careers = {
         title: 'Operations Specialist - Payments & Rewards',
         location: 'Singapore / Malaysia',
         overview:
-          "Manage operator payments, reward programs, and settlement operations across Arclink's global workforce platform. You will help ensure accurate, timely payouts while improving operational workflows and creating a reliable payment experience for our operator network.",
+          "Manage operator payments, reward programs, and settlement operations across ARCLINK’s global workforce platform. You will help ensure accurate, timely payouts while improving operational workflows and creating a reliable payment experience for our operator network.",
         youWillDo: [
           'Calculate operator rewards and review payout requests',
           'Process payments, referral rewards, and settlement records',

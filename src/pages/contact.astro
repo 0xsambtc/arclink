@@ -36,6 +36,7 @@ import '../styles/subpage.css';
           <h2>{clientForm.intro.heading}</h2>
           <p class="form-intro">Fields marked <em>*</em> are required.</p>
           <form class="enhanced-form" id="clientForm" data-endpoint={clientForm.endpoint} novalidate>
+            <div class="hp-field" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off" /></div>
             <div class="two-up">
               <label data-field>
                 {clientForm.fields.firstName} <em>*</em>

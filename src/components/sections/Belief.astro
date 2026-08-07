@@ -7,6 +7,7 @@ import { belief } from '../../data/home';
   <div class="shell belief-grid">
     <div class="reveal">
       <p class="eyebrow">{belief.eyebrow}</p>
+      <p class="belief-label">{belief.label}</p>
       <h2>{belief.heading}</h2>
     </div>
     <div class="belief-rule reveal" aria-hidden="true"></div>
@@ -52,6 +53,13 @@ import { belief } from '../../data/home';
     align-items: start;
     position: relative;
     z-index: 2;
+  }
+
+  .belief-label {
+    margin: calc(var(--space-5) * -1 + var(--space-2)) 0 var(--space-3);
+    font-size: 15px;
+    font-weight: 650;
+    color: var(--color-text-muted-on-light);
   }
 
   h2 {
