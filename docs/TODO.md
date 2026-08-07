@@ -29,7 +29,26 @@
 | 隐私政策 §9 占位邮箱 `[dpo@arclink.com]` 的正确值 | 法律页 | ⏸ 转 PM 确认 |
 | Logo 矢量源文件 | header 真 logo | ⏸ 已有新版 JPG（public/brand/logo-v2.jpg），矢量待提供 |
 
-## 待 samuel 决策的队列（2026-08-07 合规审计产出）
+## 待 samuel / PM 决策的队列（2026-08-07 汇总：合规审计 + 结构评审 + 精修评审）
+
+**需 PM 供稿（工程侧槽位已就位或成本极低）：**
+- Careers 岗位申请通道与指引文案（现为死胡同；最低成本 mailto:support+subject）
+- /join 成功句 application 版（现复用 "We've received your message…"，执行者被叫 message 欠妥）
+- 三个字段引导：regions placeholder / referral email 用途说明 / channel handle 示例
+- /contact 前置 SLA 句正式措辞（现临时用 "We'll get back to you within 1–2 business days."，由成功 toast 句改写主语，待复核）
+- Careers→/join 分流句（低英语用户会把 Careers 误当接单入口）
+- /join 缺"能赚多少/接下来流程"内容块；提交后渠道联系预告句
+
+**需拍板的取舍：**
+- header 两颗 CTA 主次（现 header 主=Join、hero 主=Talk to Sales，互相矛盾：采购优先还是供给优先？）
+- 导航 "Network" 标签对采购方的歧义（预期看覆盖，点开是招募）
+- /join 桌面端 referral 左置为 v0.2 明文规格，但 PM 视角建议申请面板占主位——若调整需先改规格
+- 失焦即报必填错（v0.2 明文"失焦即校验"）vs 首次提交后才报（Linear/Stripe 惯例）——规格微调需 PM 确认
+- 跨页锚点全程平滑滚动（观光 vs 直达）
+- 页脚 "Talk to Sales" 链接与页尾收口 CTA 同屏重复，是否去其一
+- 信任证据层（证言/案例/合规版块）内容路线图（对接 docs/08 预留的 /case-studies 路由）
+
+## 历史决策队列（2026-08-07 合规审计产出）
 
 1. **WeChat vs Wechat**：v0.2 规格拼写为 "Wechat"，实现用了官方拼写 "WeChat"。保留官方拼写（推荐）还是逐字跟规格？定了请让 PM 在 v0.2 同步勘误。
 2. **Hero eyebrow "EXECUTION INFRASTRUCTURE"**：v0.2 文字清单与原型均无，但产品效果图上有——按效果图保留（推荐）还是删除？
