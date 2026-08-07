@@ -11,6 +11,7 @@ import '../styles/forms.css';
 import '../styles/subpage.css';
 
 const t = collectorForm;
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 ---
 
 <Base
@@ -68,6 +69,7 @@ const t = collectorForm;
   <Footer />
 
   <div class="toast-region" aria-live="polite"></div>
+  {turnstileSiteKey && <script is:inline async defer src="https://challenges.cloudflare.com/turnstile/api.js"></script>}
   <div class="modal-backdrop" id="modalBackdrop"></div>
   <section class="application-modal" id="applicationModal" role="dialog" aria-modal="true" aria-labelledby="modalHeading" hidden>
     <button class="modal-close" id="modalClose" aria-label="Close"><span aria-hidden="true">+</span></button>
@@ -169,6 +171,9 @@ const t = collectorForm;
           </span>
           <small class="field-error"></small>
         </label>
+        {turnstileSiteKey && (
+          <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-appearance="interaction-only"></div>
+        )}
         <div class="submit-wrap">
           <button class="button button-primary" type="submit">
             <span class="submit-label">{t.submit}</span> <span aria-hidden="true">→</span>
@@ -253,6 +258,9 @@ const t = collectorForm;
           </span>
           <small class="field-error"></small>
         </label>
+        {turnstileSiteKey && (
+          <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-appearance="interaction-only"></div>
+        )}
         <div class="submit-wrap">
           <button class="button button-primary" type="submit">
             <span class="submit-label">{t.submit}</span> <span aria-hidden="true">→</span>

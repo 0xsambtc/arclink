@@ -1,10 +1,15 @@
-// Cloudflare Workers static assets 配置
-// 账号到位后由 Workers Builds（git 集成）或 `npx wrangler deploy`（逃生通道）使用，见 docs/06
+// Cloudflare Workers 配置：静态资产 + 表单端点（@astrojs/cloudflare 产出 dist/_worker.js）
+// 部署：Workers Builds（git 集成）为主，`npx wrangler deploy` 为逃生通道，见 docs/06
+// 密钥（wrangler secret put，勿入 git）：TURNSTILE_SECRET_KEY / FEISHU_APP_ID / FEISHU_APP_SECRET
+//   / FEISHU_BITABLE_APP_TOKEN / FEISHU_TABLE_ID_CLIENT / FEISHU_TABLE_ID_COLLECTOR
+//   / FEISHU_BOT_WEBHOOK / DM_ACCESS_KEY_ID / DM_ACCESS_KEY_SECRET / DM_ACCOUNT_NAME / DM_TO_ADDRESS
 {
   "name": "arclink-website",
   "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
     "not_found_handling": "404-page"
   }
 }

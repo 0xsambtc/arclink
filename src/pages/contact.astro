@@ -8,6 +8,8 @@ import { clientForm, consentCopy, formMessages } from '../data/forms';
 import { countries } from '../data/countries';
 import '../styles/forms.css';
 import '../styles/subpage.css';
+
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 ---
 
 <Base
@@ -108,6 +110,9 @@ import '../styles/subpage.css';
               </span>
               <small class="field-error"></small>
             </label>
+            {turnstileSiteKey && (
+              <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-appearance="interaction-only"></div>
+            )}
             <div class="submit-wrap">
               <button class="button button-primary" type="submit">
                 <span class="submit-label">{clientForm.submit}</span> <span aria-hidden="true">→</span>
@@ -120,6 +125,7 @@ import '../styles/subpage.css';
   </main>
   <Footer />
   <div class="toast-region" aria-live="polite"></div>
+  {turnstileSiteKey && <script is:inline async defer src="https://challenges.cloudflare.com/turnstile/api.js"></script>}
 </Base>
 
 <style>

@@ -257,7 +257,19 @@ export function wireForm(form: HTMLFormElement, options?: { onSuccess?: () => vo
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(buildPayload()),
       });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      if (!response.ok) {
+        // 服务端邮箱三层验证拒绝：落回邮箱字段错误，指引比笼统失败更准确
+        const detail = (await response.json().catch(() => null)) as { error?: string } | null;
+        if (detail?.error?.startsWith('email_')) {
+          const emailControl = form.querySelector<Control>('input[name="email"]');
+          if (emailControl) {
+            setError(fieldWrap(emailControl), formMessages.errors.email, emailControl);
+            emailControl.focus();
+            return; // 不弹失败 toast（这不是系统故障）
+          }
+        }
+        throw new Error(`HTTP ${response.status}`);
+      }
       showToast(formMessages.toasts.success, 'success');
       form.reset();
       form.querySelectorAll<HTMLTextAreaElement>('textarea[data-maxlength]').forEach((area) =>

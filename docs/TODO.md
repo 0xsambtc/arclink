@@ -14,7 +14,7 @@
 | M0 | 仓库初始化（GitHub 私有仓库 + Workers Builds 接入） | ⏸ | 本地 git 就绪；剩账号相关，等 Cloudflare 账号 |
 | R1 | v0.2 重建：首页六区（Hero/Belief/HowWorks/Platform/Industries/Network）+ 导航页脚 | ✅ | 2026-08-07；M1 组件底座复用，内容层全换 |
 | R2 | v0.2 重建：/contact（Talk to Sales）+ /join（双表单）+ /careers + 法律页 | ✅ | 2026-08-07；表单字段/校验/toast 按 v0.2 规格实测通过（后端待 M3） |
-| M3 | 表单后端（Astro API endpoint：Turnstile → 校验 → 飞书多维表格 → DirectMail + 群机器人） | ⬜ | 前端已按 `/api/forms/*` 约定预留；需飞书/阿里云凭证 |
+| M3 | 表单后端（Turnstile → 校验 → 飞书多维表格 → DirectMail + 群机器人） | 🔵 | **代码已就绪并本地冒烟通过**（2026-08-07，含 Cloudflare adapter 接入与 Turnstile 前端挂载）；剩凭证配置与联调，密钥清单见 docs/03 |
 | M4 | SEO 基建（sitemap/robots/JSON-LD——现在有真实法律主体与地址可填 Organization） | ⬜ | robots 已定全开放 |
 | M5 | 上线（域名/DNS/发信域/Cloudflare 排雷/GSC+Bing/监控） | ⬜ | 检查清单见 docs/06、docs/08 |
 
@@ -25,7 +25,7 @@
 | Cloudflare 账号注册 | M0/M3/M5 | ⏸ |
 | 阿里云账号 → DirectMail | M3 | ⏸ |
 | 飞书多维表格 + 群机器人凭证 | M3 | ⏸ |
-| 域名（购买中） | M5 | ⏸ |
+| ~~域名~~ | M5 | ✅ arclink-solutions.com（2026-08-07）；**注意与邮箱域 arclink-solution.com 单复数不同，待确认是否有意** |
 | 隐私政策 §9 占位邮箱 `[dpo@arclink.com]` 的正确值 | 法律页 | ⏸ 转 PM 确认 |
 | Logo 矢量源文件 | header 真 logo | ⏸ 已有新版 JPG（public/brand/logo-v2.jpg），矢量待提供 |
 

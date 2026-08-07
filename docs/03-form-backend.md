@@ -59,3 +59,34 @@ VPS（Hetzner/DO $4-6/月）或 PaaS（Fly.io/Railway $5/月起）+ Node(Hono)/P
 ## 铁律
 
 表单静默失败不可接受：① **写入多维表格失败必须让用户可感知**——整个请求报错，前端给重试提示 + 展示备用联系邮箱（无兜底库，这一步就是落库）；② 通知类下游（邮件/IM）失败只告警不阻断；③ 邮件 + IM 双通道提醒，同挂概率可忽略。
+
+---
+
+# M3 实现记录（2026-08-07，代码已就绪，待凭证联调）
+
+端点：`src/pages/api/forms/[form].ts`（client|collector，`prerender=false` 走 Worker）；辅助模块 `src/server/{feishu,directmail,email-verify,disposable-domains}.ts`。管线：Turnstile（配置后强制）→ honeypot 假 200 → 字段校验（v0.2 必填 + consent）→ 邮箱三层（语法/DoH MX/一次性域名，网络失败放行）→ `request.cf` 归属地 → 飞书多维表格写入（失败 502，用户可感知）→ 群机器人 + DirectMail 提醒（互为告警，不阻断）。前端 `PUBLIC_TURNSTILE_SITE_KEY` 存在时渲染 interaction-only 组件；服务端 email_* 拒绝映射回邮箱字段错误。
+
+## 需要配置的密钥（`wrangler secret put <NAME>`；PUBLIC_ 前缀走构建环境变量）
+
+| 名称 | 来源 |
+|---|---|
+| TURNSTILE_SECRET_KEY / PUBLIC_TURNSTILE_SITE_KEY | Cloudflare → Turnstile 新建 widget（域名 arclink-solutions.com） |
+| FEISHU_APP_ID / FEISHU_APP_SECRET | 飞书开放平台 → 自建应用（开通 bitable:record:write 权限） |
+| FEISHU_BITABLE_APP_TOKEN | 多维表格 URL 中的 app token |
+| FEISHU_TABLE_ID_CLIENT / FEISHU_TABLE_ID_COLLECTOR | 两张数据表的 table id |
+| FEISHU_BOT_WEBHOOK | 告警群 → 自定义机器人 webhook |
+| DM_ACCESS_KEY_ID / DM_ACCESS_KEY_SECRET | 阿里云 RAM（仅授 DirectMail） |
+| DM_ACCOUNT_NAME | DirectMail 发信地址（建议 no-reply@send.arclink-solutions.com） |
+| DM_TO_ADDRESS | 默认 support@arclink-solution.com，可省略 |
+
+## 多维表格列规格（列名须与下表完全一致，均为文本列）
+
+- **Client 表**：first_name, last_name, email, name, project_type, country, message, ip_geo, submitted_at
+- **Collector 表**：first_name, last_name, email, type, country, preferred_channel, contact_handle, phone, company, team_size, regions, task_types, availability, referral_email, ip_geo, submitted_at
+
+## 备注
+
+- FR-5 邮件标题规格写"城市"，表单采集维度是 country（v0.2 字段表如此），标题用 country——已列入 PM 勘误清单。
+- 未配置凭证时端点返回 503 → 前端失败 toast（含备用邮箱），部署预览阶段行为诚实。
+- 本地联调：`npx wrangler dev`（已验证 503/蜜罐/一次性邮箱/缺 consent 四条路径）。
+- **域名注意**：站点域 arclink-solutions.com（带 s）≠ 邮箱域 arclink-solution.com（不带 s），发信子域挂站点域下，根域邮箱 DNS 不受影响；单复数差异待 samuel 确认是否有意。
