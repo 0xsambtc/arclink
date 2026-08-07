@@ -226,56 +226,36 @@ import { hero } from '../../data/home';
     stroke-width: 1.5;
   }
 
-  /* 悬在凹口尖端的光点：白亮核 → 冷白内晕 → 蓝辉光大软晕（效果图的"坠饰"形态） */
+  /* 凹口尖端的光点：实心白核 + 紧凑蓝辉光（效果图形态：清晰的点，不是弥散光斑） */
   .ht-dot {
     position: absolute;
     left: 50%;
-    bottom: 0;
-    width: 56px;
-    height: 56px;
-    margin-left: -28px;
-    background: radial-gradient(
-      circle,
-      rgba(255, 255, 255, 0.95) 0 2.5px,
-      rgba(190, 216, 255, 0.8) 5px,
-      rgba(var(--color-accent-bright-rgb), 0.45) 10px,
-      rgba(var(--color-accent-bright-rgb), 0.12) 21px,
-      transparent 28px
-    );
+    bottom: 23px;
+    width: 11px;
+    height: 11px;
+    margin-left: -5.5px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow:
+      0 0 6px rgba(255, 255, 255, 0.9),
+      0 0 16px var(--color-accent-bright),
+      0 0 36px rgba(var(--color-accent-bright-rgb), 0.45);
     animation: dot-breathe 3.6s ease-in-out infinite;
-  }
-
-  /* 纵向光芒（主）与横向光芒（弱）：镜头光斑语言，与地图枢纽同源 */
-  .ht-dot::before,
-  .ht-dot::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  .ht-dot::before {
-    width: 2px;
-    height: 48px;
-    background: linear-gradient(180deg, transparent, rgba(190, 216, 255, 0.8), transparent);
-  }
-
-  .ht-dot::after {
-    width: 34px;
-    height: 1.5px;
-    background: linear-gradient(90deg, transparent, rgba(190, 216, 255, 0.55), transparent);
   }
 
   @keyframes dot-breathe {
     0%,
     100% {
-      opacity: 0.75;
-      transform: scale(0.96);
+      box-shadow:
+        0 0 6px rgba(255, 255, 255, 0.9),
+        0 0 14px var(--color-accent-bright),
+        0 0 30px rgba(var(--color-accent-bright-rgb), 0.35);
     }
     50% {
-      opacity: 1;
-      transform: scale(1);
+      box-shadow:
+        0 0 8px rgba(255, 255, 255, 1),
+        0 0 20px var(--color-accent-bright),
+        0 0 44px rgba(var(--color-accent-bright-rgb), 0.55);
     }
   }
 

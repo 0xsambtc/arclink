@@ -366,9 +366,8 @@
   flex-wrap: wrap;
   align-items: flex-start;
   gap: var(--space-3);
-  padding: var(--space-3);
+  padding: var(--space-1) 0;
   border-radius: var(--radius-sm);
-  background: var(--color-surface-tint);
   font-weight: 400 !important;
 }
 
