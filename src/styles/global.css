@@ -6,6 +6,11 @@ html {
   scroll-behavior: smooth;
 }
 
+/* 锚点落位让出固定导航高度（Solutions/Network 锚点跳转不被 header 盖住） */
+[id] {
+  scroll-margin-top: calc(var(--header-h) + 16px);
+}
+
 body {
   margin: 0;
   font-family: var(--font-sans);

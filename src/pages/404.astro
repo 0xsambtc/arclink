@@ -1,24 +1,30 @@
 ---
 // 404 — wrangler not_found_handling 指向的页面；文案走 geo 隐喻保持品牌感
+// 带完整导航骨架：拿错链接的高意向访客（邮件/口传 URL）应能直达转化页
 import Base from '../layouts/Base.astro';
+import SiteHeader from '../components/sections/SiteHeader.astro';
+import Footer from '../components/sections/Footer.astro';
 ---
 
 <Base title="404 — Page not found | ARCLINK" description="The page you are looking for could not be found.">
-  <section class="not-found">
+  <SiteHeader solid />
+  <main id="main" class="not-found">
     <div class="shell">
       <p class="eyebrow">404</p>
       <h1>This location isn't mapped yet.</h1>
       <p class="copy">The page you're looking for doesn't exist or has moved.</p>
       <a class="home-link" href="/">← Back to home</a>
     </div>
-  </section>
+  </main>
+  <Footer />
 </Base>
 
 <style>
   .not-found {
-    min-height: 100vh;
+    min-height: calc(100vh - 180px);
     display: grid;
     align-items: center;
+    padding-top: var(--header-h);
     color: var(--color-text-on-dark);
     background: radial-gradient(
       circle at 50% 30%,

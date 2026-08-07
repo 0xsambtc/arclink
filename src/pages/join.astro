@@ -13,7 +13,11 @@ import '../styles/subpage.css';
 const t = collectorForm;
 ---
 
-<Base title={`Join Our Network — ${site.name}`} description={site.description} bg="light">
+<Base
+  title={`Join Our Network — ${site.name}`}
+  description="Join a trusted global network helping organizations deliver high-quality work in the physical world. Apply as an individual operator or as a team."
+  bg="light"
+>
   <SiteHeader solid />
   <main id="main" class="journey-main">
     <div class="shell">
@@ -61,6 +65,7 @@ const t = collectorForm;
   </main>
   <Footer />
 
+  <div class="toast-region" aria-live="polite"></div>
   <div class="modal-backdrop" id="modalBackdrop"></div>
   <section class="application-modal" id="applicationModal" role="dialog" aria-modal="true" aria-labelledby="modalHeading" hidden>
     <button class="modal-close" id="modalClose" aria-label="Close"><span aria-hidden="true">+</span></button>
@@ -161,9 +166,11 @@ const t = collectorForm;
           </span>
           <small class="field-error"></small>
         </label>
-        <button class="button button-primary" type="submit">
-          <span class="submit-label">{t.submit}</span> <span aria-hidden="true">→</span>
-        </button>
+        <div class="submit-wrap">
+          <button class="button button-primary" type="submit">
+            <span class="submit-label">{t.submit}</span> <span aria-hidden="true">→</span>
+          </button>
+        </div>
       </form>
     </div>
 
@@ -242,9 +249,11 @@ const t = collectorForm;
           </span>
           <small class="field-error"></small>
         </label>
-        <button class="button button-primary" type="submit">
-          <span class="submit-label">{t.submit}</span> <span aria-hidden="true">→</span>
-        </button>
+        <div class="submit-wrap">
+          <button class="button button-primary" type="submit">
+            <span class="submit-label">{t.submit}</span> <span aria-hidden="true">→</span>
+          </button>
+        </div>
       </form>
     </div>
     </div>
@@ -458,6 +467,10 @@ const t = collectorForm;
     .network-lower {
       grid-template-columns: 1fr;
     }
+    /* 单列时新申请者优先：申请面板前置，referral 面向老成员殿后 */
+    .apply-panel {
+      order: -1;
+    }
   }
 
   @media (max-width: 760px) {
@@ -489,9 +502,14 @@ const t = collectorForm;
 
   tabs.forEach((tab) => tab.addEventListener('click', () => selectTab(tab.dataset.networkTab!)));
 
-  // 首页 CTA 经 hash 直达对应选项卡
+  // 首页 CTA 经 hash 直达对应选项卡，并把申请面板滚进视口（落地即见入口）
   const hash = location.hash.replace('#', '');
-  if (hash === 'team' || hash === 'individual') selectTab(hash);
+  if (hash === 'team' || hash === 'individual') {
+    selectTab(hash);
+    requestAnimationFrame(() => {
+      document.querySelector('.apply-panel')?.scrollIntoView({ behavior: 'instant', block: 'start' });
+    });
+  }
 
   // 开合走 class 过渡（遮罩/面板同时序）；hidden 属性在过渡结束后再切，保住无障碍树语义
   let lastTrigger: HTMLElement | null = null;
@@ -503,7 +521,9 @@ const t = collectorForm;
     requestAnimationFrame(() => {
       modal.classList.add('open');
       backdrop.classList.add('open');
-      modal.querySelector<HTMLElement>('input:not([type="hidden"]), select')?.focus({ preventScroll: true });
+      modal
+        .querySelector<HTMLElement>('.modal-body:not([hidden]) label input, .modal-body:not([hidden]) select')
+        ?.focus({ preventScroll: true });
     });
     document.body.style.overflow = 'hidden';
   }
@@ -540,7 +560,7 @@ const t = collectorForm;
         ...modal.querySelectorAll<HTMLElement>(
           'button:not([disabled]), [href], input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled])'
         ),
-      ].filter((el) => el.offsetParent !== null);
+      ].filter((el) => el.offsetParent !== null && !el.closest('.hp-field'));
       if (!focusables.length) return;
       const first = focusables[0];
       const last = focusables[focusables.length - 1];

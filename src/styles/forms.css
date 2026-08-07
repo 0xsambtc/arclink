@@ -112,8 +112,11 @@
 }
 
 /* 提交按钮：左对齐定宽（B2B 表单惯例），禁用态去悬浮/发光 */
-.enhanced-form > .button {
+.enhanced-form .submit-wrap {
   align-self: flex-start;
+}
+
+.enhanced-form .submit-wrap .button {
   min-width: 200px;
 }
 
@@ -122,6 +125,28 @@
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+  /* 事件穿透到 .submit-wrap：点击禁用钮时可给出 consent 指引 */
+  pointer-events: none;
+}
+
+.enhanced-form .submit-wrap:has(.button[disabled]) {
+  cursor: not-allowed;
+}
+
+/* consent 指引脉冲：点了禁用的提交钮 → 高亮该勾的地方 */
+.consent-row.nudge {
+  animation: consent-nudge 0.7s var(--ease-out);
+}
+
+@keyframes consent-nudge {
+  0%,
+  100% {
+    background: transparent;
+  }
+  30% {
+    background: rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+  }
 }
 
 /* —— 多选 chip 组 —— */

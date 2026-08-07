@@ -9,17 +9,14 @@ interface Props {
 }
 
 const { solid = false } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isCurrent = (href: string) => (href.replace(/\/$/, '') || '/') === path;
 ---
 
 <header class:list={['site-header', solid && 'solid']} id="siteHeader">
   <div class="shell nav-shell">
-    <a class="logo" href="/" aria-label="ARCLINK Home">
-      <span class="logo-symbol" aria-hidden="true">
-        <span class="node node-left"></span>
-        <span class="arc"></span>
-        <span class="node node-right"></span>
-      </span>
-      <span class="logo-word">ARCLINK</span>
+    <a class="logo" href="/" aria-label="Arclink — Home">
+      <img class="logo-img" src="/brand/arclink-logo-reversed.png" alt="Arclink" width="381" height="96" />
     </a>
     <button class="menu-toggle" id="menuToggle" aria-label="Open navigation" aria-expanded="false">
       <span></span><span></span><span></span>
@@ -33,7 +30,15 @@ const { solid = false } = Astro.props;
           {nav.solutions.items.map((item) => <a href={item.href}>{item.label}</a>)}
         </div>
       </div>
-      {nav.links.map((link) => <a href={link.href} data-nav={link.key}>{link.label}</a>)}
+      {nav.links.map((link) => (
+        <a href={link.href} data-nav={link.key} aria-current={isCurrent(link.href) ? 'page' : undefined}>
+          {link.label}
+        </a>
+      ))}
+      <div class="menu-ctas">
+        <a class="button button-outline" href={nav.ctaSales.href}>{nav.ctaSales.label}</a>
+        <a class="button button-primary" href={nav.ctaNetwork.href}>{nav.ctaNetwork.label} <span aria-hidden="true">→</span></a>
+      </div>
     </nav>
     <div class="nav-actions">
       <Button variant="outline" href={nav.ctaSales.href}>{nav.ctaSales.label}</Button>
@@ -74,50 +79,14 @@ const { solid = false } = Astro.props;
   .logo {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-3);
-    color: var(--color-text-on-dark);
-    text-decoration: none;
     min-width: 220px;
   }
 
-  .logo-word {
-    font-weight: 700;
-    letter-spacing: var(--tracking-eyebrow);
-    font-size: 19px;
-  }
-
-  .logo-symbol {
-    position: relative;
-    width: 43px;
-    height: 26px;
-    display: inline-block;
-  }
-
-  .logo-symbol .node {
-    position: absolute;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    top: 17px;
-    background: var(--color-accent);
-  }
-
-  .node-left {
-    left: 1px;
-  }
-
-  .node-right {
-    right: 1px;
-  }
-
-  .logo-symbol .arc {
-    position: absolute;
-    left: 4px;
-    right: 4px;
-    top: 5px;
-    height: 20px;
-    border-top: 3px solid var(--color-accent);
-    border-radius: 50%;
+  /* 正式 logo（位图过渡版，矢量源到位后替换）；固高 30px 保持字重清晰 */
+  .logo-img {
+    height: 30px;
+    width: auto;
+    display: block;
   }
 
   .main-nav {
@@ -157,6 +126,7 @@ const { solid = false } = Astro.props;
 
   .main-nav > a:hover,
   .main-nav > a.active,
+  .main-nav > a[aria-current='page'],
   .drop-trigger.active,
   .nav-dropdown:hover .drop-trigger,
   .nav-dropdown:focus-within .drop-trigger {
@@ -164,7 +134,8 @@ const { solid = false } = Astro.props;
   }
 
   .main-nav > a:hover::after,
-  .main-nav > a.active::after {
+  .main-nav > a.active::after,
+  .main-nav > a[aria-current='page']::after {
     transform: scaleX(1);
   }
 
@@ -193,7 +164,7 @@ const { solid = false } = Astro.props;
     flex-direction: column;
     padding: var(--space-3);
     border-radius: var(--radius-md);
-    background: rgba(5, 14, 32, 0.97);
+    background: rgba(var(--color-bg-rgb), 0.97);
     border: 1px solid var(--color-border-on-dark);
     box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
     opacity: 0;
@@ -256,13 +227,12 @@ const { solid = false } = Astro.props;
     transform: translateY(-7px) rotate(-45deg);
   }
 
-  @media (max-width: 1120px) {
-    .nav-actions {
-      display: none;
-    }
+  .menu-ctas {
+    display: none;
   }
 
-  @media (max-width: 760px) {
+  /* ≤1120：文字导航收进汉堡面板，转化 CTA 保留在条上（不留转化断层区间） */
+  @media (max-width: 1120px) {
     .menu-toggle {
       display: block;
     }
@@ -281,6 +251,7 @@ const { solid = false } = Astro.props;
       padding: var(--space-4);
       border-radius: var(--radius-md);
       background: var(--color-bg-navy);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
     }
     .main-nav.open {
       display: flex;
@@ -294,7 +265,7 @@ const { solid = false } = Astro.props;
     .main-nav > a::after {
       display: none;
     }
-    /* 移动端下拉改为内联展开列表 */
+    /* 面板内下拉改为内联展开列表 */
     .solution-menu {
       position: static;
       transform: none;
@@ -309,6 +280,21 @@ const { solid = false } = Astro.props;
     .nav-dropdown.open .solution-menu {
       display: flex;
       transform: none;
+    }
+  }
+
+  /* ≤760：CTA 也收进面板（条上放不下两颗按钮） */
+  @media (max-width: 760px) {
+    .nav-actions {
+      display: none;
+    }
+    .menu-ctas {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      margin-top: var(--space-2);
+      padding: var(--space-4);
+      border-top: 1px solid var(--color-border-on-dark);
     }
   }
 

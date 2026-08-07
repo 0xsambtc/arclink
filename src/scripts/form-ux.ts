@@ -34,11 +34,21 @@ function fieldWrap(control: Control): HTMLElement | null {
   return control.closest<HTMLElement>('[data-field]');
 }
 
-function setError(wrap: HTMLElement | null, message: string) {
+function setError(wrap: HTMLElement | null, message: string, control?: Control) {
   if (!wrap) return;
   const slot = wrap.querySelector<HTMLElement>('.field-error');
   if (slot) slot.textContent = message;
   wrap.classList.toggle('invalid', Boolean(message));
+  // 读屏可达：错误文案与控件建立 ARIA 关联
+  if (control && slot) {
+    if (message) {
+      control.setAttribute('aria-invalid', 'true');
+      if (slot.id) control.setAttribute('aria-describedby', slot.id);
+    } else {
+      control.removeAttribute('aria-invalid');
+      control.removeAttribute('aria-describedby');
+    }
+  }
 }
 
 function isHidden(element: HTMLElement): boolean {
@@ -98,12 +108,24 @@ export function wireForm(form: HTMLFormElement, options?: { onSuccess?: () => vo
   });
   syncSubmitState();
 
-  // 失焦即校验
-  controls.forEach((control) => {
-    control.addEventListener('blur', () => setError(fieldWrap(control), validateControl(control)));
+  // 禁用态点击反馈：disabled 按钮吞事件，经包裹层接住 → 指向未勾选的 consent
+  submit.closest('.submit-wrap')?.addEventListener('click', () => {
+    if (!submit.disabled || !consent || consent.checked) return;
+    const row = fieldWrap(consent as unknown as Control);
+    row?.classList.remove('nudge');
+    void row?.offsetWidth;
+    row?.classList.add('nudge');
+    consent.focus();
+  });
+
+  // 失焦即校验；error 槽预置 id 供 aria-describedby 指向
+  controls.forEach((control, index) => {
+    const slot = fieldWrap(control)?.querySelector<HTMLElement>('.field-error');
+    if (slot && !slot.id) slot.id = `${form.id}-err-${control.name || index}`;
+    control.addEventListener('blur', () => setError(fieldWrap(control), validateControl(control), control));
     control.addEventListener('input', () => {
       const wrap = fieldWrap(control);
-      if (wrap?.classList.contains('invalid')) setError(wrap, validateControl(control));
+      if (wrap?.classList.contains('invalid')) setError(wrap, validateControl(control), control);
     });
   });
 
@@ -152,7 +174,7 @@ export function wireForm(form: HTMLFormElement, options?: { onSuccess?: () => vo
     const invalid: HTMLElement[] = [];
     controls.forEach((control) => {
       const message = validateControl(control);
-      setError(fieldWrap(control), message);
+      setError(fieldWrap(control), message, control);
       if (message) invalid.push(control);
     });
     groups.forEach((group) => {

@@ -35,28 +35,33 @@ import '../styles/subpage.css';
         </section>
 
         <section class="career-roles">
-          <p class="eyebrow">{careers.openRoles.eyebrow}</p>
+          <h2 class="eyebrow roles-heading">{careers.openRoles.eyebrow}</h2>
           <div class="roles-list">
             {
               careers.openRoles.roles.map((role, index) => (
                 <article class:list={['job-card', index === 0 && 'open']}>
-                  <button class="job-head" type="button" aria-expanded={index === 0 ? 'true' : 'false'}>
+                  <button
+                    class="job-head"
+                    type="button"
+                    aria-expanded={index === 0 ? 'true' : 'false'}
+                    aria-controls={`job-body-${index}`}
+                  >
                     <span class="job-title">
-                      <strong>{role.title}</strong>
+                      <h3>{role.title}</h3>
                       <span>{role.location}</span>
                     </span>
                     <span class="job-toggle" aria-hidden="true">+</span>
                   </button>
-                  <div class="job-body">
+                  <div class="job-body" id={`job-body-${index}`}>
                     <div class="job-body-inner">
                       <p class="job-overview">{role.overview}</p>
                       <div class="job-cols">
                         <div>
-                          <h3>{careers.openRoles.doHeading}</h3>
+                          <h4>{careers.openRoles.doHeading}</h4>
                           <ul>{role.youWillDo.map((item) => <li>{item}</li>)}</ul>
                         </div>
                         <div>
-                          <h3>{careers.openRoles.lookForHeading}</h3>
+                          <h4>{careers.openRoles.lookForHeading}</h4>
                           <ul>{role.weLookFor.map((item) => <li>{item}</li>)}</ul>
                         </div>
                       </div>
@@ -177,9 +182,15 @@ import '../styles/subpage.css';
     gap: var(--space-1);
   }
 
-  .job-title strong {
+  .roles-heading {
+    margin-bottom: var(--space-5);
+  }
+
+  .job-title h3 {
     font-size: 17px;
+    font-weight: 700;
     letter-spacing: var(--tracking-tight);
+    margin: 0;
   }
 
   .job-title > span {
@@ -227,7 +238,7 @@ import '../styles/subpage.css';
     gap: var(--space-6);
   }
 
-  .job-cols h3 {
+  .job-cols h4 {
     font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
@@ -274,9 +285,13 @@ import '../styles/subpage.css';
 <script>
   document.querySelectorAll<HTMLElement>('.job-card').forEach((card) => {
     const head = card.querySelector<HTMLButtonElement>('.job-head')!;
+    const body = card.querySelector<HTMLElement>('.job-body')!;
+    // 收起内容对读屏/Tab 真隐藏（视觉隐藏靠 0fr+overflow，语义隐藏靠 inert）
+    body.inert = !card.classList.contains('open');
     head.addEventListener('click', () => {
       const open = card.classList.toggle('open');
       head.setAttribute('aria-expanded', String(open));
+      body.inert = !open;
     });
   });
 </script>

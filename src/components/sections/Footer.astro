@@ -6,8 +6,12 @@ import { footerData } from '../../data/home';
 
 <footer class="site-footer">
   <div class="shell footer-line">
-    <span class="footer-legal">{site.copyright}</span>
-    <nav class="footer-links" aria-label="Legal">
+    <div class="footer-identity">
+      <span class="footer-legal">{site.copyright}</span>
+      <span class="footer-address">{site.addressLines[0]} {site.addressLines[1]}</span>
+    </div>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="/contact">Talk to Sales</a>
       <a href={`mailto:${site.email}`}>{site.email}</a>
       {footerData.legalLinks.map((link) => <a href={link.href}>{link.label}</a>)}
     </nav>
@@ -29,6 +33,18 @@ import { footerData } from '../../data/home';
     font-size: 13px;
   }
 
+  .footer-identity {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  /* 注册地址：尽调习惯先翻页脚看法律实体 */
+  .footer-address {
+    color: var(--color-text-soft-on-dark);
+    font-size: 12px;
+  }
+
   .footer-links {
     display: flex;
     align-items: center;
@@ -42,8 +58,8 @@ import { footerData } from '../../data/home';
     transition: color var(--duration-fast) var(--ease-out);
   }
 
-  /* 邮箱（联系通道）与法律链接用 hairline 分组 */
-  .footer-links a:first-child {
+  /* 联系组（Talk to Sales + 邮箱）与法律组之间用 hairline 分组 */
+  .footer-links a:nth-child(2) {
     padding-right: var(--space-5);
     border-right: 1px solid var(--hairline);
   }

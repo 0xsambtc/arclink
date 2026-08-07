@@ -1,0 +1,33 @@
+---
+// 页尾采购方收口 CTA — 结构评审补强：全页最后一区原为执行者招募，采购方读完无出口
+// 文案全部复用 v0.2 已核准字串（Talk to Sales 表单区标题 + CTA 标签），无新增文案
+import Button from '../ui/Button.astro';
+import { clientForm } from '../../data/forms';
+import { nav } from '../../data/home';
+---
+
+<section class="closing-cta" data-on-dark>
+  <div class="shell closing-inner reveal">
+    <p class="eyebrow">{clientForm.aside.eyebrow}</p>
+    <h2>{clientForm.intro.heading}</h2>
+    <Button variant="primary" size="large" href={nav.ctaSales.href}>
+      {nav.ctaSales.label} <span aria-hidden="true">→</span>
+    </Button>
+  </div>
+</section>
+
+<style>
+  .closing-cta {
+    padding: var(--space-8) 0;
+    color: var(--color-text-on-dark);
+    background: linear-gradient(180deg, var(--color-bg-navy), var(--color-bg));
+    border-top: 1px solid rgba(var(--color-accent-bright-rgb), 0.2);
+    text-align: center;
+  }
+
+  h2 {
+    font-size: var(--text-h2);
+    letter-spacing: var(--tracking-tight);
+    margin: 0 0 var(--space-6);
+  }
+</style>

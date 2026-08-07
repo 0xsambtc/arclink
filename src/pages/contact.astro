@@ -10,7 +10,11 @@ import '../styles/forms.css';
 import '../styles/subpage.css';
 ---
 
-<Base title={`Talk to Sales — ${site.name}`} description={site.description} bg="light">
+<Base
+  title={`Talk to Sales — ${site.name}`}
+  description="Tell us what you need. Reach the Arclink team about POI collection, local listings, merchant outreach and data verification — we're here to help."
+  bg="light"
+>
   <SiteHeader solid />
   <main id="main" class="journey-main">
     <div class="shell">
@@ -97,15 +101,18 @@ import '../styles/subpage.css';
               </span>
               <small class="field-error"></small>
             </label>
-            <button class="button button-primary" type="submit">
-              <span class="submit-label">{clientForm.submit}</span> <span aria-hidden="true">→</span>
-            </button>
+            <div class="submit-wrap">
+              <button class="button button-primary" type="submit">
+                <span class="submit-label">{clientForm.submit}</span> <span aria-hidden="true">→</span>
+              </button>
+            </div>
           </form>
         </div>
       </div>
     </div>
   </main>
   <Footer />
+  <div class="toast-region" aria-live="polite"></div>
 </Base>
 
 <style>
