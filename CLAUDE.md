@@ -2,13 +2,14 @@
 
 ## 项目是什么
 
-Arclink（新加坡主体）官网。业务：海外地理信息采集（GEO data collection）——国内是红海、海外是蓝海，采购方在海外。官网双目标：给企业采购方建立信任感（内容展示 + 扎实动效）、承接两类联系表单（需求方 / 采集人员）。**站点内容为英文**；与 samuel 的沟通用中文。
+Arclink（Arclink Solutions Pte. Ltd.，新加坡主体）官网。业务定位（2026-08-07 v0.2 起）：**Execution Infrastructure for the Real World**——帮企业规划/部署/核验线下作业（数据采集、实地核验、外联），通过可信的本地执行者网络交付。采购方在海外。官网双目标：给企业采购方建立信任感、承接两类表单（需求方 Talk to Sales / 执行者 Join Our Network）。**站点内容为英文**；与 samuel 的沟通用中文。
 
 ## 关键背景
 
 - samuel 一人全栈（会 React，也能写后端），无其他工程资源；方案原则是运维趋零、成本趋零（目标 $0/月）。
-- 官网文案/内容框架由一位前高德产品经理提供，**尚未到位**——所有 section 必须做成数据驱动、文案槽位化（改内容不动布局和动效代码）。
-- 交互原型在 `~/Downloads/arclink-interactive-prototype`（纯 HTML/CSS/JS），视觉体系已定型：深海军蓝 `#030b1d` + 电光蓝 `#2563eb` + 白，Inter 字体。移植时保留视觉语言，不推翻重来。
+- **内容唯一来源是 `docs/content/requirements-v0.2.md`**（PM 2026-08-07 交付，含全部文案、表单字段规格、Careers 岗位）+ 同目录隐私政策/服务条款全文。M2 期"勘测年鉴"设计已作废（原因：没有真实交付数据支撑）。所有 section 数据驱动、文案槽位化（改内容不动布局代码）。
+- 交互原型在 `~/Downloads/guanwangv2`（纯 HTML/CSS/JS，保留第一版落地页 + 页面级流程）——**开发以它的结构为准，细节可优化**。视觉体系：深海军蓝 `#030b1d` + 电光蓝 `#2563eb` + 白，Inter 字体。
+- 正式联系信息（v0.2 起可用）：`support@arclink-solution.com`；注册地址 60 PAYA LEBAR ROAD, #04-06 PAYA LEBAR SQUARE, SINGAPORE 409051。
 - 公司邮箱是**阿里企业邮箱**；协作用**飞书**——表单数据存飞书多维表格、告警走飞书群机器人（2026-08-03 问答确认）。
 
 ## 已锁定的技术决策（2026-08 两轮调研定稿，勿重新论证）
@@ -18,14 +19,14 @@ Arclink（新加坡主体）官网。业务：海外地理信息采集（GEO dat
 - **部署**：Cloudflare Workers static assets（免费无商用限制、静态带宽不限量）。Vercel Hobby 明文禁商用，已排除。**CI/CD git-first**：GitHub 私有仓库 + Workers Builds，push 即部署、分支/PR 出 preview；Claude 在里程碑/任务边界提交；`wrangler deploy` 仅作 CI 故障逃生通道。
 - **发信**：阿里云 DirectMail 为主（收件方是阿里邮箱，同生态送达稳；¥2/1000 封）；Resend 备选（未来发海外收件人时用）。发信用 `send.` 子域，根域 DNS 归阿里邮箱。
 - **分析**：Cloudflare Web Analytics。不用 GA4（大陆被墙且拖慢加载——虽然买家在海外，但仍不选）。
-- **调性**（docs/10，2026-08-04 samuel 拍板）：主调"勘测年鉴"（页面元素要么是排版系统本身，要么是带真实出处的 FIG. 图版）+ 地面站两个 signature 交互（开机序列 hero、可操作覆盖台）+ **弧场生成器为全站唯一图形引擎**（`src/lib/arcfield.ts`）。共同宪法：mono=事实/Inter=陈述、三图元（点=城市/弧=真实交付事件/hex=覆盖）、proof-of-life（图形 hover 出真实记录）、数据构建时注入 + `AS OF` 标注、性能硬指标（LCP<1.5s/CLS<0.05/<3MB/60fps）。
+- **调性（2026-08-07 反转）**：docs/10 的"勘测年鉴"体系整体作废（依赖真实交付数据，数据不存在）。现行标准 = guanwangv2 原型的视觉与结构（深蓝 hero + SVG 网络图、白/浅底内容区、深色平台卡区），细节允许优化但不推翻。性能硬指标保留（LCP<1.5s/CLS<0.05/<3MB/60fps）。
 - **SEO/AI 搜索**（见 docs/08）：架构无硬伤，上线必做的排雷——Cloudflare 新 zone 默认拦 AI 爬虫，须在 AI Crawl Control 放行**全部爬虫**（robots 策略已定为 A：全开放含训练爬虫，samuel 2026-08-03 拍板）；**永不启用网络层 block-Training**（会连带拦 Googlebot/Bingbot）；robots.txt 自维护于 `public/`（全 Allow + Sitemap 行），不开 managed robots.txt 和 Pay Per Crawl；JSON-LD 用 Organization/WebSite/BreadcrumbList/Service；SEO 路由骨架 `/services|industries|case-studies|compare/[slug]`。
 
 ## 开放问题（做之前先问或先查 docs）
 
-1. M2 双变体投票：变体 A（年鉴融合版）vs 变体 B（地面站纯版），实物对比定稿（docs/10）。
-2. 域名购买中；到手后确认是否与阿里邮箱同域（定 docs/05 DNS 方案）；Cloudflare/阿里云账号均待注册开通。
-4. 内容框架等 PM 交付，headline 建议对齐 2026 行业话术 "Physical AI"；GEO 内容规范（定义式段落/真实数字/FAQ/对比页）见 docs/08 第四节。
+1. 域名购买中；到手后确认是否与阿里邮箱同域（定 docs/05 DNS 方案）；Cloudflare/阿里云账号均待注册开通。
+2. 隐私政策 §9 的 `[dpo@arclink.com]` 是 PM 留下的占位邮箱，与 support@arclink-solution.com 不一致——待 PM 确认后更正。
+3. 表单后端（M3）未接：前端提交指向 `/api/forms/*`，端点上线前提交会走失败 toast（含备用邮箱指引），上线前必须完成 M3。
 
 ## 协作与进度约定
 
