@@ -33,6 +33,7 @@ import { hero } from '../../data/home';
       </svg>
     </div>
   </div>
+  <div class="hero-transition" aria-hidden="true"><span></span></div>
 </section>
 
 <style>
@@ -128,6 +129,47 @@ import { hero } from '../../data/home';
     stroke-width: 4;
     filter: drop-shadow(0 0 9px var(--color-accent-bright));
     animation: pulse 2.6s ease-in-out infinite;
+  }
+
+  /* hero 底部过渡线：两段渐变线在 52% 处交汇 + 光点（原型 .hero-transition） */
+  .hero-transition {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 70px;
+    z-index: 2;
+  }
+
+  .hero-transition::before,
+  .hero-transition::after {
+    content: '';
+    position: absolute;
+    bottom: 24px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-accent-bright));
+  }
+
+  .hero-transition::before {
+    left: 0;
+    width: 52%;
+  }
+
+  .hero-transition::after {
+    right: 0;
+    width: 48%;
+    transform: scaleX(-1);
+  }
+
+  .hero-transition span {
+    position: absolute;
+    left: 52%;
+    bottom: 15px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-text-on-dark);
+    box-shadow: 0 0 18px var(--color-accent-bright);
   }
 
   @keyframes dash {

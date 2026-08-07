@@ -151,6 +151,7 @@ const { solid = false } = Astro.props;
 
   .main-nav > a:hover,
   .main-nav > a.active,
+  .drop-trigger.active,
   .nav-dropdown:hover .drop-trigger,
   .nav-dropdown:focus-within .drop-trigger {
     color: var(--color-text-on-dark);
@@ -332,13 +333,15 @@ const { solid = false } = Astro.props;
     })
   );
 
-  // 当前 section 高亮（仅首页锚点区生效）
+  // 当前 section 高亮（仅首页锚点区生效）；Solutions 下拉覆盖 platform/industries/infrastructure 三区
+  const SOLUTION_SECTIONS = ['platform', 'industries', 'infrastructure'];
   const sectionObserver = new IntersectionObserver(
     (entries) =>
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
-        const key = (entry.target as HTMLElement).dataset.section;
+        const key = (entry.target as HTMLElement).dataset.section ?? '';
         navLinks.forEach((link) => link.classList.toggle('active', link.dataset.nav === key));
+        dropTrigger.classList.toggle('active', SOLUTION_SECTIONS.includes(key));
       }),
     { rootMargin: '-35% 0px -55% 0px' }
   );

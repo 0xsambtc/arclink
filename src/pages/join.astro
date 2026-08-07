@@ -476,6 +476,7 @@ const t = collectorForm;
     if (event.key === 'Escape' && !modal.hidden) closeModal();
   });
 
-  wireForm(document.getElementById('individualForm') as HTMLFormElement);
-  wireForm(document.getElementById('teamForm') as HTMLFormElement);
+  // 提交成功后自动收起弹窗（成功 toast 由 wireForm 展示）
+  wireForm(document.getElementById('individualForm') as HTMLFormElement, { onSuccess: closeModal });
+  wireForm(document.getElementById('teamForm') as HTMLFormElement, { onSuccess: closeModal });
 </script>

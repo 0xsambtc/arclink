@@ -77,7 +77,7 @@ function validateGroup(group: HTMLElement): string {
   return checked > 0 ? '' : formMessages.errors.required;
 }
 
-export function wireForm(form: HTMLFormElement) {
+export function wireForm(form: HTMLFormElement, options?: { onSuccess?: () => void }) {
   const controls = [...form.querySelectorAll<Control>('input, select, textarea')].filter(
     (control) => !(control instanceof HTMLInputElement && ['checkbox', 'hidden'].includes(control.type))
   );
@@ -202,6 +202,7 @@ export function wireForm(form: HTMLFormElement) {
         area.dispatchEvent(new Event('input'))
       );
       syncConditionals();
+      if (options?.onSuccess) window.setTimeout(options.onSuccess, 450);
     } catch {
       // 失败保留表单内容，toast 附带用户可自救的备用邮箱
       showToast(formMessages.toasts.failure, 'error');
