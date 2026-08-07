@@ -528,3 +528,8 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* 成功态：填写辅助信息退场 */
+.form-succeeded .form-intro {
+  display: none;
+}

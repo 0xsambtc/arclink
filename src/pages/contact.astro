@@ -205,6 +205,19 @@ import '../styles/subpage.css';
     line-height: 1.7;
   }
 
+  .form-success p {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin: 0;
+  }
+
+  .form-success p::before {
+    content: '✓';
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+
   .form-success a {
     color: var(--color-accent);
   }

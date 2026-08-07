@@ -2,6 +2,11 @@
   box-sizing: border-box;
 }
 
+/* hidden 语义不可被组件 display 覆盖（.button/.enhanced-form 等设了 display 的元素同样适用） */
+[hidden] {
+  display: none !important;
+}
+
 html {
   scroll-behavior: smooth;
 }

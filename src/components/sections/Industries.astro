@@ -1,9 +1,9 @@
 ---
-// Industries — 行业切换器（白底）；首项默认激活
-// 行业是并列类目非序列，不用编号（避免与流程区的真序列 1-4 重复）；icon 与平台卡同体系（16 网格/1.5 stroke）
+// Industries — 行业 2×2 卡片矩阵（Stripe use-cases 版位模式）
+// 原型的选择器交互已废：四条描述均为一句话，藏起 3/4 逼用户点击属过度交互；全平铺更可扫读（该偏离已报备）
 import { industries } from '../../data/home';
 
-// icon 顺序与 industries.items 对应：AI 芯片 / 店面 / 地图钉 / 货箱
+// icon 顺序与 industries.items 对应：AI 芯片 / 店面 / 地图钉 / 货箱（16 网格 / 1.5 stroke）
 const ICONS = [
   '<rect x="5" y="5" width="8" height="8" rx="1.5"/><path d="M7 1.5V5M11 1.5V5M7 13v3.5M11 13v3.5M1.5 7H5M1.5 11H5M13 7h3.5M13 11h3.5"/>',
   '<path d="M3 7.5V15h12V7.5"/><path d="M1.5 7 3.2 2.5h11.6L16.5 7Z"/><path d="M7 15v-4.5h4V15"/>',
@@ -18,27 +18,19 @@ const ICONS = [
       <p class="eyebrow">{industries.eyebrow}</p>
       <h2>{industries.heading}</h2>
     </div>
-    <div class="industries-panel">
-      <div class="industry-list">
-        {
-          industries.items.map((item, index) => (
-            <button
-              type="button"
-              class:list={['industry-item', 'reveal', index === 0 && 'active']}
-              style={`--reveal-delay: ${index * 70}ms; --reveal-distance: 14px`}
-              data-industry={item.key}
-              data-description={item.description}
-              aria-pressed={index === 0 ? 'true' : 'false'}
-            >
-              <svg class="industry-icon" viewBox="0 0 18 18" aria-hidden="true" set:html={ICONS[index]} />
-              <strong>{item.label}</strong>
-            </button>
-          ))
-        }
-      </div>
-      <p class="industry-description reveal reveal-delay" id="industryDescription" aria-live="polite">
-        {industries.items[0].description}
-      </p>
+    <div class="industry-grid">
+      {
+        industries.items.map((item, index) => (
+          <article
+            class="industry-card reveal"
+            style={`--reveal-delay: ${index * 70}ms; --reveal-distance: 14px`}
+          >
+            <svg class="industry-icon" viewBox="0 0 18 18" aria-hidden="true" set:html={ICONS[index]} />
+            <h3>{item.label}</h3>
+            <p>{item.description}</p>
+          </article>
+        ))
+      }
     </div>
   </div>
 </section>
@@ -53,7 +45,7 @@ const ICONS = [
   .industries-grid {
     display: grid;
     grid-template-columns: 0.75fr 1.25fr;
-    align-items: start;
+    align-items: center;
     gap: var(--space-8);
   }
 
@@ -64,31 +56,19 @@ const ICONS = [
     margin: 0;
   }
 
-  .industry-list {
+  .industry-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-3);
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
   }
 
-  .industry-item {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-3);
-    padding: var(--space-5) var(--space-3);
-    background: none;
-    border: 0;
-    border-left: 1px solid var(--color-border-on-light);
-    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-    font: inherit;
-    color: var(--color-text-on-light);
-    text-align: left;
-    cursor: pointer;
-    transition:
-      background-color var(--duration-fast) var(--ease-out),
-      color var(--duration-fast) var(--ease-out),
-      border-color var(--duration-fast) var(--ease-out),
-      transform var(--duration-fast) var(--ease-out);
+  /* 纯展示卡：hairline 轮廓 + 静态光影，不做位移/点击暗示 */
+  .industry-card {
+    padding: var(--space-5);
+    border: 1px solid var(--color-border-on-light);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: 0 1px 2px rgba(10, 29, 51, 0.03);
   }
 
   .industry-icon {
@@ -99,59 +79,29 @@ const ICONS = [
     stroke-width: 1.5;
     stroke-linecap: round;
     stroke-linejoin: round;
-    color: var(--color-text-muted-on-light);
-    transition: color var(--duration-fast) var(--ease-out);
-  }
-
-  .industry-item strong {
-    font-weight: 650;
-    color: var(--color-text-muted-on-light);
-    transition: color var(--duration-fast) var(--ease-out);
-  }
-
-  /* 三态分层：默认（muted）→ hover（半档预示）→ active（accent + 底色 + 边线 + 下缘线） */
-  .industry-item:hover {
-    background: rgba(var(--color-accent-rgb), 0.04);
-    border-left-color: rgba(var(--color-accent-rgb), 0.45);
-  }
-
-  .industry-item:hover strong {
-    color: var(--color-text-on-light);
-  }
-
-  .industry-item:hover .industry-icon {
     color: var(--color-accent);
+    margin-bottom: var(--space-4);
+    display: block;
   }
 
-  .industry-item.active {
-    background: var(--color-surface-tint);
-    border-left-color: var(--color-accent);
-    box-shadow: inset 0 -2px 0 var(--color-accent); /* 与 /join tab 的下缘线同语言 */
+  .industry-card h3 {
+    font-size: 16px;
+    letter-spacing: var(--tracking-tight);
+    margin: 0 0 var(--space-2);
   }
 
-  .industry-item.active strong,
-  .industry-item.active .industry-icon {
-    color: var(--color-accent);
-  }
-
-  /* 描述紧贴 tab 行下方，与激活项同栏；切换时 JS 淡出淡入 */
-  .industry-description {
-    min-height: 60px;
-    max-width: 62ch;
-    margin: var(--space-5) 0 0;
-    font-size: 19px;
-    line-height: 1.7;
-    color: var(--color-text-on-light);
-    transition: opacity var(--duration-fast) var(--ease-out);
-  }
-
-  .industry-description.is-fading {
-    opacity: 0;
+  .industry-card p {
+    font-size: var(--text-body-s);
+    line-height: 1.65;
+    color: var(--color-text-muted-on-light);
+    margin: 0;
   }
 
   @media (max-width: 1120px) {
-    .industry-list {
-      grid-template-columns: repeat(2, 1fr);
+    .industries-grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-6);
+      align-items: start;
     }
   }
 
@@ -159,53 +109,8 @@ const ICONS = [
     .industries {
       padding: var(--space-8) 0;
     }
-    .industries-grid {
+    .industry-grid {
       grid-template-columns: 1fr;
-      gap: var(--space-6);
-    }
-    .industry-list {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    .industry-description {
-      font-size: 17px;
     }
   }
 </style>
-
-<script>
-  // 行业切换：active 状态 + 描述淡出/替换/淡入（挂 transitionend，200ms 兜底；reduced-motion 直接替换）
-  const section = document.querySelector('[data-section="industries"]');
-  if (section) {
-    const buttons = Array.from(section.querySelectorAll<HTMLButtonElement>('.industry-item'));
-    const description = section.querySelector<HTMLElement>('#industryDescription');
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    buttons.forEach((button) => {
-      button.addEventListener('click', () => {
-        if (button.classList.contains('active')) return;
-        buttons.forEach((other) => {
-          other.classList.toggle('active', other === button);
-          other.setAttribute('aria-pressed', other === button ? 'true' : 'false');
-        });
-        if (!description) return;
-        const swap = () => {
-          description.textContent = button.dataset.description ?? '';
-          description.classList.remove('is-fading');
-        };
-        if (reduced) {
-          swap();
-          return;
-        }
-        let done = false;
-        const once = () => {
-          if (done) return;
-          done = true;
-          swap();
-        };
-        description.addEventListener('transitionend', once, { once: true });
-        window.setTimeout(once, 200);
-        description.classList.add('is-fading');
-      });
-    });
-  }
-</script>

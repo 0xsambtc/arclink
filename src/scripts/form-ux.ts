@@ -267,6 +267,7 @@ export function wireForm(form: HTMLFormElement, options?: { onSuccess?: () => vo
       if (options?.successPanel) {
         form.hidden = true;
         options.successPanel.hidden = false;
+        form.parentElement?.classList.add('form-succeeded'); // 隐去 intro 等仅与填写态相关的元素
       }
       if (options?.onSuccess) {
         // reduced-motion：立即执行，不做展示性等待
