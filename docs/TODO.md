@@ -63,6 +63,8 @@
 
 ## 会话日志（倒序，只记里程碑级变化）
 
+- **2026-08-09（hero 效果图方案定稿）**：多轮程序化逼近后按 samuel 要求转"原图直出"：从产品效果图裁取地球区（羽化融底，WebP 84KB）作 hero 底图，构建期检测 17 个星芒节点坐标，canvas 叠加层做呼吸光晕+脉冲环；图片即无 JS/reduced-motion 兜底。**待 PM：原始素材文件（升清晰度）+ 素材商用授权确认**。同批：Join Our Network 区改纯点阵（PM 反馈）、Talk to Sales 表单去 consent（samuel 拍板，规格勘误待 PM 同步）、Process 区去 Talk to Sales 按钮。Lark 迁移组织租户完成（新 Base 在 ajptdtdl18al.jp）。
+
 - **2026-08-09（预览上线）**：邮箱域勘误全站更正（PM 材料通篇少 s）；toast 未挂载 DOM 缺陷修复；Lark 国际版确认并切域名；自建应用凭证联调通过，脚本自动建 Base+两张规格表；submitted_at 改 UTC+8；adapter v14 的 env/cfContext 两处破坏性变更适配；wrangler assets 收窄堵密钥泄漏隐患；代码推 GitHub、首次部署 workers.dev（noindex）、生产 secrets 灌入、线上表单→多维表格全链路实测通过。剩：Workers Builds 接线（samuel）、群机器人 webhook、Turnstile、DirectMail。
 
 - **2026-08-07（UI 冻结）**：samuel 通过 UI 阶段，送 PM 评审。本日全部工作：v0.2 反转重建 → 合规逐字审计（区块顺序/撇号/蜜罐等修复）→ 结构评审（导航断层/弹窗蜜罐焦点/收口 CTA/SEO 元数据/无障碍）→ 两轮设计精修（hero 平面点阵地图对齐效果图、按钮体系全局化、token 收敛、自绘下拉、Process 进度轨、Industries 卡片矩阵、hidden 语义修复、铅垂过渡线）；正式 logo + favicon + og 卡上刊。

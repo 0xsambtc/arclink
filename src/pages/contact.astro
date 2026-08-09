@@ -4,7 +4,7 @@ import Base from '../layouts/Base.astro';
 import SiteHeader from '../components/sections/SiteHeader.astro';
 import Footer from '../components/sections/Footer.astro';
 import { site } from '../data/site';
-import { clientForm, consentCopy, formMessages } from '../data/forms';
+import { clientForm, formMessages } from '../data/forms';
 import { countries } from '../data/countries';
 import '../styles/forms.css';
 import '../styles/subpage.css';
@@ -99,15 +99,6 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
               <textarea name="message" data-maxlength="500" data-count placeholder={clientForm.messagePlaceholder}
               ></textarea>
               <span class="char-count"></span>
-              <small class="field-error"></small>
-            </label>
-            <label data-field class="consent-row">
-              <input name="consent" type="checkbox" data-consent />
-              <span>
-                {consentCopy.label}{' '}
-                <a href={consentCopy.privacyLink.href} target="_blank" rel="noopener">{consentCopy.privacyLink.label}</a>{' '}
-                and consent to being contacted about this enquiry. <em>*</em>
-              </span>
               <small class="field-error"></small>
             </label>
             {turnstileSiteKey && (

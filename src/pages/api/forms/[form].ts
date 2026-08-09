@@ -59,11 +59,12 @@ export const POST: APIRoute = async ({ params, request, locals, clientAddress })
     if (!outcome.success) return json(403, { error: 'turnstile_failed' });
   }
 
-  // 字段校验（与 v0.2 必填规格一致；consent 为 GDPR 硬性要求）
+  // 字段校验（v0.2 必填规格；consent 仅执行者表单要求——samuel 2026-08-09 定，Talk to Sales 不设勾选）
   const email = str(payload.email);
   const base = { first_name: str(payload.first_name), last_name: str(payload.last_name) };
   if (!base.first_name || !base.last_name || !email) return json(400, { error: 'missing_required' });
-  if (payload.consent !== 'on' && payload.consent !== true) return json(400, { error: 'consent_required' });
+  if (form === 'collector' && payload.consent !== 'on' && payload.consent !== true)
+    return json(400, { error: 'consent_required' });
 
   const emailVerdict = await verifyEmail(email);
   if (!emailVerdict.ok) return json(400, { error: `email_${emailVerdict.reason}` });
