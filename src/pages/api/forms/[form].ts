@@ -69,7 +69,8 @@ export const POST: APIRoute = async ({ params, request, locals, clientAddress })
   if (!emailVerdict.ok) return json(400, { error: `email_${emailVerdict.reason}` });
 
   const geo = [cf?.city, cf?.country].filter(Boolean).join(', ') || 'unknown';
-  const now = new Date().toISOString();
+  // 记录用 UTC+8（团队所在时区），带偏移标注避免歧义
+  const now = new Date(Date.now() + 8 * 3600_000).toISOString().replace('T', ' ').slice(0, 19) + ' +08:00';
 
   let tableId: string | undefined;
   let fields: Record<string, string>;
