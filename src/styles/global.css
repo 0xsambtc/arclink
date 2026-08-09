@@ -137,7 +137,7 @@ body {
 }
 
 /* Scroll reveal（观察器在 Base.astro）：--reveal-delay/--reveal-distance 供群组 stagger 与距离分档 */
-html.reveal-armed .reveal {
+:where(html.reveal-armed) .reveal {
   opacity: 0;
   transform: translateY(var(--reveal-distance, 22px));
   transition:
