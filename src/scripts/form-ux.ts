@@ -23,7 +23,7 @@ export function showToast(message: string, kind: 'success' | 'error') {
   toast.className = `toast toast-${kind}`;
   const body = document.createElement('span');
   // 备用邮箱要可点可抄：文案中的邮箱渲染为 mailto（字符串本体不变）
-  const EMAIL_IN_TEXT = /([\w.+-]+@[\w-]+\.[\w.]+)/;
+  const EMAIL_IN_TEXT = /([\w.+-]+@[\w-]+\.[\w.]*\w)/;
   const match = message.match(EMAIL_IN_TEXT);
   if (match) {
     const [before, after] = message.split(match[1]);
@@ -52,6 +52,7 @@ export function showToast(message: string, kind: 'success' | 'error') {
   } else {
     window.setTimeout(dismiss, 6500);
   }
+  region.append(toast);
   requestAnimationFrame(() => toast.classList.add('visible'));
 }
 
