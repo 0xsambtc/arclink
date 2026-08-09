@@ -136,7 +136,7 @@ import { hero } from '../../data/home';
   /* —— 地图区：canvas 铺满容器；未就绪前显示静态 SVG —— */
   .network-graphic {
     position: relative;
-    height: 620px;
+    align-self: center;
   }
 
   .hero-art {
@@ -258,9 +258,6 @@ import { hero } from '../../data/home';
     .hero-grid {
       grid-template-columns: 1fr;
     }
-    .network-graphic {
-      height: 460px;
-    }
   }
 
   @media (max-width: 760px) {
@@ -280,9 +277,6 @@ import { hero } from '../../data/home';
     .hero-actions {
       flex-direction: column;
       align-items: stretch;
-    }
-    .network-graphic {
-      height: 340px;
     }
   }
 </style>
@@ -310,6 +304,15 @@ import { hero } from '../../data/home';
     if (!ctx) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const art = wrap.querySelector<HTMLImageElement>('.hero-art')!;
+    // —— 掩膜扫光：亮度比例掩膜（构建期自原图提取），光带扫过时亮元素按亮度点亮 ——
+    const maskImg = new Image();
+    maskImg.src = '/brand/hero-globe-mask.webp';
+    let maskReady = false;
+    maskImg.onload = () => (maskReady = true);
+    const sweep = document.createElement('canvas');
+    const sctx = sweep.getContext('2d')!;
+    let sw = 0;
+    let sh = 0;
     let W = 0;
     let H = 0;
     let bx = 0;
@@ -329,6 +332,10 @@ import { hero } from '../../data/home';
       by = ir.top - wr.top;
       bw = ir.width;
       bh = ir.height;
+      sw = Math.max(2, Math.round(bw * 0.6));
+      sh = Math.max(2, Math.round(bh * 0.6));
+      sweep.width = sw;
+      sweep.height = sh;
     };
     sync();
 
@@ -351,12 +358,40 @@ import { hero } from '../../data/home';
     const spriteBig = makeSprite(88);
     const spriteSmall = makeSprite(48);
 
+
     const t0 = performance.now();
     const draw = (now: number) => {
       if (ctx.getTransform().a !== dpr) sync();
       const t = now - t0;
       ctx.clearRect(0, 0, W, H);
       ctx.globalCompositeOperation = 'lighter';
+
+      // 扫光带：约 9s 一轮（扫 4.5s + 静默），沿对角向右上掠过
+      if (maskReady && sw > 2) {
+        const cyc = 6500;
+        const pos = (t % cyc) / cyc;
+        if (pos < 0.5) {
+          const p = pos / 0.5;
+          const ease = p * p * (3 - 2 * p);
+          const band = sw * 0.3;
+          const cx0 = -band + ease * (sw + 2 * band);
+          sctx.clearRect(0, 0, sw, sh);
+          const g = sctx.createLinearGradient(cx0 - band, sh, cx0 + band, 0);
+          g.addColorStop(0, 'rgba(150, 195, 255, 0)');
+          g.addColorStop(0.42, 'rgba(175, 210, 255, 0.8)');
+          g.addColorStop(0.5, 'rgba(245, 250, 255, 1)');
+          g.addColorStop(0.58, 'rgba(175, 210, 255, 0.8)');
+          g.addColorStop(1, 'rgba(150, 195, 255, 0)');
+          sctx.globalCompositeOperation = 'source-over';
+          sctx.fillStyle = g;
+          sctx.fillRect(0, 0, sw, sh);
+          sctx.globalCompositeOperation = 'destination-in';
+          sctx.drawImage(maskImg, 0, 0, sw, sh);
+          ctx.drawImage(sweep, bx, by, bw, bh);
+          ctx.drawImage(sweep, bx, by, bw, bh); // 加色混合下二次叠画=亮度加倍
+        }
+      }
+
       for (let i = 0; i < NODES.length; i++) {
         const [nx, ny, tier] = NODES[i];
         const x = bx + nx * bw;
