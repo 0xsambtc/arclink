@@ -1,6 +1,6 @@
 ---
 // Hero — 深色首屏：左文案入场编排 + 右平面点阵世界地图与高拱辉光弧线（视觉基准：产品效果图）
-// 地图为 Canvas 2D（点阵大陆缓存离屏 + 每帧弧线/节点/光点），load 后懒初始化保 LCP；无 JS 回落静态 SVG
+// 地图为 Canvas 2D（点阵大陆缓存离屏 + 每帧弧网/节点/光点），数据内联即时初始化；无 JS 回落静态 SVG
 import Button from '../ui/Button.astro';
 import { hero } from '../../data/home';
 ---
@@ -667,9 +667,6 @@ import { hero } from '../../data/home';
     }
   }
 
-  if (document.readyState === 'complete') {
-    window.setTimeout(init, 0);
-  } else {
-    window.addEventListener('load', () => window.setTimeout(init, 0), { once: true });
-  }
+  // 立即初始化：底图为构建期预计算数据（无网络/解码等待），首帧即新视觉，杜绝兜底图闪现
+  init();
 </script>
