@@ -16,7 +16,7 @@
 | R2 | v0.2 重建：/contact（Talk to Sales）+ /join（双表单）+ /careers + 法律页 | ✅ | 2026-08-07；表单字段/校验/toast 按 v0.2 规格实测通过（后端待 M3） |
 | M3 | 表单后端（Turnstile → 校验 → Lark 多维表格 → DirectMail + 群机器人） | 🔵 | **存储主链路全链路联调通过**（2026-08-09：Lark 自建应用凭证有效、Base+两张规格表已由脚本建好、双表单真实写入成功）；剩：群机器人 webhook、DirectMail、Turnstile key、生产 secrets |
 | M4 | SEO 基建（sitemap/robots/JSON-LD——现在有真实法律主体与地址可填 Organization） | ⬜ | robots 已定全开放 |
-| M5 | 上线（域名/DNS/发信域/Cloudflare 排雷/GSC+Bing/监控） | ⬜ | 检查清单见 docs/06、docs/08 |
+| M5 | 上线（域名/DNS/发信域/Cloudflare 排雷/GSC+Bing/监控） | ⬜ | 检查清单见 docs/06、docs/08；**上线时必须移除 Base.astro 的全站 noindex（预览期防收录）** |
 
 ## 等待 samuel 的输入
 
