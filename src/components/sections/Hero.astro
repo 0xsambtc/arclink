@@ -153,36 +153,6 @@ import { hero } from '../../data/home';
     pointer-events: none;
   }
 
-  .map-dots circle {
-    fill: var(--color-accent);
-  }
-
-  .network-lines path {
-    fill: none;
-    stroke: var(--color-accent-bright);
-    stroke-width: 1.6;
-    stroke-linecap: round;
-    stroke-dasharray: 7 7;
-    animation: dash 10s linear infinite;
-    filter: drop-shadow(0 0 3px var(--color-accent-deep));
-  }
-
-  .network-points circle {
-    fill: var(--color-text-on-dark);
-    stroke: var(--color-accent-bright);
-    stroke-width: 4;
-    filter: drop-shadow(0 0 9px var(--color-accent-bright));
-    animation: pulse 2.6s ease-in-out infinite;
-  }
-
-  /* 节点错相位闪烁（避免机械齐闪） */
-  .network-points circle:nth-child(2n) {
-    animation-delay: 0.9s;
-  }
-
-  .network-points circle:nth-child(3n) {
-    animation-delay: 1.7s;
-  }
 
   /* —— 底缘过渡线 —— */
   .hero-transition {

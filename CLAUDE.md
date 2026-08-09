@@ -14,7 +14,7 @@ Arclink（Arclink Solutions Pte. Ltd.，新加坡主体）官网。业务定位�
 
 ## 已锁定的技术决策（2026-08 两轮调研定稿，勿重新论证）
 
-- **前端**：Astro 7（output: static）+ React islands（交互组件用 React）+ GSAP 3.15（已全免费含商用，含 ScrollTrigger/SplitText）+ cobe 2.0（hero 地球，v2 起原生支持弧线）。不用 Next.js、Lenis。Inter 用 Astro Fonts API self-host。
+- **前端**：Astro 7（output: static），零前端框架依赖——交互全部为原生 TS + Canvas 2D（2026-08-09 清理：React/GSAP/cobe 装了从未用到，已卸载，需要时再按当初调研结论引入）。不用 Next.js、Lenis。Inter 用 @fontsource-variable self-host。hero 视觉 = 产品效果图裁取直出 + canvas 叠加动效。
 - **表单后端**：无传统后端。一个 Astro API endpoint（`prerender = false`）跑在 Cloudflare：Turnstile → 邮箱三层验证（语法 / DoH 查 MX / 一次性域名黑名单）→ `request.cf` 取 IP 归属地 → 写入多维表格（主存储；2026-08-03 决策：**不建数据库、不自建数据展示**，未来采集团队壮大后一次性迁移到自建后端+DB）→ DirectMail 发邮件 + IM 机器人提醒。
 - **部署**：Cloudflare Workers static assets（免费无商用限制、静态带宽不限量）。Vercel Hobby 明文禁商用，已排除。**CI/CD git-first**：GitHub 私有仓库 + Workers Builds，push 即部署、分支/PR 出 preview；Claude 在里程碑/任务边界提交；`wrangler deploy` 仅作 CI 故障逃生通道。
 - **发信**：阿里云 DirectMail 为主（收件方是阿里邮箱，同生态送达稳；¥2/1000 封）；Resend 备选（未来发海外收件人时用）。发信用 `send.` 子域，根域 DNS 归阿里邮箱。

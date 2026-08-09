@@ -13,7 +13,7 @@ const CITIES = [
   ['New York', 40.71, -74.01], ['São Paulo', -23.55, -46.63], ['Nairobi', -1.29, 36.82],
 ];
 
-const map = new DottedMap({ height: 140, grid: 'diagonal' });
+const map = new DottedMap({ height: 84, grid: 'diagonal' });
 for (const [name, lat, lng] of CITIES) map.addPin({ lat, lng, data: name });
 const pts = map.getPoints();
 
