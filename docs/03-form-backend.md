@@ -71,7 +71,7 @@ VPS（Hetzner/DO $4-6/月）或 PaaS（Fly.io/Railway $5/月起）+ Node(Hono)/P
 | 名称 | 来源 |
 |---|---|
 | TURNSTILE_SECRET_KEY / PUBLIC_TURNSTILE_SITE_KEY | Cloudflare → Turnstile 新建 widget（域名 arclink-solutions.com） |
-| FEISHU_APP_ID / FEISHU_APP_SECRET | 飞书开放平台 → 自建应用（开通 bitable:record:write 权限） |
+| FEISHU_APP_ID / FEISHU_APP_SECRET | **Lark 开发者后台 open.larksuite.com/app** → 企业自建应用（开通多维表格记录写入权限；发布需管理员审批）。环境变量名沿用 FEISHU_ 前缀，API 域名已是 larksuite |
 | FEISHU_BITABLE_APP_TOKEN | 多维表格 URL 中的 app token |
 | FEISHU_TABLE_ID_CLIENT / FEISHU_TABLE_ID_COLLECTOR | 两张数据表的 table id |
 | FEISHU_BOT_WEBHOOK | 告警群 → 自定义机器人 webhook |

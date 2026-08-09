@@ -10,7 +10,7 @@ Arclink（Arclink Solutions Pte. Ltd.，新加坡主体）官网。业务定位�
 - **内容唯一来源是 `docs/content/requirements-v0.2.md`**（PM 2026-08-07 交付，含全部文案、表单字段规格、Careers 岗位）+ 同目录隐私政策/服务条款全文。M2 期"勘测年鉴"设计已作废（原因：没有真实交付数据支撑）。所有 section 数据驱动、文案槽位化（改内容不动布局代码）。
 - 交互原型在 `~/Downloads/guanwangv2`（纯 HTML/CSS/JS，保留第一版落地页 + 页面级流程）——**开发以它的结构为准，细节可优化**。视觉体系：深海军蓝 `#030b1d` + 电光蓝 `#2563eb` + 白，Inter 字体。
 - 正式联系信息（v0.2 起可用）：`support@arclink-solutions.com`；注册地址 60 PAYA LEBAR ROAD, #04-06 PAYA LEBAR SQUARE, SINGAPORE 409051。
-- 公司邮箱是**阿里企业邮箱**；协作用**飞书**——表单数据存飞书多维表格、告警走飞书群机器人（2026-08-03 问答确认）。
+- 公司邮箱是**阿里企业邮箱**；协作用 **Lark 国际版**（larksuite.com，租户 Arclink Solutions，管理员为阳孙；API 域名 open.larksuite.com，勿用飞书国内域名）——表单数据存多维表格、告警走群机器人（2026-08-09 确认 Lark 而非飞书）。
 
 ## 已锁定的技术决策（2026-08 两轮调研定稿，勿重新论证）
 

@@ -9,7 +9,8 @@ export interface FeishuEnv {
   FEISHU_BOT_WEBHOOK?: string;
 }
 
-const BASE = 'https://open.feishu.cn/open-apis';
+// Lark 国际版租户（larksuite.com 账号体系，2026-08-09 确认）；飞书国内版为 open.feishu.cn，两套不互通
+const BASE = 'https://open.larksuite.com/open-apis';
 
 export function feishuConfigured(env: FeishuEnv): boolean {
   return Boolean(env.FEISHU_APP_ID && env.FEISHU_APP_SECRET && env.FEISHU_BITABLE_APP_TOKEN);
