@@ -1,7 +1,7 @@
 # 进度追踪
 
 > 本文件由 Claude 在每次工作会话结束时更新；samuel 只读即可。状态：⬜ 未开始 / 🔵 进行中 / ✅ 完成 / ⏸ 等外部输入。
-> 最后更新：2026-08-07（v0.2 反转，按新需求重建中）
+> 最后更新：2026-08-09（M3 存储链路上线，workers.dev 预览可用）
 
 ## 当前状态一句话
 
@@ -11,7 +11,7 @@
 
 | # | 任务 | 状态 | 备注 |
 |---|---|---|---|
-| M0 | 仓库初始化（GitHub 私有仓库 + Workers Builds 接入） | ⏸ | 本地 git 就绪；剩账号相关，等 Cloudflare 账号 |
+| M0 | 仓库初始化（GitHub 私有仓库 + Workers Builds 接入） | 🔵 | 2026-08-09：代码已推 github.com/0xsambtc/arclink（main）；**首次部署已上线 https://arclink-website.arclink-website.workers.dev（noindex）**，生产 secrets 已灌（5 个 Lark 凭证）；剩 samuel 在 Dashboard 接 Workers Builds（连 GitHub 仓库） |
 | R1 | v0.2 重建：首页六区（Hero/Belief/HowWorks/Platform/Industries/Network）+ 导航页脚 | ✅ | 2026-08-07；M1 组件底座复用，内容层全换 |
 | R2 | v0.2 重建：/contact（Talk to Sales）+ /join（双表单）+ /careers + 法律页 | ✅ | 2026-08-07；表单字段/校验/toast 按 v0.2 规格实测通过（后端待 M3） |
 | M3 | 表单后端（Turnstile → 校验 → Lark 多维表格 → DirectMail + 群机器人） | 🔵 | **存储主链路全链路联调通过**（2026-08-09：Lark 自建应用凭证有效、Base+两张规格表已由脚本建好、双表单真实写入成功）；剩：群机器人 webhook、DirectMail、Turnstile key、生产 secrets |
@@ -22,7 +22,7 @@
 
 | 输入 | 用于 | 状态 |
 |---|---|---|
-| Cloudflare 账号注册 | M0/M3/M5 | ⏸ |
+| ~~Cloudflare 账号注册~~ | M0/M3/M5 | ✅ 2026-08-09，wrangler 已授权；剩：Turnstile widget 创建、Workers Builds 接线 |
 | 阿里云账号 → DirectMail | M3 | ⏸ |
 | ~~Lark 应用凭证 + 多维表格~~ | M3 | ✅ 2026-08-09 全链路验证；剩告警群机器人 webhook |
 | ~~域名~~ | M5 | ✅ arclink-solutions.com（2026-08-07）；邮箱同域 support@arclink-solutions.com（2026-08-09 samuel 确认） |
@@ -62,6 +62,8 @@
 - docs/10、docs/11 调性文档随之失效（保留作历史记录）。
 
 ## 会话日志（倒序，只记里程碑级变化）
+
+- **2026-08-09（预览上线）**：邮箱域勘误全站更正（PM 材料通篇少 s）；toast 未挂载 DOM 缺陷修复；Lark 国际版确认并切域名；自建应用凭证联调通过，脚本自动建 Base+两张规格表；submitted_at 改 UTC+8；adapter v14 的 env/cfContext 两处破坏性变更适配；wrangler assets 收窄堵密钥泄漏隐患；代码推 GitHub、首次部署 workers.dev（noindex）、生产 secrets 灌入、线上表单→多维表格全链路实测通过。剩：Workers Builds 接线（samuel）、群机器人 webhook、Turnstile、DirectMail。
 
 - **2026-08-07（UI 冻结）**：samuel 通过 UI 阶段，送 PM 评审。本日全部工作：v0.2 反转重建 → 合规逐字审计（区块顺序/撇号/蜜罐等修复）→ 结构评审（导航断层/弹窗蜜罐焦点/收口 CTA/SEO 元数据/无障碍）→ 两轮设计精修（hero 平面点阵地图对齐效果图、按钮体系全局化、token 收敛、自绘下拉、Process 进度轨、Industries 卡片矩阵、hidden 语义修复、铅垂过渡线）；正式 logo + favicon + og 卡上刊。
 - **2026-08-07（细节优化轮）**：hero 视觉对齐产品效果图——平面点阵世界地图（陆地数据自 cobe 掩码提取为 3.6kB 静态点阵）+ 高拱辉光弧线 + 流光/节点呼吸（Canvas 2D，LCP 无损）；四镜头挑剔设计师评审（首页版式/子页表单/动效/系统一致性）P1/P2 全量落地：按钮体系全局化（修子页裸按钮）、字阶与功能色 token 收敛、eyebrow AA、弹窗滚动壳+焦点圈禁、Legal 阅读排版等。commit 4e68eee + 7c51631。
