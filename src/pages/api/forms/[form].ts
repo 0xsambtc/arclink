@@ -13,9 +13,8 @@ export const prerender = false;
 
 type Env = FeishuEnv & DirectMailEnv & { TURNSTILE_SECRET_KEY?: string };
 
-interface Runtime {
-  cf?: { country?: string; city?: string };
-  ctx?: { waitUntil(p: Promise<unknown>): void };
+interface CfContext {
+  waitUntil(p: Promise<unknown>): void;
 }
 
 const str = (v: unknown, max = 200): string => (typeof v === 'string' ? v.trim().slice(0, max) : '');
@@ -26,11 +25,12 @@ const json = (status: number, body: object) =>
   new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 
 export const POST: APIRoute = async ({ params, request, locals, clientAddress }) => {
-  const runtime = (locals as { runtime?: Runtime }).runtime;
   const env = (workerEnv ?? {}) as Env;
-  const cf = ((request as unknown as { cf?: Runtime['cf'] }).cf ?? runtime?.cf) as Runtime['cf'];
+  const cf = (request as unknown as { cf?: { country?: string; city?: string } }).cf;
+  // adapter v14：ExecutionContext 经 locals.cfContext 暴露（locals.runtime 已整体移除）
+  const ctx = (locals as { cfContext?: CfContext }).cfContext;
   const defer = (p: Promise<unknown>) => {
-    if (runtime?.ctx?.waitUntil) runtime.ctx.waitUntil(p);
+    if (ctx?.waitUntil) ctx.waitUntil(p);
     else void p.catch(() => {});
   };
   const form = params.form;
