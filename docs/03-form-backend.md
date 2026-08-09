@@ -77,7 +77,7 @@ VPS（Hetzner/DO $4-6/月）或 PaaS（Fly.io/Railway $5/月起）+ Node(Hono)/P
 | FEISHU_BOT_WEBHOOK | 告警群 → 自定义机器人 webhook |
 | DM_ACCESS_KEY_ID / DM_ACCESS_KEY_SECRET | 阿里云 RAM（仅授 DirectMail） |
 | DM_ACCOUNT_NAME | DirectMail 发信地址（建议 no-reply@send.arclink-solutions.com） |
-| DM_TO_ADDRESS | 默认 support@arclink-solution.com，可省略 |
+| DM_TO_ADDRESS | 默认 support@arclink-solutions.com，可省略 |
 
 ## 多维表格列规格（列名须与下表完全一致，均为文本列）
 
@@ -89,4 +89,4 @@ VPS（Hetzner/DO $4-6/月）或 PaaS（Fly.io/Railway $5/月起）+ Node(Hono)/P
 - FR-5 邮件标题规格写"城市"，表单采集维度是 country（v0.2 字段表如此），标题用 country——已列入 PM 勘误清单。
 - 未配置凭证时端点返回 503 → 前端失败 toast（含备用邮箱），部署预览阶段行为诚实。
 - 本地联调：`npx wrangler dev`（已验证 503/蜜罐/一次性邮箱/缺 consent 四条路径）。
-- **域名注意**：站点域 arclink-solutions.com（带 s）≠ 邮箱域 arclink-solution.com（不带 s），发信子域挂站点域下，根域邮箱 DNS 不受影响；单复数差异待 samuel 确认是否有意。
+- **域名**：站点与邮箱同域 arclink-solutions.com（samuel 2026-08-09 确认；PM 材料通篇误写为 arclink-solution.com，已入勘误清单）。发信用 send. 子域，根域 MX 归阿里邮箱。

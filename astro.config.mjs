@@ -3,7 +3,7 @@ import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import cloudflare from '@astrojs/cloudflare';
 
-// 注意：站点域 arclink-solutions.com（带 s）≠ 邮箱域 arclink-solution.com（不带 s），见 docs/05
+// 站点与邮箱同域 arclink-solutions.com（PM 材料曾误写无 s，勘误见 docs/TODO.md）
 export default defineConfig({
   site: 'https://arclink-solutions.com',
   output: 'static',

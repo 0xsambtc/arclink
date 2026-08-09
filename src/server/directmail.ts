@@ -4,7 +4,7 @@ export interface DirectMailEnv {
   DM_ACCESS_KEY_ID?: string;
   DM_ACCESS_KEY_SECRET?: string;
   DM_ACCOUNT_NAME?: string; // 发信地址，如 no-reply@send.arclink-solutions.com
-  DM_TO_ADDRESS?: string; // 提醒收件箱，默认 support@arclink-solution.com
+  DM_TO_ADDRESS?: string; // 提醒收件箱，默认 support@arclink-solutions.com
 }
 
 export function directmailConfigured(env: DirectMailEnv): boolean {
@@ -41,7 +41,7 @@ export async function sendMail(
     AccountName: env.DM_ACCOUNT_NAME!,
     AddressType: '1',
     ReplyToAddress: 'false',
-    ToAddress: env.DM_TO_ADDRESS ?? 'support@arclink-solution.com',
+    ToAddress: env.DM_TO_ADDRESS ?? 'support@arclink-solutions.com',
     Subject: subject,
     TextBody: textBody,
     Format: 'JSON',

@@ -9,7 +9,7 @@ Arclink（Arclink Solutions Pte. Ltd.，新加坡主体）官网。业务定位�
 - samuel 一人全栈（会 React，也能写后端），无其他工程资源；方案原则是运维趋零、成本趋零（目标 $0/月）。
 - **内容唯一来源是 `docs/content/requirements-v0.2.md`**（PM 2026-08-07 交付，含全部文案、表单字段规格、Careers 岗位）+ 同目录隐私政策/服务条款全文。M2 期"勘测年鉴"设计已作废（原因：没有真实交付数据支撑）。所有 section 数据驱动、文案槽位化（改内容不动布局代码）。
 - 交互原型在 `~/Downloads/guanwangv2`（纯 HTML/CSS/JS，保留第一版落地页 + 页面级流程）——**开发以它的结构为准，细节可优化**。视觉体系：深海军蓝 `#030b1d` + 电光蓝 `#2563eb` + 白，Inter 字体。
-- 正式联系信息（v0.2 起可用）：`support@arclink-solution.com`；注册地址 60 PAYA LEBAR ROAD, #04-06 PAYA LEBAR SQUARE, SINGAPORE 409051。
+- 正式联系信息（v0.2 起可用）：`support@arclink-solutions.com`；注册地址 60 PAYA LEBAR ROAD, #04-06 PAYA LEBAR SQUARE, SINGAPORE 409051。
 - 公司邮箱是**阿里企业邮箱**；协作用**飞书**——表单数据存飞书多维表格、告警走飞书群机器人（2026-08-03 问答确认）。
 
 ## 已锁定的技术决策（2026-08 两轮调研定稿，勿重新论证）
@@ -24,8 +24,8 @@ Arclink（Arclink Solutions Pte. Ltd.，新加坡主体）官网。业务定位�
 
 ## 开放问题（做之前先问或先查 docs）
 
-1. 域名购买中；到手后确认是否与阿里邮箱同域（定 docs/05 DNS 方案）；Cloudflare/阿里云账号均待注册开通。
-2. 隐私政策 §9 的 `[dpo@arclink.com]` 是 PM 留下的占位邮箱，与 support@arclink-solution.com 不一致——待 PM 确认后更正。
+1. 域名已定 arclink-solutions.com，邮箱同域（2026-08-09 确认；PM 材料曾少写 s，勘误清单见 docs/TODO.md）；Cloudflare/阿里云账号均待注册开通。
+2. 隐私政策 §9 的 `[dpo@arclink.com]` 是 PM 留下的占位邮箱，与 support@arclink-solutions.com 不一致——待 PM 确认后更正。
 3. 表单后端（M3）未接：前端提交指向 `/api/forms/*`，端点上线前提交会走失败 toast（含备用邮箱指引），上线前必须完成 M3。
 
 ## 协作与进度约定

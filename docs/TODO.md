@@ -25,7 +25,7 @@
 | Cloudflare 账号注册 | M0/M3/M5 | ⏸ |
 | 阿里云账号 → DirectMail | M3 | ⏸ |
 | 飞书多维表格 + 群机器人凭证 | M3 | ⏸ |
-| ~~域名~~ | M5 | ✅ arclink-solutions.com（2026-08-07）；**注意与邮箱域 arclink-solution.com 单复数不同，待确认是否有意** |
+| ~~域名~~ | M5 | ✅ arclink-solutions.com（2026-08-07）；邮箱同域 support@arclink-solutions.com（2026-08-09 samuel 确认） |
 | 隐私政策 §9 占位邮箱 `[dpo@arclink.com]` 的正确值 | 法律页 | ⏸ 转 PM 确认 |
 | Logo 矢量源文件 | header 真 logo | ⏸ 已有新版 JPG（public/brand/logo-v2.jpg），矢量待提供 |
 
@@ -54,6 +54,7 @@
 2. **Hero eyebrow "EXECUTION INFRASTRUCTURE"**：v0.2 文字清单与原型均无，但产品效果图上有——按效果图保留（推荐）还是删除？
 3. **转 PM 确认的规格疑似笔误**（实现已按合理值执行，待归档勘误）：① 流程步骤 1 句末双句号 ".."；② 岗位卡 3 Overview 的 "ARCLINK’s" 全大写（已逐字照排，若属笔误请 PM 更正后我再统一为 Arclink）；③ 全站撇号规范（v0.2 弯直混用，实现已逐字跟随，建议 PM 定一个统一规范）。
 4. 既有：隐私政策 §9 占位邮箱 `[dpo@arclink.com]`（开放问题 2）。
+5. **邮箱域拼写勘误（2026-08-09）**：PM 全部材料（v0.2 需求 5 处、隐私政策 2 处、条款 1 处、原型 5 处）均写 `support@arclink-solution.com`（少 s）；samuel 确认正确为 `support@arclink-solutions.com`。站点与法律页渲染版已全量更正，`docs/content/` 原件保留原样作收件记录——请 PM 在源文档同步勘误。
 
 ## 已作废（2026-08-07，git 历史保留）
 

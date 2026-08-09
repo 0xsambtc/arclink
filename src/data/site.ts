@@ -2,7 +2,7 @@
 export const site = {
   name: 'ARCLINK',
   legalName: 'Arclink Solutions Pte. Ltd.',
-  email: 'support@arclink-solution.com',
+  email: 'support@arclink-solutions.com',
   addressLines: ['60 PAYA LEBAR ROAD, #04-06 PAYA LEBAR SQUARE,', 'SINGAPORE 409051'],
   title: 'ARCLINK — Execution Infrastructure for the Real World',
   description:

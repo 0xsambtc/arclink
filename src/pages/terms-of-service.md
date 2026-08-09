@@ -88,4 +88,4 @@ Questions about these Terms can be sent to:
 **Arclink Solutions Pte. Ltd.**
 60 PAYA LEBAR ROAD, #04-06 PAYA LEBAR SQUARE,
 SINGAPORE 409051
-support@arclink-solution.com
+support@arclink-solutions.com

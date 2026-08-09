@@ -23,7 +23,7 @@ In this Policy, "personal data" means data, whether true or not, about an indivi
 Arclink Solutions Pte. Ltd. is a company incorporated in Singapore and is the data controller responsible for your personal data.
 
 - **Registered address:** 60 PAYA LEBAR ROAD, #04-06 PAYA LEBAR SQUARE, SINGAPORE 409051
-- **Data protection contact:** support@arclink-solution.com
+- **Data protection contact:** support@arclink-solutions.com
 
 If you have any questions about this Policy or how we handle your personal data, please contact us at the address above.
 
@@ -113,4 +113,4 @@ If you have questions, requests or complaints regarding this Policy or your pers
 **Arclink Solutions Pte. Ltd.**
 60 PAYA LEBAR ROAD, #04-06 PAYA LEBAR SQUARE,
 SINGAPORE 409051
-support@arclink-solution.com
+support@arclink-solutions.com
