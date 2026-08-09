@@ -338,40 +338,26 @@ import { hero } from '../../data/home';
 </style>
 
 <script>
-  // 平面点阵世界地图 + 高拱辉光弧线（Canvas 2D）：
-  // 点阵大陆一次性绘入离屏缓存（含边缘渐隐遮罩），每帧仅画弧线/流光/节点，开销极小。
+  // 平面点阵世界地图 + 穹顶辉光弧网（Canvas 2D，对齐产品效果图）：
+  // 底图为构建期预计算的地理点阵（dotted-map diagonal 网格），一次性绘入离屏缓存；
+  // 每帧仅画弧网/流光/节点（lighter 加色混合，交点自然增亮），多层描边代替 shadowBlur 保 60fps。
   // 城市/弧线为网络覆盖示意（SEA 密集 + 全球枢纽），无数据声明，纯视觉层。
-  import { MAP_GRID } from '../../data/world-dots';
+  import { DOT_MAP } from '../../data/world-dots';
 
   const wrap = document.querySelector<HTMLElement>('.network-graphic');
   const canvas = document.getElementById('heroMap') as HTMLCanvasElement | null;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  type City = { lat: number; lng: number; hub?: boolean };
-  const CITIES: City[] = [
-    { lat: 1.35, lng: 103.82, hub: true }, // Singapore（枢纽）
-    { lat: 3.14, lng: 101.69 }, // Kuala Lumpur
-    { lat: -6.2, lng: 106.85 }, // Jakarta
-    { lat: 13.76, lng: 100.5 }, // Bangkok
-    { lat: 14.6, lng: 120.98 }, // Manila
-    { lat: 10.82, lng: 106.63 }, // Ho Chi Minh City
-    { lat: 23.13, lng: 113.26 }, // Guangzhou
-    { lat: 35.68, lng: 139.69, hub: true }, // Tokyo
-    { lat: 37.57, lng: 126.98 }, // Seoul
-    { lat: -33.87, lng: 151.21 }, // Sydney
-    { lat: 19.08, lng: 72.88 }, // Mumbai
-    { lat: 25.2, lng: 55.27, hub: true }, // Dubai
-    { lat: 51.51, lng: -0.13, hub: true }, // London
-    { lat: 52.52, lng: 13.4 }, // Berlin
-    { lat: 37.77, lng: -122.42 }, // San Francisco
-    { lat: 40.71, lng: -74.01, hub: true }, // New York
-    { lat: -23.55, lng: -46.63 }, // São Paulo
-    { lat: -1.29, lng: 36.82 }, // Nairobi
+  // 与 scripts/gen-dotted-map.mjs 的 CITIES 严格同序；hub = 视觉枢纽（更大星芒）
+  const CITY_META = [
+    { hub: true }, {}, {}, {}, {}, {}, {}, { hub: true }, {},
+    {}, {}, { hub: true }, { hub: true }, {}, {}, { hub: true }, {}, {},
   ];
-  // SEA 邻接靠节点表达，不拉短弧（密度失控=噪点）
+  // 链式弧网：枢纽扇面 + 洲际接力（共享端点成穹顶网罩，非独立散弧）
   const ARC_PAIRS: [number, number][] = [
-    [0, 3], [0, 4], [0, 7], [0, 9], [0, 10], [0, 11], [0, 14],
-    [1, 5], [7, 14], [11, 12], [12, 15], [15, 16], [10, 17], [7, 9],
+    [0, 2], [0, 3], [0, 7], [0, 9], [0, 10], [0, 11], [0, 14],
+    [3, 6], [6, 7], [7, 8], [7, 14], [2, 9],
+    [10, 11], [11, 12], [11, 17], [12, 13], [12, 15], [14, 15], [15, 16], [16, 17],
   ];
 
   function init() {
@@ -386,7 +372,7 @@ import { hero } from '../../data/home';
     canvas.height = H * dpr;
     ctx.scale(dpr, dpr);
 
-    // —— 投影：等距圆柱铺满容器宽（右缘微出血），边缘轻微下坠模拟俯视 ——
+    // —— 布局：点阵铺满容器宽（微出血），边缘轻微下坠模拟俯视 ——
     let mapW = 0;
     let mapH = 0;
     let x0 = 0;
@@ -394,62 +380,51 @@ import { hero } from '../../data/home';
     let cx = 0;
     const computeLayout = () => {
       mapW = W * 1.06;
-      mapH = mapW * (MAP_GRID.rows / MAP_GRID.cols) * 0.98;
+      mapH = mapW / DOT_MAP.aspect;
       x0 = -W * 0.02;
       y0 = (H - mapH) * 0.52;
       cx = x0 + mapW / 2;
     };
     computeLayout();
     const sag = (x: number) => Math.pow((x - cx) / (mapW / 2), 2) * 24;
-    const project = (lat: number, lng: number) => {
-      const x = x0 + ((lng + 180) / 360) * mapW;
-      const y = y0 + ((MAP_GRID.latTop - lat) / (MAP_GRID.latTop - MAP_GRID.latBottom)) * mapH + sag(x);
-      return [x, y] as [number, number];
+    const at = (nx: number, ny: number) => {
+      const x = x0 + nx * mapW;
+      return [x, y0 + ny * mapH + sag(x)] as [number, number];
     };
+    const cityPt = (i: number) => at(DOT_MAP.cityXY[i][0], DOT_MAP.cityXY[i][1]);
 
-    // —— 大陆点阵：绘入离屏缓存（亮度随光心衰减 + 微随机 + 城市簇微亮点），再套渐隐遮罩 ——
-    // 大陆是底纹（安静的深蓝），弧线与节点才是主角——亮度层级即视线路径
+    let seed = 7;
+    const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+
+    // —— 底图点阵：离屏缓存（亮度随光心衰减）+ 渐隐遮罩；~8% 点抽出作闪烁层 ——
     const off = document.createElement('canvas');
     const octx = off.getContext('2d')!;
-    const glowXY = () => [W * 0.72, H * 0.45] as const;
+    const glowXY = () => [W * 0.72, H * 0.42] as const;
+    let twinkles: { x: number; y: number; base: number; phase: number }[] = [];
     const paintOffscreen = () => {
       off.width = W * dpr;
       off.height = H * dpr;
       octx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const [glowX, glowY] = glowXY();
-      const stepX = mapW / MAP_GRID.cols;
-      const stepY = mapH / MAP_GRID.rows;
-      let seed = 7;
-      const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-      for (const [row, start, len] of MAP_GRID.runs) {
-        for (let c = start; c < start + len; c++) {
-          const x = x0 + (c + 0.5) * stepX;
-          const y = y0 + (row + 0.5) * stepY + sag(x);
-          const d = Math.hypot(x - glowX, y - glowY);
-          const lit = Math.max(0, 1 - d / (W * 0.72));
-          const alpha = 0.16 + lit * 0.5 + (rand() - 0.5) * 0.1;
-          octx.fillStyle = `rgba(96, 146, 255, ${Math.max(0.06, Math.min(0.62, alpha)).toFixed(3)})`;
-          octx.beginPath();
-          octx.arc(x, y, 1.5, 0, Math.PI * 2);
-          octx.fill();
+      seed = 7;
+      twinkles = [];
+      const [gx, gy] = glowXY();
+      const d = DOT_MAP.dots;
+      for (let i = 0; i < d.length; i += 2) {
+        const [x, y] = at(d[i], d[i + 1]);
+        const lit = Math.max(0, 1 - Math.hypot(x - gx, y - gy) / (W * 0.74));
+        const alpha = Math.max(0.07, Math.min(0.6, 0.15 + lit * 0.45 + (rand() - 0.5) * 0.08));
+        if (!reduced && rand() < 0.08) {
+          twinkles.push({ x, y, base: alpha, phase: rand() * Math.PI * 2 });
+          continue; // 闪烁点归动画层，不入静态缓存
         }
+        octx.fillStyle = `rgba(96, 146, 255, ${alpha.toFixed(3)})`;
+        octx.beginPath();
+        octx.arc(x, y, 1.3, 0, Math.PI * 2);
+        octx.fill();
       }
-      // 城市簇微亮点：节点周边略亮碎点，暗示密度
-      for (const c of CITIES) {
-        const [px, py] = project(c.lat, c.lng);
-        const n = 6 + Math.floor(rand() * 5);
-        for (let k = 0; k < n; k++) {
-          const ang = rand() * Math.PI * 2;
-          const rad = 6 + rand() * 20;
-          octx.fillStyle = `rgba(150, 190, 255, ${(0.5 + rand() * 0.2).toFixed(3)})`;
-          octx.beginPath();
-          octx.arc(px + Math.cos(ang) * rad, py + Math.sin(ang) * rad, 1.2, 0, Math.PI * 2);
-          octx.fill();
-        }
-      }
-      // 渐隐遮罩：径向（光心）× 左缘线性（让位给文案区）
+      // 渐隐遮罩：径向（光心）× 左缘线性（让位文案区）
       octx.globalCompositeOperation = 'destination-in';
-      const rg = octx.createRadialGradient(glowX, glowY, W * 0.1, glowX, glowY, W * 0.78);
+      const rg = octx.createRadialGradient(gx, gy, W * 0.1, gx, gy, W * 0.8);
       rg.addColorStop(0, 'rgba(0,0,0,1)');
       rg.addColorStop(0.72, 'rgba(0,0,0,0.85)');
       rg.addColorStop(1, 'rgba(0,0,0,0)');
@@ -464,15 +439,67 @@ import { hero } from '../../data/home';
     };
     paintOffscreen();
 
-    // —— 弧线：预采样为折线（画部分弧 = 入场生长；流光沿折线跑）；弧顶抖动防近平行"喷射" ——
-    const N = 48;
+    // —— 节点辉光 sprite：预渲染（径向光晕 + 四芒星），每帧仅 drawImage ——
+    const makeSprite = (size: number, star: number) => {
+      const s = document.createElement('canvas');
+      const S = size * dpr;
+      s.width = S;
+      s.height = S;
+      const c = s.getContext('2d')!;
+      c.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const m = size / 2;
+      const halo = c.createRadialGradient(m, m, 0, m, m, m);
+      halo.addColorStop(0, 'rgba(235, 245, 255, 0.95)');
+      halo.addColorStop(0.12, 'rgba(190, 216, 255, 0.65)');
+      halo.addColorStop(0.35, 'rgba(90, 150, 255, 0.22)');
+      halo.addColorStop(1, 'rgba(52, 120, 255, 0)');
+      c.fillStyle = halo;
+      c.fillRect(0, 0, size, size);
+      // 四芒星：两条正交渐变细线（效果图的镜头光斑语言）
+      const beam = (vert: boolean) => {
+        const L = m * star;
+        const g = vert
+          ? c.createLinearGradient(m, m - L, m, m + L)
+          : c.createLinearGradient(m - L, m, m + L, m);
+        g.addColorStop(0, 'rgba(190, 216, 255, 0)');
+        g.addColorStop(0.5, 'rgba(240, 248, 255, 0.9)');
+        g.addColorStop(1, 'rgba(190, 216, 255, 0)');
+        c.strokeStyle = g;
+        c.lineWidth = 1.2;
+        c.beginPath();
+        if (vert) {
+          c.moveTo(m, m - L);
+          c.lineTo(m, m + L);
+        } else {
+          c.moveTo(m - L, m);
+          c.lineTo(m + L, m);
+        }
+        c.stroke();
+      };
+      beam(false);
+      beam(true);
+      return s;
+    };
+    const spriteHub = makeSprite(82, 0.98);
+    const spriteDot = makeSprite(34, 0.8);
+
+    // —— 弧网：预采样折线 + 每弧每层端部淡出渐变（0-1-1-0，交汇处自然亮心） ——
+    const N = 64;
+    // 多层描边代替 shadowBlur：外晕→内晕→白芯（lighter 混合下交点自动增亮）
+    const LAYERS = [
+      { w: 7.5, rgb: '37, 99, 235', a: 0.08 },
+      { w: 4, rgb: '52, 120, 255', a: 0.14 },
+      { w: 2, rgb: '120, 170, 255', a: 0.34 },
+      { w: 1.05, rgb: '235, 245, 255', a: 0.85 },
+    ];
     const buildArcs = () =>
       ARC_PAIRS.map(([a, b], i) => {
-        const [ax, ay] = project(CITIES[a].lat, CITIES[a].lng);
-        const [bx, by] = project(CITIES[b].lat, CITIES[b].lng);
+        const [ax, ay] = cityPt(a);
+        const [bx, by] = cityPt(b);
         const mx = (ax + bx) / 2;
         const dist = Math.hypot(bx - ax, by - ay);
-        const peak = Math.min(ay, by) - (dist * (0.3 + (i % 5) * 0.03) + 46);
+        // 穹顶包络：弧高随弦长分级（近弧矮、远弧高），共享同一高度函数聚成网罩
+        const peak = Math.min(ay, by) - (dist * 0.3 + 58 + (i % 4) * 8);
         const pts: [number, number][] = [];
         for (let k = 0; k <= N; k++) {
           const t = k / N;
@@ -480,17 +507,31 @@ import { hero } from '../../data/home';
           const y = (1 - t) * (1 - t) * ay + 2 * (1 - t) * t * peak + t * t * by;
           pts.push([x, y]);
         }
-        return { pts, phase: (i * 0.37) % 1, born: 600 + i * 110 };
+        const grads = LAYERS.map((L) => {
+          const g = ctx.createLinearGradient(ax, ay, bx, by);
+          g.addColorStop(0, `rgba(${L.rgb}, 0)`);
+          g.addColorStop(0.09, `rgba(${L.rgb}, ${L.a})`);
+          g.addColorStop(0.91, `rgba(${L.rgb}, ${L.a})`);
+          g.addColorStop(1, `rgba(${L.rgb}, 0)`);
+          return g;
+        });
+        return {
+          pts,
+          grads,
+          born: 500 + i * 90,
+          beamDur: 2600 + rand() * 2200,
+          beamDelay: rand() * 4000,
+        };
       });
     const buildNodes = () =>
-      CITIES.map((c, i) => {
-        const [x, y] = project(c.lat, c.lng);
-        return { x, y, hub: Boolean(c.hub), phase: (i * 0.53) % 1, born: 500 + i * 90 };
+      CITY_META.map((c, i) => {
+        const [x, y] = cityPt(i);
+        return { x, y, hub: Boolean(c.hub), phase: rand(), born: 400 + i * 80 };
       });
     let arcs = buildArcs();
     let nodes = buildNodes();
 
-    const strokeArc = (pts: [number, number][], upTo: number, width: number, style: string) => {
+    const strokeArc = (pts: [number, number][], upTo: number, width: number, style: string | CanvasGradient) => {
       ctx.strokeStyle = style;
       ctx.lineWidth = width;
       ctx.beginPath();
@@ -512,24 +553,45 @@ import { hero } from '../../data/home';
       ctx.drawImage(off, 0, 0, W, H);
       ctx.lineCap = 'round';
 
+      // 底图呼吸：抽样点低频闪烁（Stripe twinkle 手法，仅 ~8% 点参与）
+      for (const tw of twinkles) {
+        const a = tw.base * (0.55 + 0.45 * Math.sin(t / 1400 + tw.phase));
+        ctx.fillStyle = `rgba(120, 165, 255, ${a.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(tw.x, tw.y, 1.3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 弧网 + 节点走加色混合：重叠即增亮，效果图的"交点更亮"免费获得
+      ctx.globalCompositeOperation = 'lighter';
+
       for (const arc of arcs) {
-        const grow = reduced ? 1 : Math.min(1, Math.max(0, (t - arc.born) / 900));
+        const grow = reduced ? 1 : Math.min(1, Math.max(0, (t - arc.born) / 1000));
         if (grow <= 0) continue;
         const eased = 1 - Math.pow(1 - grow, 3);
-        strokeArc(arc.pts, eased, 6.5, 'rgba(52, 120, 255, 0.20)');
-        strokeArc(arc.pts, eased, 1.5, 'rgba(185, 212, 255, 0.85)');
-        // 流光：沿弧线巡航的亮点 + 短尾
+        for (let L = 0; L < LAYERS.length; L++) strokeArc(arc.pts, eased, LAYERS[L].w, arc.grads[L]);
+        // 流光：渐变光束窗口（头亮尾淡）错峰巡航，非匀速跑马灯
         if (!reduced && eased >= 1) {
-          const p = (t / 4200 + arc.phase) % 1;
-          const head = Math.floor(p * N);
-          for (let tail = 0; tail < 6; tail++) {
-            const k = head - tail;
-            if (k < 0) break;
-            const [x, y] = arc.pts[k];
-            ctx.fillStyle = `rgba(220, 235, 255, ${(0.9 * (1 - tail / 6)).toFixed(3)})`;
-            ctx.beginPath();
-            ctx.arc(x, y, 1.9 - tail * 0.2, 0, Math.PI * 2);
-            ctx.fill();
+          const cyc = arc.beamDur * 1.9;
+          const pos = ((t - arc.beamDelay) % cyc + cyc) % cyc / arc.beamDur;
+          if (pos <= 1) {
+            const ease = 1 - Math.pow(1 - pos, 2.2);
+            const head = Math.floor(ease * N);
+            const tail = Math.max(0, head - Math.floor(N * 0.16));
+            if (head > tail) {
+              const [hx, hy] = arc.pts[head];
+              const [tx, ty] = arc.pts[tail];
+              const g = ctx.createLinearGradient(tx, ty, hx, hy);
+              g.addColorStop(0, 'rgba(90, 150, 255, 0)');
+              g.addColorStop(0.6, 'rgba(150, 195, 255, 0.5)');
+              g.addColorStop(1, 'rgba(245, 250, 255, 0.95)');
+              ctx.strokeStyle = g;
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.moveTo(tx, ty);
+              for (let k = tail + 1; k <= head; k++) ctx.lineTo(arc.pts[k][0], arc.pts[k][1]);
+              ctx.stroke();
+            }
           }
         }
       }
@@ -537,40 +599,29 @@ import { hero } from '../../data/home';
       for (const node of nodes) {
         const grow = reduced ? 1 : Math.min(1, Math.max(0, (t - node.born) / 600));
         if (grow <= 0) continue;
-        const breathe = reduced ? 1 : 0.82 + 0.18 * Math.sin((t / 1000) * 2.2 + node.phase * Math.PI * 2);
-        // SEA 密集带非枢纽减档，让新加坡一枝独秀
-        const r = (node.hub ? 10 : 5) * (1 - Math.pow(1 - grow, 3)) * breathe;
-        const haloR = r * (node.hub ? 3.2 : 2.6);
-        const halo = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, haloR);
-        halo.addColorStop(0, 'rgba(190, 216, 255, 0.9)');
-        halo.addColorStop(0.25, 'rgba(120, 170, 255, 0.5)');
-        halo.addColorStop(0.6, 'rgba(52, 120, 255, 0.18)');
-        halo.addColorStop(1, 'rgba(52, 120, 255, 0)');
-        ctx.fillStyle = halo;
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, haloR, 0, Math.PI * 2);
-        ctx.fill();
+        const appear = 1 - Math.pow(1 - grow, 3);
+        const breathe = reduced ? 1 : 0.86 + 0.14 * Math.sin(t / 1000 + node.phase * Math.PI * 2);
+        const size = (node.hub ? 82 : 34) * appear * breathe;
+        const sprite = node.hub ? spriteHub : spriteDot;
+        ctx.drawImage(sprite, node.x - size / 2, node.y - size / 2, size, size);
+        // 白芯常驻
         ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
         ctx.beginPath();
-        ctx.arc(node.x, node.y, Math.max(1.4, r * 0.32), 0, Math.PI * 2);
+        ctx.arc(node.x, node.y, node.hub ? 2.6 : 1.6, 0, Math.PI * 2);
         ctx.fill();
-        // 枢纽十字光芒（效果图的镜头光斑语言）
-        if (node.hub) {
-          const len = r * 3.4;
-          const beam = ctx.createLinearGradient(node.x - len, node.y, node.x + len, node.y);
-          beam.addColorStop(0, 'rgba(140, 180, 255, 0)');
-          beam.addColorStop(0.5, `rgba(190, 216, 255, ${(0.5 * breathe).toFixed(3)})`);
-          beam.addColorStop(1, 'rgba(140, 180, 255, 0)');
-          ctx.strokeStyle = beam;
+        // 脉冲环：从节点发射的扩散圆（间隔错峰）
+        if (!reduced) {
+          const p = (t / 2200 + node.phase) % 1;
+          const r = (node.hub ? 7 : 4.5) + p * (node.hub ? 22 : 13);
+          ctx.strokeStyle = `rgba(120, 170, 255, ${((1 - p) * 0.32 * appear).toFixed(3)})`;
           ctx.lineWidth = 1;
           ctx.beginPath();
-          ctx.moveTo(node.x - len, node.y);
-          ctx.lineTo(node.x + len, node.y);
-          ctx.moveTo(node.x, node.y - len);
-          ctx.lineTo(node.x, node.y + len);
+          ctx.arc(node.x, node.y, r, 0, Math.PI * 2);
           ctx.stroke();
         }
       }
+
+      ctx.globalCompositeOperation = 'source-over';
     };
 
     let raf = 0;
