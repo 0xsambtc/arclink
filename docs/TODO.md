@@ -11,7 +11,7 @@
 
 | # | 任务 | 状态 | 备注 |
 |---|---|---|---|
-| M0 | 仓库初始化（GitHub 私有仓库 + Workers Builds 接入） | 🔵 | 2026-08-09：代码已推 github.com/0xsambtc/arclink（main）；**首次部署已上线 https://arclink-website.arclink-website.workers.dev（noindex）**，生产 secrets 已灌（5 个 Lark 凭证）；剩 samuel 在 Dashboard 接 Workers Builds（连 GitHub 仓库） |
+| M0 | 仓库初始化（GitHub 私有仓库 + Workers Builds） | ✅ | 2026-08-09 全线闭环：github.com/0xsambtc/arclink → Workers Builds 云端构建 → 自动部署 https://arclink-website.arclink-website.workers.dev（noindex）。曾踩坑：lock 缺 android 平台可选依赖致 npm ci 失败（已补条目）。`wrangler deploy` 转为逃生通道 |
 | R1 | v0.2 重建：首页六区（Hero/Belief/HowWorks/Platform/Industries/Network）+ 导航页脚 | ✅ | 2026-08-07；M1 组件底座复用，内容层全换 |
 | R2 | v0.2 重建：/contact（Talk to Sales）+ /join（双表单）+ /careers + 法律页 | ✅ | 2026-08-07；表单字段/校验/toast 按 v0.2 规格实测通过（后端待 M3） |
 | M3 | 表单后端（Turnstile → 校验 → Lark 多维表格 → DirectMail + 群机器人） | 🔵 | **存储主链路全链路联调通过**（2026-08-09：Lark 自建应用凭证有效、Base+两张规格表已由脚本建好、双表单真实写入成功）；剩：群机器人 webhook、DirectMail、Turnstile key、生产 secrets |
