@@ -48,21 +48,14 @@ const BG_HEX = { dark: '#030b1d', light: '#f3f7ff' } as const;
     <slot name="head" />
     {/* 防白/防黑闪：CSS 加载前首帧即着页面底色（docs/02 性能要点） */}
     <style is:inline set:html={`html{background:${BG_HEX[bg]}}`}></style>
-    {/* 无 JS（含多数爬虫）时 reveal 内容直出，不永久隐藏 */}
-    <noscript>
-      <style>
-        .reveal {
-          opacity: 1;
-          transform: none;
-        }
-      </style>
-    </noscript>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <slot />
     <script>
-      // Scroll reveal 观察器（配合 global.css 的 .reveal）
+      // Scroll reveal：隐藏态由本脚本"武装"后才生效（global.css 以 html.reveal-armed 限定）；
+      // JS 未加载/失败（弱网手机、爬虫）时内容直出，永不空白
+      document.documentElement.classList.add('reveal-armed');
       const revealObserver = new IntersectionObserver(
         (entries) =>
           entries.forEach((entry) => {
