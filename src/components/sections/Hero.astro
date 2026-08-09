@@ -35,6 +35,7 @@ import { hero } from '../../data/home';
           <circle cx="110" cy="300" r="6"></circle><circle cx="175" cy="155" r="5"></circle><circle cx="230" cy="345" r="6"></circle><circle cx="350" cy="250" r="7"></circle><circle cx="465" cy="320" r="6"></circle><circle cx="495" cy="225" r="6"></circle><circle cx="545" cy="180" r="6"></circle><circle cx="610" cy="275" r="6"></circle><circle cx="655" cy="330" r="5"></circle><circle cx="670" cy="250" r="5"></circle>
         </g>
       </svg>
+      <noscript><style is:inline>.network-fallback { opacity: 1 !important; }</style></noscript>
     </div>
   </div>
   <!-- 底缘过渡线：中心凹陷（SVG 承担线），光点为 HTML 分层辉光（不受横向拉伸影响，永远正圆） -->
@@ -161,15 +162,12 @@ import { hero } from '../../data/home';
     opacity: 1;
   }
 
+  /* 兜底图默认不可见：JS 加载窗口内保持安静深底，canvas 就绪后淡入；无 JS 由 noscript 显示 */
   .network-fallback {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    transition: opacity var(--duration-ambient) var(--ease-out);
-  }
-
-  .network-graphic.has-map .network-fallback {
     opacity: 0;
   }
 

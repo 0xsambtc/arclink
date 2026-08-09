@@ -61,6 +61,7 @@ const arc = (a: (typeof nodes)[number], b: (typeof nodes)[number]) => {
           {nodes.map((n) => <circle cx={n.x} cy={n.y} r={RADII[n.tier]} data-tier={n.tier} />)}
         </g>
       </svg>
+      <noscript><style is:inline>.net-fallback { opacity: 1 !important; }</style></noscript>
     </div>
   </div>
 </section>
@@ -215,8 +216,9 @@ const arc = (a: (typeof nodes)[number], b: (typeof nodes)[number]) => {
   .network-map.has-map .net-canvas {
     opacity: 1;
   }
-  .network-map.has-map .net-fallback {
-    visibility: hidden;
+  /* 兜底图仅无 JS 显示（noscript 反转），JS 加载窗口内不闪旧图 */
+  .net-fallback {
+    opacity: 0;
   }
 </style>
 
