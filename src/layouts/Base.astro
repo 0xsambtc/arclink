@@ -43,6 +43,13 @@ const BG_HEX = { dark: '#030b1d', light: '#f3f7ff' } as const;
     <meta property="og:url" content={new URL(Astro.url.pathname, Astro.site)} />
     <meta property="og:image" content={new URL('/brand/og-card.png', Astro.site)} />
     <meta name="twitter:card" content="summary_large_image" />
+    {/* 搜索平台所有权验证（值来自构建变量，公开信息）：GSC / Bing Webmaster */}
+    {import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION && (
+      <meta name="google-site-verification" content={import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION} />
+    )}
+    {import.meta.env.PUBLIC_BING_SITE_VERIFICATION && (
+      <meta name="msvalidate.01" content={import.meta.env.PUBLIC_BING_SITE_VERIFICATION} />
+    )}
     <slot name="head" />
     {/* 防白/防黑闪：CSS 加载前首帧即着页面底色（docs/02 性能要点） */}
     <style is:inline set:html={`html{background:${BG_HEX[bg]}}`}></style>
