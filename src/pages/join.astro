@@ -69,7 +69,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
   <Footer />
 
   <div class="toast-region" aria-live="polite"></div>
-  {turnstileSiteKey && <script is:inline async defer src="https://challenges.cloudflare.com/turnstile/api.js"></script>}
+  {turnstileSiteKey && <script is:inline async defer src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>}
   <div class="modal-backdrop" id="modalBackdrop"></div>
   <section class="application-modal" id="applicationModal" role="dialog" aria-modal="true" aria-labelledby="modalHeading" hidden>
     <button class="modal-close" id="modalClose" aria-label="Close"><span aria-hidden="true">+</span></button>
@@ -172,7 +172,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
           <small class="field-error"></small>
         </label>
         {turnstileSiteKey && (
-          <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-appearance="interaction-only"></div>
+          <div class="cf-turnstile" data-sitekey={turnstileSiteKey}></div>
         )}
         <div class="submit-wrap">
           <button class="button button-primary" type="submit">
@@ -259,7 +259,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
           <small class="field-error"></small>
         </label>
         {turnstileSiteKey && (
-          <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-appearance="interaction-only"></div>
+          <div class="cf-turnstile" data-sitekey={turnstileSiteKey}></div>
         )}
         <div class="submit-wrap">
           <button class="button button-primary" type="submit">

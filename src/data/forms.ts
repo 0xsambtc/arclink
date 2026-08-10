@@ -11,6 +11,8 @@ export const formMessages = {
   toasts: {
     success: "We've received your message and will get back to you within 1–2 business days.",
     failure: 'Submission failed. Please try again later, or email us directly at support@arclink-solutions.com.',
+    verification:
+      'Security check could not be completed. Please refresh the page and try again, or email us directly at support@arclink-solutions.com.',
   },
   submitting: 'Submitting…',
 } as const;

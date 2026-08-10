@@ -102,7 +102,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
               <small class="field-error"></small>
             </label>
             {turnstileSiteKey && (
-              <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-appearance="interaction-only"></div>
+              <div class="cf-turnstile" data-sitekey={turnstileSiteKey}></div>
             )}
             <div class="submit-wrap">
               <button class="button button-primary" type="submit">
@@ -116,7 +116,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
   </main>
   <Footer />
   <div class="toast-region" aria-live="polite"></div>
-  {turnstileSiteKey && <script is:inline async defer src="https://challenges.cloudflare.com/turnstile/api.js"></script>}
+  {turnstileSiteKey && <script is:inline async defer src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>}
 </Base>
 
 <style>

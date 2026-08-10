@@ -222,6 +222,24 @@ export function wireForm(form: HTMLFormElement, options?: { onSuccess?: () => vo
     return invalid.length === 0;
   };
 
+  // Turnstile 令牌：组件在慢网/延迟渲染时可能尚未产出，提交前最多等待 6s
+  const turnstileToken = async (): Promise<string | null> => {
+    const widget = form.querySelector('.cf-turnstile');
+    if (!widget) return null; // 未启用 Turnstile（未配置 site key）
+    const read = () => {
+      const input = form.querySelector<HTMLInputElement>('[name="cf-turnstile-response"]');
+      if (input?.value) return input.value;
+      const ts = (window as unknown as { turnstile?: { getResponse?: (el?: Element) => string | undefined } }).turnstile;
+      return ts?.getResponse?.(widget) ?? '';
+    };
+    for (let i = 0; i < 30; i++) {
+      const token = read();
+      if (token) return token;
+      await new Promise((resolve) => window.setTimeout(resolve, 200));
+    }
+    return '';
+  };
+
   const buildPayload = () => {
     const data = new FormData(form);
     const payload: Record<string, unknown> = {};
@@ -253,14 +271,30 @@ export function wireForm(form: HTMLFormElement, options?: { onSuccess?: () => vo
     submitLabel.textContent = formMessages.submitting;
 
     try {
+      const payload = buildPayload();
+      const token = await turnstileToken();
+      if (token !== null) {
+        if (!token) {
+          // 组件未产出令牌（脚本被拦/域名不匹配/超时）：给出可自救的指引，不静默失败
+          showToast(formMessages.toasts.verification, 'error');
+          return;
+        }
+        payload['cf-turnstile-response'] = token;
+      }
       const response = await fetch(form.dataset.endpoint ?? form.action, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(buildPayload()),
+        body: JSON.stringify(payload),
       });
       if (!response.ok) {
         // 服务端邮箱三层验证拒绝：落回邮箱字段错误，指引比笼统失败更准确
         const detail = (await response.json().catch(() => null)) as { error?: string } | null;
+        if (detail?.error?.startsWith('turnstile_')) {
+          showToast(formMessages.toasts.verification, 'error');
+          const ts = (window as unknown as { turnstile?: { reset?: () => void } }).turnstile;
+          ts?.reset?.(); // 令牌一次性，失败后必须重置组件才能再次提交
+          return;
+        }
         if (detail?.error?.startsWith('email_')) {
           const emailControl = form.querySelector<Control>('input[name="email"]');
           if (emailControl) {
