@@ -29,8 +29,6 @@ const BG_HEX = { dark: '#030b1d', light: '#f3f7ff' } as const;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- 预览期全站 noindex（workers.dev 阶段）；M5 正式域名上线时移除，见 docs/TODO.md -->
-    <meta name="robots" content="noindex" />
     <meta name="description" content={description} />
     <meta name="theme-color" content={BG_HEX[bg]} />
     {noindex && <meta name="robots" content="noindex" />}

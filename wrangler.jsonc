@@ -7,6 +7,11 @@
   "name": "arclink-website",
   "compatibility_date": "2026-08-01",
   "compatibility_flags": ["nodejs_compat"],
+  // 正式域绑定（custom domain：Cloudflare 自动建 DNS 记录与证书）
+  "routes": [
+    { "pattern": "arclink-solutions.com", "custom_domain": true },
+    { "pattern": "www.arclink-solutions.com", "custom_domain": true }
+  ],
   "assets": {
     "directory": "./dist/client",
     "binding": "ASSETS",
