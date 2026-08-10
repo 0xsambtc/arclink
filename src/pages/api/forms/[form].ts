@@ -11,7 +11,7 @@ import { directmailConfigured, sendMail, type DirectMailEnv } from '../../../ser
 
 export const prerender = false;
 
-type Env = FeishuEnv & DirectMailEnv & { TURNSTILE_SECRET_KEY?: string };
+type Env = FeishuEnv & DirectMailEnv & { TURNSTILE_SECRET_KEY?: string; FEISHU_BASE_URL?: string };
 
 interface CfContext {
   waitUntil(p: Promise<unknown>): void;
@@ -26,7 +26,7 @@ const json = (status: number, body: object) =>
 
 export const POST: APIRoute = async ({ params, request, locals, clientAddress }) => {
   const env = (workerEnv ?? {}) as Env;
-  const cf = (request as unknown as { cf?: { country?: string; city?: string } }).cf;
+  const cf = (request as unknown as { cf?: { country?: string; city?: string; asOrganization?: string; colo?: string } }).cf;
   // adapter v14：ExecutionContext 经 locals.cfContext 暴露（locals.runtime 已整体移除）
   const ctx = (locals as { cfContext?: CfContext }).cfContext;
   const defer = (p: Promise<unknown>) => {
@@ -70,6 +70,8 @@ export const POST: APIRoute = async ({ params, request, locals, clientAddress })
   if (!emailVerdict.ok) return json(400, { error: `email_${emailVerdict.reason}` });
 
   const geo = [cf?.city, cf?.country].filter(Boolean).join(', ') || 'unknown';
+  // 网络运营商：数据中心/VPN 出口一眼可辨（自述 country 与之矛盾时人工复核）
+  const network = cf?.asOrganization ? ` (${cf.asOrganization})` : '';
   // 记录用 UTC+8（团队所在时区），带偏移标注避免歧义
   const now = new Date(Date.now() + 8 * 3600_000).toISOString().replace('T', ' ').slice(0, 19) + ' +08:00';
 
@@ -99,7 +101,7 @@ export const POST: APIRoute = async ({ params, request, locals, clientAddress })
       `[Client enquiry] ${now}`,
       `${company} · ${projectTypes.join(' / ')}`,
       `${base.first_name} ${base.last_name} <${email}>`,
-      `Country: ${fields.country || '-'} · IP: ${geo}`,
+      `Country: ${fields.country || '-'} · IP: ${geo}${network}`,
       fields.message ? `Message: ${fields.message.slice(0, 200)}` : null,
     ].filter(Boolean).join('\n');
   } else {
@@ -132,9 +134,14 @@ export const POST: APIRoute = async ({ params, request, locals, clientAddress })
       `[Operator application] ${now}`,
       `${type} · ${country}`,
       `${base.first_name} ${base.last_name} <${email}>`,
-      `Channel: ${fields.preferred_channel || '-'}${fields.contact_handle ? ' (' + fields.contact_handle + ')' : ''} · IP: ${geo}`,
+      fields.company ? `Company: ${fields.company}${fields.team_size ? ' · team ' + fields.team_size : ''}` : null,
+      `Channel: ${fields.preferred_channel || '-'}${fields.contact_handle ? ' (' + fields.contact_handle + ')' : ''}`,
+      fields.phone ? `Phone: ${fields.phone}` : null,
+      fields.task_types ? `Tasks: ${fields.task_types}` : null,
       fields.regions ? `Regions: ${fields.regions.slice(0, 150)}` : null,
       fields.availability ? `Availability: ${fields.availability}` : null,
+      fields.referral_email ? `Referral: ${fields.referral_email}` : null,
+      `IP: ${geo}${network}`,
     ].filter(Boolean).join('\n');
   }
 
@@ -149,9 +156,10 @@ export const POST: APIRoute = async ({ params, request, locals, clientAddress })
   }
 
   // 通知（邮件 + 群机器人）：失败互为告警，不阻断响应
+  const baseLink = env.FEISHU_BASE_URL ? `\n${env.FEISHU_BASE_URL}` : '';
   const notify = (async () => {
     try {
-      await botAlert(env, summary);
+      await botAlert(env, summary + baseLink);
     } catch (err) {
       console.error('feishu bot failed', err);
     }
