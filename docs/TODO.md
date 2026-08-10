@@ -1,7 +1,7 @@
 # 进度追踪
 
 > 本文件由 Claude 在每次工作会话结束时更新；samuel 只读即可。状态：⬜ 未开始 / 🔵 进行中 / ✅ 完成 / ⏸ 等外部输入。
-> 最后更新：2026-08-09（M3 存储链路上线，workers.dev 预览可用）
+> 最后更新：2026-08-10（正式域上线，M0/M3 完结；剩 PM 反馈与上线收尾）
 
 ## 当前状态一句话
 
@@ -14,7 +14,7 @@
 | M0 | 仓库初始化（GitHub 私有仓库 + Workers Builds） | ✅ | 2026-08-09 全线闭环：github.com/0xsambtc/arclink → Workers Builds 云端构建 → 自动部署 https://arclink-website.arclink-website.workers.dev（noindex）。曾踩坑：lock 缺 android 平台可选依赖致 npm ci 失败（已补条目）。`wrangler deploy` 转为逃生通道 |
 | R1 | v0.2 重建：首页六区（Hero/Belief/HowWorks/Platform/Industries/Network）+ 导航页脚 | ✅ | 2026-08-07；M1 组件底座复用，内容层全换 |
 | R2 | v0.2 重建：/contact（Talk to Sales）+ /join（双表单）+ /careers + 法律页 | ✅ | 2026-08-07；表单字段/校验/toast 按 v0.2 规格实测通过（后端待 M3） |
-| M3 | 表单后端（Turnstile → 校验 → Lark 多维表格 → DirectMail + 群机器人） | 🔵 | **存储主链路全链路联调通过**（2026-08-09：Lark 自建应用凭证有效、Base+两张规格表已由脚本建好、双表单真实写入成功）；剩：群机器人 webhook、DirectMail、Turnstile key、生产 secrets |
+| M3 | 表单后端（Turnstile → 校验 → Lark 多维表格 → 群机器人） | ✅ | 2026-08-10 完结：正式域真实浏览器提交实测通过（Turnstile 强制生效→落表→分型卡片推送）。测试数据已清空。DirectMail 未配（群机器人已覆盖通知需求，是否需要待定） |
 | M4 | SEO 基建（sitemap/robots/JSON-LD——现在有真实法律主体与地址可填 Organization） | ⬜ | robots 已定全开放 |
 | M5 | 上线 | 🔵 | 2026-08-10：**arclink-solutions.com/www 已绑定上线，noindex 已移除**，表单正式域全链路通；剩：AI 爬虫放行（managed robots.txt 注入拦截段待关，samuel Dashboard 操作）、GSC/Bing 提交、Web Analytics、DirectMail/发信域 |
 
@@ -28,6 +28,12 @@
 | ~~域名~~ | M5 | ✅ arclink-solutions.com（2026-08-07）；邮箱同域 support@arclink-solutions.com（2026-08-09 samuel 确认） |
 | 隐私政策 §9 占位邮箱 `[dpo@arclink.com]` 的正确值 | 法律页 | ⏸ 转 PM 确认 |
 | Logo 矢量源文件 | header 真 logo | ⏸ 已有新版 JPG（public/brand/logo-v2.jpg），矢量待提供 |
+
+## 挂起的产品决策（samuel 2026-08-10 明确"暂不改"，记录备查）
+
+- **电话是否强制 `+` 国家码**：当前宽松（7–15 位，可无国家码）。跨国派单时本地格式号码无法直拨，需运营人工补。暂不改。
+- **"Country" 是否改 "Country/Region"**：列表含 Taiwan/Hong Kong/Macao 等地区与国家并列，标签为 "Country"。涉及对外表述，暂不改，待 PM 一并确认。
+- **AI 爬虫放行**：Cloudflare managed robots.txt 默认注入拦截段（ClaudeBot/GPTBot/Google-Extended 等全 Disallow，Content-Signal: ai-train=no），与已定策略 A（全开放）相反。samuel 暂缓处理，**上线推广前需完成**，否则 AI 搜索不可见。
 
 ## 待 samuel / PM 决策的队列（2026-08-07 汇总：合规审计 + 结构评审 + 精修评审）
 
