@@ -95,7 +95,13 @@ export const POST: APIRoute = async ({ params, request, locals, clientAddress })
     };
     // FR-2：标题含公司名与需求类型
     mailSubject = `New enquiry — ${company} · ${projectTypes.join(' / ')}`;
-    summary = `[Client enquiry]\n${company} · ${projectTypes.join(' / ')}\n${base.first_name} ${base.last_name} <${email}>\nCountry: ${fields.country || '-'} · IP: ${geo}`;
+    summary = [
+      `[Client enquiry] ${now}`,
+      `${company} · ${projectTypes.join(' / ')}`,
+      `${base.first_name} ${base.last_name} <${email}>`,
+      `Country: ${fields.country || '-'} · IP: ${geo}`,
+      fields.message ? `Message: ${fields.message.slice(0, 200)}` : null,
+    ].filter(Boolean).join('\n');
   } else {
     const type = str(payload.type) === 'team' ? 'team' : 'individual';
     const country = str(payload.country);
@@ -122,7 +128,14 @@ export const POST: APIRoute = async ({ params, request, locals, clientAddress })
     };
     // FR-5：标题含地区与身份类型（v0.2 写"城市"，表单采集维度为 country，见 docs/03 备注）
     mailSubject = `New operator application — ${country} · ${type}`;
-    summary = `[Operator application]\n${type} · ${country}\n${base.first_name} ${base.last_name} <${email}>\nChannel: ${fields.preferred_channel || '-'} · IP: ${geo}`;
+    summary = [
+      `[Operator application] ${now}`,
+      `${type} · ${country}`,
+      `${base.first_name} ${base.last_name} <${email}>`,
+      `Channel: ${fields.preferred_channel || '-'}${fields.contact_handle ? ' (' + fields.contact_handle + ')' : ''} · IP: ${geo}`,
+      fields.regions ? `Regions: ${fields.regions.slice(0, 150)}` : null,
+      fields.availability ? `Availability: ${fields.availability}` : null,
+    ].filter(Boolean).join('\n');
   }
 
   // 主存储：未配置 → 503（前端失败 toast 引导备用邮箱）；写入失败 → 502（不可静默）
