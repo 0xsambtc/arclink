@@ -127,10 +127,13 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
     align-items: start;
   }
 
-  /* 左栏随滚动跟随，长表单滚动时联系信息常驻 */
-  .journey-aside {
-    position: sticky;
-    top: calc(var(--header-h) + var(--space-6));
+  /* 左栏随滚动跟随，长表单滚动时联系信息常驻。
+     仅双列桌面宽度启用：单列布局下 Safari 会把 sticky 网格项折叠为零高度，内容悬浮压到表单上 */
+  @media (min-width: 1121px) {
+    .journey-aside {
+      position: sticky;
+      top: calc(var(--header-h) + var(--space-6));
+    }
   }
 
   .journey-aside h1 {
