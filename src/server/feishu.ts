@@ -48,6 +48,16 @@ export async function appendRecord(
   if (data.code !== 0) throw new Error(`feishu append failed: ${data.code} ${data.msg}`);
 }
 
+/** 群机器人卡片（结构化通知：标题色分级 + 字段双列 + 直达表格按钮） */
+export async function botCard(env: FeishuEnv, card: unknown): Promise<void> {
+  if (!env.FEISHU_BOT_WEBHOOK) return;
+  await fetch(env.FEISHU_BOT_WEBHOOK, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ msg_type: 'interactive', card }),
+  });
+}
+
 /** 群机器人告警（通知类：失败不阻断主流程，由调用方决定降级） */
 export async function botAlert(env: FeishuEnv, text: string): Promise<void> {
   if (!env.FEISHU_BOT_WEBHOOK) return;

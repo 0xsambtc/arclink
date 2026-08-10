@@ -6,7 +6,7 @@ import type { APIRoute } from 'astro';
 // @ts-expect-error cloudflare:workers 为 Workers 运行时虚拟模块
 import { env as workerEnv } from 'cloudflare:workers';
 import { verifyEmail } from '../../../server/email-verify';
-import { appendRecord, botAlert, feishuConfigured, type FeishuEnv } from '../../../server/feishu';
+import { appendRecord, botAlert, botCard, feishuConfigured, type FeishuEnv } from '../../../server/feishu';
 import { directmailConfigured, sendMail, type DirectMailEnv } from '../../../server/directmail';
 
 export const prerender = false;
@@ -78,7 +78,34 @@ export const POST: APIRoute = async ({ params, request, locals, clientAddress })
   let tableId: string | undefined;
   let fields: Record<string, string>;
   let mailSubject: string;
-  let summary: string;
+  let summary: string; // 邮件正文（纯文本）
+  let card: unknown; // 群卡片（三类消息各自的判断维度不同，字段与配色分开设计）
+
+  // 卡片构件：双列字段扫读 + 脚注（时间/来源）+ 表格直达按钮
+  const pair = (label: string, value: string) => ({
+    is_short: true,
+    text: { tag: 'lark_md', content: `**${label}**\n${value || '-'}` },
+  });
+  const buildCard = (template: string, title: string, pairs: [string, string][], block?: string) => ({
+    config: { wide_screen_mode: true },
+    header: { template, title: { tag: 'plain_text', content: title } },
+    elements: [
+      { tag: 'div', fields: pairs.map(([l, v]) => pair(l, v)) },
+      ...(block ? [{ tag: 'hr' }, { tag: 'div', text: { tag: 'lark_md', content: block } }] : []),
+      { tag: 'note', elements: [{ tag: 'plain_text', content: `${now} · IP ${geo}${network}` }] },
+      ...(env.FEISHU_BASE_URL
+        ? [{
+            tag: 'action',
+            actions: [{
+              tag: 'button',
+              text: { tag: 'plain_text', content: '打开多维表格' },
+              url: env.FEISHU_BASE_URL,
+              type: 'primary',
+            }],
+          }]
+        : []),
+    ],
+  });
 
   if (form === 'client') {
     const company = str(payload.name);
@@ -97,6 +124,13 @@ export const POST: APIRoute = async ({ params, request, locals, clientAddress })
     };
     // FR-2：标题含公司名与需求类型
     mailSubject = `New enquiry — ${company} · ${projectTypes.join(' / ')}`;
+    // 需求方线索：判断「哪家公司、要什么、谁联系」→ 蓝色最高优先级
+    card = buildCard('blue', `💼 新线索 · ${company}`, [
+      ['需求类型', projectTypes.join(' / ')],
+      ['国家（自述）', fields.country],
+      ['联系人', `${base.first_name} ${base.last_name}`],
+      ['邮箱', email],
+    ], fields.message ? `**留言**\n${fields.message}` : undefined);
     summary = [
       `[Client enquiry] ${now}`,
       `${company} · ${projectTypes.join(' / ')}`,
@@ -128,6 +162,29 @@ export const POST: APIRoute = async ({ params, request, locals, clientAddress })
       ip_geo: geo,
       submitted_at: now,
     };
+    if (type === 'team') {
+      // 团队申请：判断「哪家、多大规模、覆盖哪、能做什么」→ BD 对接视角
+      card = buildCard('indigo', `🏢 团队申请 · ${fields.company || country}`, [
+        ['团队规模', fields.team_size],
+        ['所在国家', country],
+        ['覆盖区域', fields.regions],
+        ['任务类型', fields.task_types],
+        ['联系人', `${base.first_name} ${base.last_name}`],
+        ['邮箱', email],
+      ]);
+    } else {
+      // 个人执行者：判断「在哪、能做什么、何时可上、怎么联系」→ 派单视角
+      card = buildCard('green', `🧭 执行者申请 · ${country}`, [
+        ['姓名', `${base.first_name} ${base.last_name}`],
+        ['可投入度', fields.availability],
+        ['覆盖区域', fields.regions],
+        ['任务类型', fields.task_types],
+        ['联系渠道', fields.preferred_channel],
+        ['账号 / 电话', [fields.contact_handle, fields.phone].filter(Boolean).join(' · ')],
+        ['邮箱', email],
+        ['推荐人', fields.referral_email],
+      ]);
+    }
     // FR-5：标题含地区与身份类型（v0.2 写"城市"，表单采集维度为 country，见 docs/03 备注）
     mailSubject = `New operator application — ${country} · ${type}`;
     summary = [
@@ -151,15 +208,19 @@ export const POST: APIRoute = async ({ params, request, locals, clientAddress })
     await appendRecord(env, tableId, fields);
   } catch (err) {
     console.error('feishu write failed', err);
-    defer(botAlert(env, `⚠️ 表格写入失败（用户已见失败提示）\n${summary}\n${String(err)}`));
+    defer(botCard(env, buildCard('red', '⚠️ 表格写入失败（用户已见失败提示）', [
+      ['表单', form === 'client' ? '需求方' : '执行者'],
+      ['联系人', `${base.first_name} ${base.last_name}`],
+      ['邮箱', email],
+      ['错误', String(err).slice(0, 120)],
+    ], `**原始内容（供人工补录）**\n${summary}`)));
     return json(502, { error: 'storage_failed' });
   }
 
   // 通知（邮件 + 群机器人）：失败互为告警，不阻断响应
-  const baseLink = env.FEISHU_BASE_URL ? `\n${env.FEISHU_BASE_URL}` : '';
   const notify = (async () => {
     try {
-      await botAlert(env, summary + baseLink);
+      await botCard(env, card);
     } catch (err) {
       console.error('feishu bot failed', err);
     }
