@@ -9,5 +9,7 @@ export default defineConfig({
   // 静态页照旧预渲染；仅 /api/forms/*（prerender=false）走 Worker（docs/03）
   adapter: cloudflare(),
   // 站点为英文单语（v0.2 需求：面向海外用户，全英文）
-  integrations: [sitemap()],
+  // sitemap 带 lastmod（取构建时间：CI 为 git-first，push 即构建，约等于内容更新时刻）
+  // 仅加 lastmod——Google 明确忽略 priority/changefreq，加了是噪音
+  integrations: [sitemap({ lastmod: new Date() })],
 });
